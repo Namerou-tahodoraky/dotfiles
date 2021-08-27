@@ -1,0 +1,232 @@
+set hidden
+if has('nvim')
+  command! -nargs=* Ts split | terminal <args>
+  command! -nargs=* Tv vsplit | terminal <args>
+endif
+tnoremap <A-h> <C-\><C-N><C-w>h
+tnoremap <A-j> <C-\><C-N><C-w>j
+tnoremap <A-k> <C-\><C-N><C-w>k
+tnoremap <A-l> <C-\><C-N><C-w>l
+inoremap <A-h> <C-\><C-N><C-w>h
+inoremap <A-j> <C-\><C-N><C-w>j
+inoremap <A-k> <C-\><C-N><C-w>k
+inoremap <A-l> <C-\><C-N><C-w>l
+nnoremap <A-h> <C-w>h
+nnoremap <A-j> <C-w>j
+nnoremap <A-k> <C-w>k
+nnoremap <A-l> <C-w>l
+
+" ターミナルウィンドウに移動したら自動的にターミナルノーマルモードにする
+if has('nvim')
+  " Neovim 用
+   autocmd WinEnter * if &buftype ==# 'terminal' | startinsert | endif
+else
+  " Vim 用
+  autocmd WinEnter * if &buftype ==# 'terminal' | normal i | endif 
+endif
+
+
+
+""dein Scripts-----------------------------
+if &compatible
+  set nocompatible
+endif
+
+"# dein.vimインストール時に指定したディレクトリをセット
+let s:dein_dir = expand('~/.cache/dein')
+
+"# dein.vimの実体があるディレクトリをセット
+let s:dein_repo_dir = s:dein_dir . '/repos/github.com/Shougo/dein.vim'
+
+"dein.vimが存在していない場合はgithubからclone
+if &runtimepath !~# '/dein.vim'
+  if !isdirectory(s:dein_repo_dir)
+    execute '!git clone https://github.com/Shougo/dein.vim' s:dein_repo_dir
+  endif
+  execute 'set runtimepath^=' . fnamemodify(s:dein_repo_dir, ':p')
+endif
+
+if dein#load_state(s:dein_dir)
+  call dein#begin(s:dein_dir)
+  
+  "# dein.toml, dein_layz.tomlファイルのディレクトリをセット
+  let s:toml_dir = expand('~/.config/nvim/dein')
+  
+  "# 起動時に読み込むプラグイン群
+  call dein#load_toml(s:toml_dir . '/dein.toml', {'lazy': 0})
+  
+  "# 遅延読み込みしたいプラグイン群
+  call dein#load_toml(s:toml_dir .  '/dein_lazy.toml', {'lazy': 1})
+  
+  call dein#end()
+  call dein#save_state()
+endif
+
+filetype plugin indent on
+syntax enable
+
+" If you want to install not installed plugins on startup.
+if dein#check_install()
+  call dein#install()
+endif
+""End dein Scripts-------------------------
+
+
+"" vim-lspの各種オプション設定
+"let g:lsp_signs_enabled = 1
+"let g:lsp_diagnostics_enabled = 1
+"let g:lsp_diagnostics_echo_cursor = 1
+"let g:lsp_virtual_text_enabled = 1
+"let g:lsp_signs_error = {'text': '✗'}
+"let g:lsp_signs_warning = {'text': '‼'}
+"let g:lsp_signs_information = {'text': 'i'}
+"let g:lsp_signs_hint = {'text': '?'}
+
+"if (executable('pyls'))
+"  " pylsの起動定義
+"  augroup LspPython
+"  autocmd!
+"  autocmd User lsp_setup call lsp#register_server({
+"    \ 'name': 'pyls',
+"    \ 'cmd': { server_info -> ['pyls'] },
+"    \ 'whitelist': ['python'],
+"    \})
+"  augroup END
+"endif
+
+""
+""定義ジャンプ(デフォルトのctagsによるジャンプを上書きしているのでこのあたりは好みが別れます)
+"nnoremap <C-]> :<C-u>LspDefinition<CR>
+""
+""定義情報のホバー表示
+"nnoremap K :<C-u>LspHover<CR>
+""
+""名前変更
+"nnoremap <LocalLeader>R :<C-u>LspRename<CR>
+""
+""参照検索
+"nnoremap <LocalLeader>n :<C-u>LspReferences<CR>
+""
+""Lint結果をQuickFixで表示
+"nnoremap <LocalLeader>f :<C-u>LspDocumentDiagnostics<CR>
+""
+""テキスト整形
+"nnoremap <LocalLeader>s :<C-u>LspDocumentFormat<CR>
+""
+""オムニ補完を利用する場合、定義の追加
+"set omnifunc=lsp#complete
+"
+""lsp用フォーマッター
+"augroup LspAutoFormatting
+"  autocmd!
+"  autocmd BufWritePre *.py LspDocumentFormatSync
+"augroup END
+
+
+"" pylsの設定。LinterのON/OFFなどが可能
+"let s:pyls_config = {'pyls': {'plugins': {
+"  \   'pycodestyle': {'enabled': v:true},
+"  \   'pydocstyle': {'enabled': v:false},
+"  \   'pylint': {'enabled': v:false},
+"  \   'pyflakes': {'enabled': v:true},
+"  \   'flake8': {'enabled': v:true},
+"  \   'jedi_definition': {
+"  \     'follow_imports': v:true,
+"  \     'follow_builtin_imports': v:true,
+"  \   },
+"  \   'pyls_mypy': {
+"  \     'enabled': 1,
+"  \     'live_mode': 1,
+"  \   },
+"  \ }}}
+"" pylsの起動定義
+"augroup LspPython
+"  autocmd!
+"  autocmd User lsp_setup call lsp#register_server({
+"    \ 'name': 'pyls',
+"    \ 'cmd': { server_info -> ['pyls'] },
+"    \ 'whitelist': ['python'],
+"    \ 'workspace_config': s:pyls_config
+"    \})
+"augroup END
+"
+"
+"" Pipfile自動探索
+"function! s:findRoot(target)
+"let dir = getcwd()
+"  while 1
+"    let files = split(globpath(l:dir, '*'), '\n')
+"    for f in l:files
+"      if a:target == fnamemodify(f, ':t')
+"        return l:dir
+"      endif
+"    endfor
+"    if l:dir == "/"
+"      break
+"    endif
+"    let dir = fnamemodify(l:dir, ':h')
+"  endwhile
+"  return ""
+"endfunction
+"
+"" Pipfileのあるディレクトリの.venvからライブラリ読み込み
+"function! s:setVenv()
+"  let dir = s:findRoot('Pipfile')
+"  echo l:dir
+"  if dir != ""
+"    let $VIRTUAL_ENV = trim(system("cd " . l:dir . "; pipenv --venv"))
+"  endif
+"endfunction
+"autocmd FileType python call s:setVenv()
+
+"let g:lsp_log_verbose = 1
+"let g:lsp_log_file = expand('~/vim-lsp.log')
+
+"let g:vista_sidebar_width = 40
+"let g:vista_echo_cursor = 0
+"
+"" デフォルトの情報ソースをctagsにする
+"let g:vista_default_executive = 'ctags'
+"" 特定の言語の場合vim-lspを利用した情報ソースを利用するようにする
+"let g:vista_executive_for = {
+"  \ 'python': 'vim_lsp',
+"  \ }
+"
+"" トグル(アウトラインを非表示の場合は表示、表示済みの場合は非表示に)
+"nnoremap <silent> <Leader>o :<C-u>Vista!!<CR>
+"
+"let g:lightline = {
+"    \ 'active': {
+"    \   'left':  [ ['mode', 'paste'], ['readonly', 'myfilename', 'method', 'modified'], ],
+"    \   'right': [ [ 'lineinfo' ], [ 'percent' ], ['char_code', 'fileformat', 'fileencoding', 'filetype' ], ],
+"    \ },
+"    \ 'component_function': {
+"    \   'myfilename': 'LightlineFilename',
+"    \   'method': 'NearestMethodOrFunction',
+"    \ },
+"    \ 'separator': { 'left': "\ue0b0", 'right': "\ue0b2" },
+"    \ 'subseparator': { 'left': "\ue0b1", 'right': "\ue0b3" },
+"    \ }
+"
+"function! LightlineFilename()
+"  let l:p = expand('%:t')
+"  if '' !=# l:p
+"    return l:p
+"  endif
+"  return '[No Name]'
+"endfunction
+"
+"function! NearestMethodOrFunction() abort
+"  let l:func_name = get(b:, 'vista_nearest_method_or_function', '')
+"  if l:func_name != ''
+"    return '| ' . l:func_name
+"  endif
+"  return ''
+"endfunction
+"
+"augroup LightLineOnVista
+"  autocmd!
+"  autocmd VimEnter * call vista#RunForNearestMethodOrFunction()
+"augroup END
+"
+"inoremap <ESC> <ESC>:set iminsert=0<CR>

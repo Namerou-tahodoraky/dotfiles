@@ -1,0 +1,89 @@
+[[plugins]]
+repo = 'Shougo/dein.vim'
+
+[[plugins]]
+repo = 'itchyny/lightline.vim'
+
+[[plugins]]
+repo = 'airblade/vim-gitgutter'
+
+[[plugins]]
+repo = 'tpope/vim-fugitive'
+
+[[plugins]]
+# 文字検索時マッチング個数と何番目かを表示するプラグイン
+repo = 'osyo-manga/vim-anzu'
+hook_add = '''
+nmap n <Plug>(anzu-n-with-echo)
+nmap N <Plug>(anzu-N-with-echo)
+nmap * <Plug>(anzu-star-with-echo)
+nmap # <Plug>(anzu-sharp-with-echo)
+'''
+#nmap <Esc><Esc> <Plug>(anzu-clear-search-status)#効かない？
+
+[[plugins]]
+# 多形式対応のシンタックスハイライト
+repo = 'sheerun/vim-polyglot'
+
+[[plugins]]
+# インデントの可視化
+repo = 'Yggdroot/indentLine'
+
+[[plugins]]
+# 行末空白の可視化
+repo = 'bronson/vim-trailing-whitespace'
+
+[[plugins]]
+# 画面スクロール過程を可視化
+repo = 'yuttie/comfortable-motion.vim'
+
+[[plugins]]
+# ウィンドウサイズ変更の簡易化
+repo = 'simeji/winresizer'
+hook_add = '''
+let g:winresizer_vert_resize = 2
+let g:winresizer_horiz_resize = 1
+'''
+
+[[plugins]]
+# ウィンドウのひとつを最大化
+# 動くけどエラーがたくさんでる.NeoVim未対応？
+repo = 'vim-scripts/ZoomWin'
+
+[[plugins]]
+# チートシート表示
+repo = 'reireias/vim-cheatsheet'
+hook_add = '''
+let g:cheatsheet#cheat_file = '~/.cheetsheets/sample.md'
+let g:cheatsheet#float_window = 1
+" you can change float window size.
+let g:cheatsheet#float_window_width_ratio = 0.6
+let g:cheatsheet#float_window_height_ratio = 0.6
+'''
+#augroup vimrc_filetype
+#  autocmd!
+#  autocmd FileType zsh let g:cheatsheet#cheat_file = '~/.cheatsheet-zsh.md'
+#augroup END
+
+[[plugins]]
+# 区切り文字で整形
+repo = 'junegunn/vim-easy-align'
+hook_add = '''
+xmap ga <Plug>(EasyAlign)
+nmap ga <Plug>(EasyAlign)))
+'''
+
+[[plugins]]
+# visual選択の簡易化
+repo = 'terryma/vim-expand-region'
+#hook_add = '''
+#xmap ga <Plug>(EasyAlign)
+#nmap ga <Plug>(EasyAlign)))
+#'''
+
+[[plugins]]
+# ファイルツリー
+repo = 'lambdalisue/fern.vim'
+hook_add = '''
+nnoremap <C-n> :Fern . -reveal=% -drawer -toggle -width=40<CR>
+'''

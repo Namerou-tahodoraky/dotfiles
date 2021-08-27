@@ -1,0 +1,76 @@
+[[plugins]]
+repo = 'prabirshrestha/asyncomplete.vim'
+on_ft = ['python']
+
+[[plugins]]
+repo = 'prabirshrestha/async.vim'
+on_ft = ['python']
+
+[[plugins]]
+repo = 'prabirshrestha/vim-lsp'
+on_ft = ['python']
+depends = ['async.vim']
+
+#[[plugins]]
+#repo = 'mattn/vim-lsp-settings'
+#on_ft = ['python']
+#depends = ['vim_lsp']
+
+[[plugins]]
+repo = 'ryanolsonx/vim-lsp-python'
+on_ft = ['python']
+depends = ['vim-lsp']
+
+[[plugins]]
+repo = 'prabirshrestha/asyncomplete-lsp.vim'
+on_ft = ['python']
+
+[[plugins]]
+repo = 'liuchengxu/vista.vim'
+on_ft = ['python']
+
+[[plugins]]
+repo = 'mattn/vim-lsp-icons'
+on_ft = ['python']
+
+[[plugins]]
+repo = 'Vimjas/vim-python-pep8-indent'
+on_ft = 'python'
+
+[[plugins]]
+repo = 'lambdalisue/fern-git-status.vim'
+depends = ['fern.vim']
+hook_add = '''
+let g:fern_git_status#disable_ignored = 1
+
+let g:fern_git_status#disable_untracked = 1
+
+let g:fern_git_status#disable_submodules = 1
+
+let g:fern_git_status#disable_directories = 1
+'''
+# hook_add = '''
+# #" Disable listing ignored files/directories
+# let g:fern_git_status#disable_ignored = 1
+# 
+# #" Disable listing untracked files
+# let g:fern_git_status#disable_untracked = 1
+# 
+# #" Disable listing status of submodules
+# let g:fern_git_status#disable_submodules = 1
+# 
+# #" Disable listing status of directories
+# let g:fern_git_status#disable_directories = 1
+# '''
+
+[[plugins]]
+repo = 'heavenshell/vim-pydocstring'
+on_ft = ['python']
+hook_add = '''
+let g:pydocstring_doq_path = expand('~/.pyenv/shims/doq')
+let g:pydocstring_templates_path = expand('~/.config/nvim/vim-pydocstring/templates/')
+nmap <silent> <C-_> <Plug>(pydocstring)
+'''
+# let g:pydocstring_doq_path = '/home/kazu-0918/.pyenv/shims/doq'
+# let g:pydocstring_formatter = 'numpy'
+# let g:pydocstring_templates_path = '/home/kazu-0918/.config/nvim/vim-pydocstring/templates/'
