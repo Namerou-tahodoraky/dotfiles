@@ -88,9 +88,9 @@ repo = 'vim-denops/denops.vim'
  call ddc#custom#patch_global('sources', ['nvim-lsp', 'around', 'file', 'vsnip'])
  call ddc#custom#patch_global('sourceOptions', {
       \ '_': {
-      \ 'matchers': ['matcher_head'],
-      \ 'sorters': ['sorter_rank'],
-      \ 'converters': ['converter_remove_overlap'],
+      \ 'matchers': ['matcher_fuzzy'],
+      \ 'sorters': ['sorter_fuzzy'],
+      \ 'converters': ['converter_fuzzy'],
       \ },
       \ 'around': {'mark': 'A'},
       \ 'nvim-lsp': {
@@ -112,6 +112,9 @@ repo = 'vim-denops/denops.vim'
  call ddc#enable()
 '''
 
+[[plugins]]
+ repo = 'tani/ddc-fuzzy'
+ on_source = 'ddc.vim'
 
 [[plugins]]
  repo = 'Shougo/ddc-around'
@@ -122,17 +125,6 @@ repo = 'vim-denops/denops.vim'
  repo = 'LumaKernel/ddc-file'
  on_source = 'ddc.vim'
 
-[[plugins]]
- repo = 'Shougo/ddc-matcher_head'
- on_source = 'ddc.vim'
-
-[[plugins]]
- repo = 'Shougo/ddc-sorter_rank'
- on_source = 'ddc.vim'
-
-[[plugins]]
- repo = 'Shougo/ddc-converter_remove_overlap'
- on_source = 'ddc.vim'
 
 # # ポップアップウィンドウを表示するプラグイン
 # [[plugins]]
