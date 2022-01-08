@@ -1,3 +1,19 @@
+[[plugins]]
+repo = 'nvim-treesitter/nvim-treesitter'
+if = 'has("nvim")'
+on_event = 'BufRead'
+hook_post_update = 'TSUpdate'
+hook_source = '''
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+    ensure_installed = 'all',
+    highlight = {
+        enable = true,
+        disable = {},
+    },
+}
+EOF
+
 # [[plugins]]
 # repo = 'prabirshrestha/asyncomplete.vim'
 # on_ft = ['python']
