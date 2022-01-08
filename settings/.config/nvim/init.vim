@@ -118,27 +118,13 @@ if dein#load_state(s:dein_dir)
   
   "# 遅延読み込みしたいプラグイン群
   call dein#load_toml(s:toml_dir .  '/dein_lazy.toml', {'lazy': 1})
-  
-  call dein#add('nvim-treesitter/nvim-treesitter', {'hook_post_update': 'TSUpdate'})
-  call dein#add('altercation/vim-colors-solarized')
 
   call dein#end()
   call dein#save_state()
 endif
 
-lua <<EOF
-require'nvim-treesitter.configs'.setup {
-  ensure_installed = "maintained",
-  highlight = {
-    enable = true,
-    disable = {},
-  },
-}
-EOF
-
+" colorschemeを読み込んだ後に定義する
 syntax enable
-set background=dark
-colorscheme solarized
 
 
 
