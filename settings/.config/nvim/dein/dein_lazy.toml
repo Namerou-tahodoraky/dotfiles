@@ -85,16 +85,17 @@ repo = 'vim-denops/denops.vim'
  on_event = 'InsertEnter'
  depends = ['denops.vim']
  hook_source = '''
- call ddc#custom#patch_global('sources', ['nvim-lsp', 'around', 'file', 'vsnip'])
+ call ddc#custom#patch_global('sources', ['vim-lsp', 'around', 'file', 'vsnip'])
  call ddc#custom#patch_global('sourceOptions', {
       \ '_': {
       \ 'matchers': ['matcher_fuzzy'],
       \ 'sorters': ['sorter_fuzzy'],
       \ 'converters': ['converter_fuzzy'],
       \ },
-      \ 'around': {'mark': 'A'},
-      \ 'nvim-lsp': {
-      \ 'mark': 'L',
+      \ 'around': {'mark': 'AROUND'},
+      \ 'file': {'mark': 'FILE'},
+      \ 'vim-lsp': {
+      \ 'mark': 'LSP',
       \ 'forceCompletionPattern': '\.\w*|:\w*|->\w*',
       \ },
       \ })
@@ -125,6 +126,22 @@ repo = 'vim-denops/denops.vim'
  repo = 'LumaKernel/ddc-file'
  on_source = 'ddc.vim'
 
+# LSPの補完と連携するsource(vim/neovim両対応)
+[[plugins]]
+ repo = 'shun/ddc-vim-lsp'
+ on_source = 'ddc.vim'
+ depends = 'vim-lsp'
+
+[[plugins]]
+ repo = 'prabirshrestha/vim-lsp'
+ on_ft = ['python']
+ # on_func = 'lsp#enable'
+ depends = 'ddc.vim'
+
+[[plugins]]
+ repo = 'mattn/vim-lsp-settings'
+ on_ft = ['python']
+ on_source = 'vim_lsp'
 
 # # ポップアップウィンドウを表示するプラグイン
 # [[plugins]]
