@@ -119,10 +119,16 @@ if dein#load_state(s:dein_dir)
   "# 遅延読み込みしたいプラグイン群
   call dein#load_toml(s:toml_dir .  '/dein_lazy.toml', {'lazy': 1})
 
+   call dein#add('altercation/vim-colors-solarized')
+
   call dein#end()
   call dein#save_state()
 endif
 
+" solarized読み込み.
+" tomlに書くとキャッシュが変更される度に壊れてうまくいかないのでこちらに書く.
+set background=dark
+colorscheme solarized
 " colorschemeを読み込んだ後に定義する
 syntax enable
 
