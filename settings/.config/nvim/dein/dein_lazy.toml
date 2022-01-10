@@ -15,35 +15,144 @@ require'nvim-treesitter.configs'.setup {
 EOF
 '''
 
-# [[plugins]] # カラースキーマ
-# repo = 'altercation/vim-colors-solarized'
-# hook_add = '''
-#   set background=dark
-#   " colorscheme 設定は source 後に行う必要があるので VimEnter で行う。
-#   " 但し Colorscheme イベントの発生が抑制されないよう nented を付ける。
-#   augroup colorschemeSetting
-#     autocmd!
-#     autocmd VimEnter * ++nested colorscheme solarized
-#   augroup END
-# '''
+
+
+# DenoでVimプラグインを開発するためのプラグイン
+[[plugins]]
+repo = 'vim-denops/denops.vim'
+
+[[plugins]]
+ repo = 'Shougo/ddc.vim'
+ on_event = 'InsertEnter'
+ depends = ['denops.vim']
+ hook_source = '''
+ call ddc#custom#patch_global('completionMenu', 'pum.vim')
+ call ddc#custom#patch_global('sources', ['nvim-lsp', 'around', 'file'])
+ call ddc#custom#patch_global('sourceOptions', {
+      \ '_': {
+      \   'matchers': ['matcher_fuzzy'],
+      \   'sorters': ['sorter_fuzzy'],
+      \   'converters': ['converter_fuzzy'],
+      \ },
+      \ 'around': {'mark': 'AROUND'},
+      \ 'file': {'mark': 'FILE'},
+      \ 'nvim-lsp': {
+      \   'mark': 'LSP',
+      \   'forceCompletionPattern': '\.\w*|:\w*|->\w*',
+      \ },
+      \ })
+
+ call ddc#custom#patch_global('sourceParams', {
+      \ 'around': {'maxSize': 500},
+      \ })
+
+ call ddc#enable()
+'''
+
+[[plugins]]
+ repo = 'neovim/nvim-lspconfig'
+ on_event = 'BufEnter'
+ hook_source = '''
+ lua << EOF
+ local nvim_lsp = require('lspconfig')
+ local on_attach = function (client, bufnr)
+ local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+ local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+
+ local opts = { noremap=true, silent=true }
+   buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
+   buf_set_keymap('n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
+   buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+   buf_set_keymap('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+   buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+   buf_set_keymap('n', 'gx', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
+   buf_set_keymap('n', 'g[', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+   buf_set_keymap('n', 'g]', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+ end
+
+ local lsp_installer = require("nvim-lsp-installer")
+ lsp_installer.on_server_ready(function(server)
+   local opts = {}
+   opts.on_attach = on_attach
+   server:setup(opts)
+   vim.cmd [[ do User LspAttachBuffers ]]
+ end)
+EOF
+'''
+
+[[plugins]]
+ repo ='williamboman/nvim-lsp-installer'
+ on_source = 'nvim-lspconfig'
+
+[[plugins]]
+ repo = 'Shougo/ddc-nvim-lsp'
+ on_source = 'ddc.vim'
+
+
+[[plugins]]
+ repo = 'matsui54/denops-popup-preview.vim'
+ on_source = 'ddc.vim'
+ depends = ['denops.vim']
+ hook_source = '''
+ call popup_preview#enable()
+ '''
+
+[[plugins]]
+ repo = 'ray-x/lsp_signature.nvim'
+ depends = ['vim-lsp']
+ hook_source = '''
+ lua require("lsp_signature").setup()
+ '''
+
+
+[[plugins]]
+ repo = 'tani/ddc-fuzzy'
+ on_source = 'ddc.vim'
+
+[[plugins]]
+ repo = 'Shougo/ddc-around'
+ on_source = 'ddc.vim'
+
+# ファイル名を補完するsource
+[[plugins]]
+ repo = 'LumaKernel/ddc-file'
+ on_source = 'ddc.vim'
+
+# ポップアップウィンドウを表示するプラグイン
+[[plugins]]
+ repo = 'Shougo/pum.vim'
+ on_source = 'ddc.vim'
+ hook_add = '''
+ " inoremap <silent><expr> <TAB>
+ "       \ pum#visible() ? '<Cmd>call pum#map#insert_relative(+1)<CR>' :
+ "       \ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
+ "       \ '<TAB>' : ddc#manual_complete()
+ inoremap <Tab> <Cmd>call pum#map#insert_relative(+1)<CR>
+ inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
+ inoremap <C-n>   <Cmd>call pum#map#insert_relative(+1)<CR>
+ inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
+ '''
 
 # [[plugins]]
-# repo = 'ryanolsonx/vim-lsp-python'
-# on_ft = ['python']
-# depends = ['vim-lsp']
+#  repo = 'hrsh7th/vim-vsnip'
+#  on_event = 'InsertEnter'
+#  depends = ['vim-vsnip-integ', 'friendly-snippets']
+#  hook_add = '''
+#  imap <expr> <C-j> vsnip#expandable() ? '<Plug>(vsnip-expand)' : '<C-j>'
+#  smap <expr> <C-j> vsnip#expandable() ? '<Plug>(vsnip-expand)' : '<C-j>'
+#  imap <expr> <C-f> vsnip#jumpable(1)  ? '<Plug>(vsnip-jump-next)' : '<C-f>'
+#  smap <expr> <C-f> vsnip#jumpable(1)  ? '<Plug>(vsnip-jump-next)' : '<C-f>'
+#  imap <expr> <C-b> vsnip#jumpable(-1) ? '<Plug>(vsnip-jump-prev)' : '<C-b>'
+#  smap <expr> <C-b> vsnip#jumpable(-1) ? '<Plug>(vsnip-jump-prev)' : '<C-b>'
+#  let g:vsnip_filetypes = {}
+#  '''
 
 # [[plugins]]
-# repo = 'liuchengxu/vista.vim'
-# on_ft = ['python']
+#  repo = 'hrsh7th/vim-vsnip-integ'
 # 
 # [[plugins]]
-# repo = 'mattn/vim-lsp-icons'
-# on_ft = ['python']
-# 
-# [[plugins]]
-# repo = 'Vimjas/vim-python-pep8-indent'
-# on_ft = 'python'
-# 
+#  repo = 'rafamadriz/friendly-snippets'
+
 # [[plugins]]
 # repo = 'lambdalisue/fern-git-status.vim'
 # depends = ['fern.vim']
@@ -82,125 +191,33 @@ EOF
 # # let g:pydocstring_formatter = 'numpy'
 # # let g:pydocstring_templates_path = '/home/kazu-0918/.config/nvim/vim-pydocstring/templates/'
 
-
-# DenoでVimプラグインを開発するためのプラグイン
-[[plugins]]
-repo = 'vim-denops/denops.vim'
-
-[[plugins]]
- repo = 'Shougo/ddc.vim'
- on_event = 'InsertEnter'
- depends = ['denops.vim']
- hook_source = '''
- call ddc#custom#patch_global('completionMenu', 'pum.vim')
- call ddc#custom#patch_global('sources', ['vim-lsp', 'around', 'file', 'vsnip'])
- call ddc#custom#patch_global('sourceOptions', {
-      \ '_': {
-      \ 'matchers': ['matcher_fuzzy'],
-      \ 'sorters': ['sorter_fuzzy'],
-      \ 'converters': ['converter_fuzzy'],
-      \ },
-      \ 'around': {'mark': 'AROUND'},
-      \ 'file': {'mark': 'FILE'},
-      \ 'vim-lsp': {
-      \ 'mark': 'LSP',
-      \ 'forceCompletionPattern': '\.\w*|:\w*|->\w*',
-      \ },
-      \ })
-
- call ddc#custom#patch_global('sourceParams', {
-      \ 'around': {'maxSize': 500},
-      \ })
-
- " inoremap <silent><expr> <TAB>
- "      \ ddc#map#pum_visible() ? '<C-n>' :
- "      \ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
- "      \ '<TAB>' : ddc#map#manual_complete()
- " inoremap <expr><S-TAB>  ddc#map#pum_visible() ? '<C-p>' : '<C-h>'
-
- call ddc#enable()
-'''
-
-[[plugins]]
- repo = 'matsui54/denops-popup-preview.vim'
- on_source = 'ddc.vim'
- # depends = ['denops.vim']
- hook_source = '''
- call popup_preview#enable()
- '''
-
-[[plugins]]
- repo = 'ray-x/lsp_signature.nvim'
- depends = ['vim-lsp']
- hook_source = '''
- lua require("lsp_signature").setup()
- '''
-
-
-[[plugins]]
- repo = 'tani/ddc-fuzzy'
- on_source = 'ddc.vim'
-
-[[plugins]]
- repo = 'Shougo/ddc-around'
- on_source = 'ddc.vim'
-
-# ファイル名を補完するsource
-[[plugins]]
- repo = 'LumaKernel/ddc-file'
- on_source = 'ddc.vim'
-
-# LSPの補完と連携するsource(vim/neovim両対応)
-[[plugins]]
- repo = 'shun/ddc-vim-lsp'
- on_source = 'ddc.vim'
- depends = 'vim-lsp'
-
-[[plugins]]
- repo = 'prabirshrestha/vim-lsp'
- on_ft = ['python']
- # on_func = 'lsp#enable'
- depends = 'ddc.vim'
-
-[[plugins]]
- repo = 'mattn/vim-lsp-settings'
- on_ft = ['python']
- on_source = 'vim_lsp'
-
-# ポップアップウィンドウを表示するプラグイン
-[[plugins]]
- repo = 'Shougo/pum.vim'
- on_source = 'ddc.vim'
- hook_add = '''
- inoremap <silent><expr> <TAB>
-       \ pum#visible() ? '<Cmd>call pum#map#insert_relative(+1)<CR>' :
-       \ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
-       \ '<TAB>' : ddc#manual_complete()
- inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
- inoremap <C-n>   <Cmd>call pum#map#insert_relative(+1)<CR>
- inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
- '''
-
 # [[plugins]]
-#  repo = 'Shougo/ddc-nvim-lsp'
-#  on_source = 'ddc.vim'
-
-# [[plugins]]
-#  repo = 'hrsh7th/vim-vsnip'
-#  on_event = 'InsertEnter'
-#  depends = ['vim-vsnip-integ', 'friendly-snippets']
+#  repo = 'mattn/vim-lsp-settings'
+#  on_ft = ['python']
+#  on_source = 'vim_lsp'
 #  hook_add = '''
-#  imap <expr> <C-j> vsnip#expandable() ? '<Plug>(vsnip-expand)' : '<C-j>'
-#  smap <expr> <C-j> vsnip#expandable() ? '<Plug>(vsnip-expand)' : '<C-j>'
-#  imap <expr> <C-f> vsnip#jumpable(1)  ? '<Plug>(vsnip-jump-next)' : '<C-f>'
-#  smap <expr> <C-f> vsnip#jumpable(1)  ? '<Plug>(vsnip-jump-next)' : '<C-f>'
-#  imap <expr> <C-b> vsnip#jumpable(-1) ? '<Plug>(vsnip-jump-prev)' : '<C-b>'
-#  smap <expr> <C-b> vsnip#jumpable(-1) ? '<Plug>(vsnip-jump-prev)' : '<C-b>'
-#  let g:vsnip_filetypes = {}
+#    " Hide signcolumn.
+#    let g:lsp_diagnostics_signs_enabled = 0
+#    " Show diagnostics message to status line
+#    let g:lsp_diagnostics_echo_cursor = 1
+#    " Enable flake8 and mypy
+#    let g:lsp_settings = {
+#    \  'pylsp-all': {
+#    \    'workspace_config': {
+#    \      'pylsp': {
+#    \        'configurationSources': [],
+#    \      }
+#    \    }
+#    \  }
+#    \}
+#   let g:lsp_text_edit_enabled = 1
+#   let g:lsp_virtual_text_enabled = 1
+#   let g:lsp_diagnostics_highlights_enabled = 0
+#   let g:lsp_diagnostics_enabled = 1
 #  '''
+# #    \        'plugins': {
+# #    \          'pylsp_mypy': {
+# #    \            'enabled': 1
+# #    \          }
+# #    \        }
 
-# [[plugins]]
-#  repo = 'hrsh7th/vim-vsnip-integ'
-# 
-# [[plugins]]
-#  repo = 'rafamadriz/friendly-snippets'
