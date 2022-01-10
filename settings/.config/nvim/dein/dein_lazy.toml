@@ -15,45 +15,23 @@ require'nvim-treesitter.configs'.setup {
 EOF
 '''
 
-[[plugins]] # カラースキーマ
-repo = 'altercation/vim-colors-solarized'
-hook_add = '''
-  set background=dark
-  " colorscheme 設定は source 後に行う必要があるので VimEnter で行う。
-  " 但し Colorscheme イベントの発生が抑制されないよう nented を付ける。
-  augroup colorschemeSetting
-    autocmd!
-    autocmd VimEnter * ++nested colorscheme solarized
-  augroup END
-'''
+# [[plugins]] # カラースキーマ
+# repo = 'altercation/vim-colors-solarized'
+# hook_add = '''
+#   set background=dark
+#   " colorscheme 設定は source 後に行う必要があるので VimEnter で行う。
+#   " 但し Colorscheme イベントの発生が抑制されないよう nented を付ける。
+#   augroup colorschemeSetting
+#     autocmd!
+#     autocmd VimEnter * ++nested colorscheme solarized
+#   augroup END
+# '''
 
-# [[plugins]]
-# repo = 'prabirshrestha/asyncomplete.vim'
-# on_ft = ['python']
-# 
-# [[plugins]]
-# repo = 'prabirshrestha/async.vim'
-# on_ft = ['python']
-# 
-# [[plugins]]
-# repo = 'prabirshrestha/vim-lsp'
-# on_ft = ['python']
-# depends = ['async.vim']
-# 
-# #[[plugins]]
-# #repo = 'mattn/vim-lsp-settings'
-# #on_ft = ['python']
-# #depends = ['vim_lsp']
-# 
 # [[plugins]]
 # repo = 'ryanolsonx/vim-lsp-python'
 # on_ft = ['python']
 # depends = ['vim-lsp']
-# 
-# [[plugins]]
-# repo = 'prabirshrestha/asyncomplete-lsp.vim'
-# on_ft = ['python']
-# 
+
 # [[plugins]]
 # repo = 'liuchengxu/vista.vim'
 # on_ft = ['python']
@@ -114,6 +92,7 @@ repo = 'vim-denops/denops.vim'
  on_event = 'InsertEnter'
  depends = ['denops.vim']
  hook_source = '''
+ call ddc#custom#patch_global('completionMenu', 'pum.vim')
  call ddc#custom#patch_global('sources', ['vim-lsp', 'around', 'file', 'vsnip'])
  call ddc#custom#patch_global('sourceOptions', {
       \ '_': {
@@ -133,14 +112,30 @@ repo = 'vim-denops/denops.vim'
       \ 'around': {'maxSize': 500},
       \ })
 
- inoremap <silent><expr> <TAB>
-      \ ddc#map#pum_visible() ? '<C-n>' :
-      \ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
-      \ '<TAB>' : ddc#map#manual_complete()
- inoremap <expr><S-TAB>  ddc#map#pum_visible() ? '<C-p>' : '<C-h>'
+ " inoremap <silent><expr> <TAB>
+ "      \ ddc#map#pum_visible() ? '<C-n>' :
+ "      \ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
+ "      \ '<TAB>' : ddc#map#manual_complete()
+ " inoremap <expr><S-TAB>  ddc#map#pum_visible() ? '<C-p>' : '<C-h>'
 
  call ddc#enable()
 '''
+
+[[plugins]]
+ repo = 'matsui54/denops-popup-preview.vim'
+ on_source = 'ddc.vim'
+ # depends = ['denops.vim']
+ hook_source = '''
+ call popup_preview#enable()
+ '''
+
+[[plugins]]
+ repo = 'ray-x/lsp_signature.nvim'
+ depends = ['vim-lsp']
+ hook_source = '''
+ lua require("lsp_signature").setup()
+ '''
+
 
 [[plugins]]
  repo = 'tani/ddc-fuzzy'
@@ -172,10 +167,19 @@ repo = 'vim-denops/denops.vim'
  on_ft = ['python']
  on_source = 'vim_lsp'
 
-# # ポップアップウィンドウを表示するプラグイン
-# [[plugins]]
-#  repo = 'Shougo/pum.vim'
-#  on_source = 'ddc.vim'
+# ポップアップウィンドウを表示するプラグイン
+[[plugins]]
+ repo = 'Shougo/pum.vim'
+ on_source = 'ddc.vim'
+ hook_add = '''
+ inoremap <silent><expr> <TAB>
+       \ pum#visible() ? '<Cmd>call pum#map#insert_relative(+1)<CR>' :
+       \ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
+       \ '<TAB>' : ddc#manual_complete()
+ inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
+ inoremap <C-n>   <Cmd>call pum#map#insert_relative(+1)<CR>
+ inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
+ '''
 
 # [[plugins]]
 #  repo = 'Shougo/ddc-nvim-lsp'
