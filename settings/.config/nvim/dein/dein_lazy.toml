@@ -15,19 +15,19 @@ require'nvim-treesitter.configs'.setup {
 EOF
 '''
 
-
-
-# DenoでVimプラグインを開発するためのプラグイン
+# Deno依存のプラグインを動作させる
 [[plugins]]
 repo = 'vim-denops/denops.vim'
 
+# 入力に対応して様々な補完候補を集約してポップアップする.
+# 補完候補を生成するのはsource用プラグインの役割. 
 [[plugins]]
  repo = 'Shougo/ddc.vim'
  on_event = 'InsertEnter'
  depends = ['denops.vim']
  hook_source = '''
  call ddc#custom#patch_global('completionMenu', 'pum.vim')
- call ddc#custom#patch_global('sources', ['nvim-lsp', 'around', 'file'])
+ call ddc#custom#patch_global('sources', ['nvim-lsp', 'vsnip', 'around', 'file'])
  call ddc#custom#patch_global('sourceOptions', {
       \ '_': {
       \   'matchers': ['matcher_fuzzy'],
@@ -36,6 +36,7 @@ repo = 'vim-denops/denops.vim'
       \ },
       \ 'around': {'mark': 'AROUND'},
       \ 'file': {'mark': 'FILE'},
+      \ 'vsnip': {'mark': 'VSNIP'},
       \ 'nvim-lsp': {
       \   'mark': 'LSP',
       \   'forceCompletionPattern': '\.\w*|:\w*|->\w*',
@@ -55,11 +56,13 @@ repo = 'vim-denops/denops.vim'
  hook_source = '''
  lua << EOF
  local nvim_lsp = require('lspconfig')
- local on_attach = function (client, bufnr)
- local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
- local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
 
- local opts = { noremap=true, silent=true }
+ -- language serverがバッファにアタッチされたときに実行する関数
+ local on_attach = function (client, bufnr)
+   local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+   local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+
+   local opts = { noremap=true, silent=true }
    buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
    buf_set_keymap('n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
    buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
@@ -70,10 +73,53 @@ repo = 'vim-denops/denops.vim'
    buf_set_keymap('n', 'g]', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
  end
 
+ -- local servers = {
+ --   pylsp = {
+ --     cmd = {"pylsp"},
+ --     root_dir = function(fname)
+ --       local root_files = {
+ --         'pyproject.toml',
+ --         'setup.py',
+ --         'setup.cfg',
+ --         'requirements.txt',
+ --         'Pipfile',
+ --       }
+ --       return util.root_pattern(unpack(root_files))(fname) or util.find_git_ancestor(fname)
+ --     end,
+ --     settings = {
+ --       pylsp = {
+ --         configurationSources = {"pylint"},
+ --         plugins = {
+ --           pylint = { enabled = true },
+ --           flake8 = { enabled = false },
+ --           pycodestyle = { enabled = false },
+ --           pyflakes = { enabled = false },
+ --         }
+ --       }
+ --     }
+ --   }
+ -- }
+
+ -- vretual_text(ソースコード上に仮想的にリントを表示する機能)を無効化する.
+ vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+    vim.lsp.diagnostic.on_publish_diagnostics, { virtual_text = false }
+ )
+
+
  local lsp_installer = require("nvim-lsp-installer")
+
+ -- サーバー起動時に自動でon_attachをアタッチする
  lsp_installer.on_server_ready(function(server)
+
+   local capabilities = vim.lsp.protocol.make_client_capabilities()
+   capabilities.textDocument.completion.completionItem.snippetSupport = true
+
+   -- language serverごとにcapabilitiesを追加する必要があります。
+   -- on_attachは必要に応じて
+   -- require'lspconfig'.clangd.setup{on_attach = on_attach, capabilities = capabilities}
    local opts = {}
    opts.on_attach = on_attach
+   opts.capabilities = capabilities
    server:setup(opts)
    vim.cmd [[ do User LspAttachBuffers ]]
  end)
@@ -89,6 +135,8 @@ EOF
  on_source = 'ddc.vim'
 
 
+# このアプリ単体でddcの候補選択中にシグネイチャーとドキュメントをポップアップする.
+# 関数の引数入力中に他プラグインと連携してシグネイチャー情報を取得してポップアップする.
 [[plugins]]
  repo = 'matsui54/denops-popup-preview.vim'
  on_source = 'ddc.vim'
@@ -97,13 +145,25 @@ EOF
  call popup_preview#enable()
  '''
 
-[[plugins]]
- repo = 'ray-x/lsp_signature.nvim'
- depends = ['vim-lsp']
- hook_source = '''
- lua require("lsp_signature").setup()
- '''
+# # 本来の用途は関数の()内入力中に自動シグネイチャーポップアップする為のものっぽいが、
+# # その機能は有効化の方法が分からなかった。(denops-signature_helpで代用している)
+# [[plugins]]
+#  repo = 'ray-x/lsp_signature.nvim'
+#  # depends = ['nvim-lsp']
+#  on_source = ['ddc.vim', "denops-popup_preview"]
+#  hook_source = '''
+#  lua require("lsp_signature").setup()
+#  '''
 
+# 関数の()内入力中に関数定義とドキュメントの情報をdenops-popup-preview.vimに渡す.
+# lsp_signature.nvimを正しく設定すればこのプラグイン無しでもできるっぽい？やり方がわからなかった
+# 現在入力中の引数に対応したシグネイチャーのハイライトを有効にする方法がわからない.
+[[plugins]]
+ repo = 'matsui54/denops-signature_help'
+ on_source = 'ddc.vim'
+ hook_source = '''
+ call signature_help#enable()
+ '''
 
 [[plugins]]
  repo = 'tani/ddc-fuzzy'
@@ -122,33 +182,53 @@ EOF
 [[plugins]]
  repo = 'Shougo/pum.vim'
  on_source = 'ddc.vim'
+ depends = ['vim-vsnip-integ']
  hook_add = '''
- " inoremap <silent><expr> <TAB>
- "       \ pum#visible() ? '<Cmd>call pum#map#insert_relative(+1)<CR>' :
- "       \ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
- "       \ '<TAB>' : ddc#manual_complete()
  inoremap <Tab> <Cmd>call pum#map#insert_relative(+1)<CR>
  inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
  inoremap <C-n>   <Cmd>call pum#map#insert_relative(+1)<CR>
  inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
+
+ autocmd User PumCompleteDone call vsnip_integ#on_complete_done(g:pum#completed_item)
  '''
 
-# [[plugins]]
-#  repo = 'hrsh7th/vim-vsnip'
-#  on_event = 'InsertEnter'
-#  depends = ['vim-vsnip-integ', 'friendly-snippets']
-#  hook_add = '''
-#  imap <expr> <C-j> vsnip#expandable() ? '<Plug>(vsnip-expand)' : '<C-j>'
-#  smap <expr> <C-j> vsnip#expandable() ? '<Plug>(vsnip-expand)' : '<C-j>'
-#  imap <expr> <C-f> vsnip#jumpable(1)  ? '<Plug>(vsnip-jump-next)' : '<C-f>'
-#  smap <expr> <C-f> vsnip#jumpable(1)  ? '<Plug>(vsnip-jump-next)' : '<C-f>'
-#  imap <expr> <C-b> vsnip#jumpable(-1) ? '<Plug>(vsnip-jump-prev)' : '<C-b>'
-#  smap <expr> <C-b> vsnip#jumpable(-1) ? '<Plug>(vsnip-jump-prev)' : '<C-b>'
-#  let g:vsnip_filetypes = {}
-#  '''
+[[plugins]]
+ repo = 'hrsh7th/vim-vsnip'
+ on_event = 'InsertEnter'
+ depends = ['vim-vsnip-integ']
+ hook_add = '''
+ " Expand
+ imap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
+ smap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
+ 
+ " Expand or jump
+ imap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+ smap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+ 
+ " Jump forward or backward
+ imap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
+ smap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
+ imap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+ smap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+ 
+ " Select or cut text to use as $TM_SELECTED_TEXT in the next snippet.
+ " See https://github.com/hrsh7th/vim-vsnip/pull/50
+ nmap        s   <Plug>(vsnip-select-text)
+ xmap        s   <Plug>(vsnip-select-text)
+ nmap        S   <Plug>(vsnip-cut-text)
+ xmap        S   <Plug>(vsnip-cut-text)
+ 
+ " If you want to use snippet for multiple filetypes, you can `g:vsnip_filetypes` for it.
+ let g:vsnip_filetypes = {}
+ let g:vsnip_filetypes.python = ['python']
+ let g:vsnip_filetypes.javascriptreact = ['javascript']
+ let g:vsnip_filetypes.typescriptreact = ['typescript']
 
-# [[plugins]]
-#  repo = 'hrsh7th/vim-vsnip-integ'
+ let g:vsnip_snippet_dir = expand('~/.config/nvim/vsnips')
+ '''
+
+[[plugins]]
+ repo = 'hrsh7th/vim-vsnip-integ'
 # 
 # [[plugins]]
 #  repo = 'rafamadriz/friendly-snippets'
