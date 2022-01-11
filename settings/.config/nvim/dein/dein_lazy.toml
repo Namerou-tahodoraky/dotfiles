@@ -40,6 +40,7 @@ repo = 'vim-denops/denops.vim'
       \ 'nvim-lsp': {
       \   'mark': 'LSP',
       \   'forceCompletionPattern': '\.\w*|:\w*|->\w*',
+      \   'minAutoCompleteLength': 1,
       \ },
       \ })
 
@@ -152,6 +153,7 @@ EOF
  on_source = 'ddc.vim'
 
 
+
 # このアプリ単体でddcの候補選択中にシグネイチャーとドキュメントをポップアップする.
 # 関数の引数入力中に他プラグインと連携してシグネイチャー情報を取得してポップアップする.
 [[plugins]]
@@ -166,10 +168,12 @@ EOF
 # # その機能は有効化の方法が分からなかった。(denops-signature_helpで代用している)
 # [[plugins]]
 #  repo = 'ray-x/lsp_signature.nvim'
-#  # depends = ['nvim-lsp']
-#  on_source = ['ddc.vim', "denops-popup_preview"]
+#  depends = ['nvim-lsp']
+#  # on_source = ['ddc.vim', "denops-popup_preview"]
 #  hook_source = '''
-#  lua require("lsp_signature").setup()
+#  lua << EOF
+#  require("lsp_signature").setup()
+# EOF
 #  '''
 
 # 関数の()内入力中に関数定義とドキュメントの情報をdenops-popup-preview.vimに渡す.
@@ -179,6 +183,10 @@ EOF
  repo = 'matsui54/denops-signature_help'
  on_source = 'ddc.vim'
  hook_source = '''
+ " let g:signature_help_config = {
+ "     \   'style': 'virtual',
+ "     \   'border': v:false,
+ "     \ }
  call signature_help#enable()
  '''
 
