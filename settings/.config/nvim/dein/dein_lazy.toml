@@ -100,9 +100,26 @@ repo = 'vim-denops/denops.vim'
  --   }
  -- }
 
- -- vretual_text(ソースコード上に仮想的にリントを表示する機能)を無効化する.
+ -- リント表示の設定
  vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-    vim.lsp.diagnostic.on_publish_diagnostics, { virtual_text = false }
+   vim.lsp.diagnostic.on_publish_diagnostics, {
+     -- -- Enable underline, use default values
+     -- underline = true,
+     underline = false,
+     -- -- Enable virtual text, override spacing to 4
+     -- virtual_text = {
+     --   spacing = 4,
+     -- },
+     virtual_text = false,
+     -- Use a function to dynamically turn signs off
+     -- and on, using buffer local variables
+     -- signs = function(bufnr, client_id)
+     --   return vim.bo[bufnr].show_signs == false
+     -- end,
+     signs = true,
+     -- -- Disable a feature
+     update_in_insert = false,
+   }
  )
 
 
