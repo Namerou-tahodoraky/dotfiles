@@ -43,6 +43,11 @@ repo = 'vim-denops/denops.vim'
       \   'minAutoCompleteLength': 1,
       \ },
       \ })
+ call ddc#custom#patch_global('filterParams', {
+  \   'matcher_fuzzy': {
+  \     'splitMode': 'word'
+  \   }
+  \ })
 
  call ddc#custom#patch_global('sourceParams', {
       \ 'around': {'maxSize': 500},
@@ -50,6 +55,7 @@ repo = 'vim-denops/denops.vim'
 
  call ddc#enable()
 '''
+
 
 [[plugins]]
  repo = 'neovim/nvim-lspconfig'
@@ -183,10 +189,6 @@ EOF
  repo = 'matsui54/denops-signature_help'
  on_source = 'ddc.vim'
  hook_source = '''
- " let g:signature_help_config = {
- "     \   'style': 'virtual',
- "     \   'border': v:false,
- "     \ }
  call signature_help#enable()
  '''
 
@@ -208,9 +210,10 @@ EOF
  repo = 'Shougo/pum.vim'
  on_source = 'ddc.vim'
  depends = ['vim-vsnip-integ']
+ # <Tab>と<S-Tab>が何故か効かないのでいっそのことコメントアウトしている.
  hook_add = '''
- inoremap <Tab> <Cmd>call pum#map#insert_relative(+1)<CR>
- inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
+ " "inoremap <Tab> <Cmd>call pum#map#insert_relative(+1)<CR>
+ " "inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
  inoremap <C-n>   <Cmd>call pum#map#insert_relative(+1)<CR>
  inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
 
@@ -254,9 +257,58 @@ EOF
 
 [[plugins]]
  repo = 'hrsh7th/vim-vsnip-integ'
+
+[[plugins]]
+ repo = 'plasticboy/vim-markdown'
+
+[[plugins]]
+ repo = 'dhruvasagar/vim-table-mode'
+
+# GUIしか対応してないっぽい
+# [[plugins]]
+# repo = 'petertriho/nvim-scrollbar'
+# on_event = 'BufRead'
+# # on_event = 'BufEnter'
+# hook_source = '''
+# lua << EOF
+# require("scrollbar").setup()
+# EOF
+# '''
+
+[[plugins]]
+repo = 'Xuyuanp/scrollbar.nvim'
+# on_event = 'BufEnter'
+on_event = ['BufEnter', 'BufNewFile']
+# on_event = ['WinScrolled','VimResized','QuitPre', 'WinEnter', 'FocusGained']
+hook_source = '''
+augroup ScrollbarInit
+  autocmd!
+  autocmd WinScrolled,VimResized,QuitPre * silent! lua require('scrollbar').show()
+  autocmd WinEnter,FocusGained           * silent! lua require('scrollbar').show()
+  autocmd WinLeave,BufLeave,BufWinLeave,FocusLost            * silent! lua require('scrollbar').clear()
+augroup end
+'''
 # 
 # [[plugins]]
 #  repo = 'rafamadriz/friendly-snippets'
+
+# luaを記述するならon_*が必要っぽい
+[[plugins]]
+repo = 'kevinhwang91/nvim-hlslens'
+on_event = 'BufEnter'
+hook_add = '''
+noremap <silent> n <Cmd>execute('normal! ' . v:count1 . 'n')<CR>
+            \<Cmd>lua require('hlslens').start()<CR>
+noremap <silent> N <Cmd>execute('normal! ' . v:count1 . 'N')<CR>
+            \<Cmd>lua require('hlslens').start()<CR>
+noremap * *<Cmd>lua require('hlslens').start()<CR>
+noremap # #<Cmd>lua require('hlslens').start()<CR>
+noremap g* g*<Cmd>lua require('hlslens').start()<CR>
+noremap g# g#<Cmd>lua require('hlslens').start()<CR>
+
+" use : instead of <Cmd>
+nnoremap <silent> <leader>l :noh<CR>
+'''
 
 # [[plugins]]
 # repo = 'lambdalisue/fern-git-status.vim'
