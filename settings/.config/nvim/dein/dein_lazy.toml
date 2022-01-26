@@ -43,11 +43,11 @@ repo = 'vim-denops/denops.vim'
       \   'minAutoCompleteLength': 1,
       \ },
       \ })
- call ddc#custom#patch_global('filterParams', {
-  \   'matcher_fuzzy': {
-  \     'splitMode': 'word'
-  \   }
-  \ })
+ " call ddc#custom#patch_global('filterParams', {
+ "  \   'matcher_fuzzy': {
+ "  \     'splitMode': 'word'
+ "  \   }
+ "  \ })
 
  call ddc#custom#patch_global('sourceParams', {
       \ 'around': {'maxSize': 500},
@@ -158,6 +158,17 @@ EOF
  repo = 'Shougo/ddc-nvim-lsp'
  on_source = 'ddc.vim'
 
+[[plugins]]
+# LSPの動作待ち中プログレスバーを表示する.
+# pylspはおそらく対応していない.
+# terraform-lsはおそらく対応している.
+# 正常動作は確認できていない
+# （待ちがなさ過ぎて見えないのか,progressに対応してないのか,動作していないのかわからない)
+ repo = 'j-hui/fidget.nvim'
+ on_event = 'BufEnter'
+ hook_source = '''
+ lua require"fidget".setup{}
+ '''
 
 
 # このアプリ単体でddcの候補選択中にシグネイチャーとドキュメントをポップアップする.
@@ -378,3 +389,32 @@ nnoremap <silent> <leader>l :noh<CR>
 # #    \          }
 # #    \        }
 
+[[plugins]]
+# 
+repo = 'mfussenegger/nvim-dap'
+on_ft = ['python']
+
+[[plugins]]
+# 
+repo = 'mfussenegger/nvim-dap-python'
+depends = ['nvim-dap']
+on_ft = 'python'
+hook_source = '''
+lua << EOF
+pythonPath = function()
+  -- debugpy supports launching an application with a different interpreter then the one used to launch debugpy itself.
+  -- The code below looks for a `venv` or `.venv` folder in the current directly and uses the python within.
+  -- You could adapt this - to for example use the `VIRTUAL_ENV` environment variable.
+  local cwd = vim.fn.getcwd()
+  if vim.fn.executable(cwd .. '/venv/bin/python') == 1 then
+    return cwd .. '/venv/bin/python'
+  elseif vim.fn.executable(cwd .. '/.venv/bin/python') == 1 then
+    return cwd .. '/.venv/bin/python'
+  else
+    return '/usr/bin/python'
+  end
+end;
+
+require('dap-python').setup(pythonPath())
+EOF
+'''
