@@ -4,11 +4,14 @@ set fileencodings=utf-8,cp932
 filetype on
 filetype plugin indent on
 
-let mapleader = ","
+let mapleader = "\<space>"
+""let mapleader = ","
+nnoremap  <leader>q :echo("aaa")<CR>
+" "nnoremap  <leader>ds :echo("bbb")<CR>
 
 
 " ESC キーを押してから挿入モードを出るまでの時間を短くする
-set timeoutlen=100
+" set timeoutlen=100
 """" FOR TAB INDENT
 set smartindent
 set expandtab
@@ -41,8 +44,8 @@ inoremap [ []<LEFT>
 inoremap ' ''<LEFT>
 inoremap " ""<LEFT>
 inoremap " ""<LEFT>
-inoremap <C-j>  <down>
-inoremap <C-k>  <up>
+" inoremap <C-j>  <down>
+" inoremap <C-k>  <up>
 inoremap <C-h>  <left>
 inoremap <C-l>  <right>
 inoremap <C-o>  <ESC>o
@@ -119,7 +122,7 @@ if dein#load_state(s:dein_dir)
   "# 遅延読み込みしたいプラグイン群
   call dein#load_toml(s:toml_dir .  '/dein_lazy.toml', {'lazy': 1})
 
-   call dein#add('altercation/vim-colors-solarized')
+  call dein#add('w0ng/vim-hybrid')
 
   call dein#end()
   call dein#save_state()
@@ -128,7 +131,7 @@ endif
 " solarized読み込み.
 " tomlに書くとキャッシュが変更される度に壊れてうまくいかないのでこちらに書く.
 set background=dark
-colorscheme solarized
+colorscheme hybrid
 " colorschemeを読み込んだ後に定義する
 syntax enable
 
@@ -201,3 +204,4 @@ syntax enable
 " let g:asyncomplete_auto_completeopt = 0
 " let g:asyncomplete_popup_delay = 400
 " let g:lsp_text_edit_enabled = 1
+

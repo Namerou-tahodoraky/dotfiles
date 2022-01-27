@@ -171,8 +171,7 @@ EOF
  '''
 
 
-# このアプリ単体でddcの候補選択中にシグネイチャーとドキュメントをポップアップする.
-# 関数の引数入力中に他プラグインと連携してシグネイチャー情報を取得してポップアップする.
+# ddcの候補選択中にシグネイチャーとドキュメントをポップアップする.
 [[plugins]]
  repo = 'matsui54/denops-popup-preview.vim'
  on_source = 'ddc.vim'
@@ -181,26 +180,17 @@ EOF
  call popup_preview#enable()
  '''
 
-# # 本来の用途は関数の()内入力中に自動シグネイチャーポップアップする為のものっぽいが、
-# # その機能は有効化の方法が分からなかった。(denops-signature_helpで代用している)
-# [[plugins]]
-#  repo = 'ray-x/lsp_signature.nvim'
-#  depends = ['nvim-lsp']
-#  # on_source = ['ddc.vim', "denops-popup_preview"]
-#  hook_source = '''
-#  lua << EOF
-#  require("lsp_signature").setup()
-# EOF
-#  '''
-
-# 関数の()内入力中に関数定義とドキュメントの情報をdenops-popup-preview.vimに渡す.
-# lsp_signature.nvimを正しく設定すればこのプラグイン無しでもできるっぽい？やり方がわからなかった
-# 現在入力中の引数に対応したシグネイチャーのハイライトを有効にする方法がわからない.
+# 関数の()内入力中にシグネイチャーをポップアップする.
+# ddcやdenops-popup-preview.vimとは独立して動く.
 [[plugins]]
- repo = 'matsui54/denops-signature_help'
- on_source = 'ddc.vim'
- hook_source = '''
- call signature_help#enable()
+repo = 'ray-x/lsp_signature.nvim'
+depends = ['nvim-lsp']
+# on_source = ['ddc.vim', "denops-popup_preview"]
+on_event = 'BufRead'
+hook_source = '''
+lua << EOF
+require("lsp_signature").setup()
+EOF
  '''
 
 [[plugins]]
@@ -390,9 +380,20 @@ nnoremap <silent> <leader>l :noh<CR>
 # #    \        }
 
 [[plugins]]
-# 
+# デバッグツール
 repo = 'mfussenegger/nvim-dap'
 on_ft = ['python']
+hook_add = '''
+nnoremap <silent> <F5> :lua require'dap'.continue()<CR>
+nnoremap <silent> <F10> :lua require'dap'.step_over()<CR>
+nnoremap <silent> <F11> :lua require'dap'.step_into()<CR>
+nnoremap <silent> <F12> :lua require'dap'.step_out()<CR>
+nnoremap <silent> <leader>b :lua require'dap'.toggle_breakpoint()<CR>
+nnoremap <silent> <leader>B :lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
+nnoremap <silent> <leader>lp :lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>
+nnoremap <silent> <leader>dr :lua require'dap'.repl.open()<CR>
+nnoremap <silent> <leader>dl :lua require'dap'.run_last()<CR>
+'''
 
 [[plugins]]
 # 
@@ -417,4 +418,13 @@ end;
 
 require('dap-python').setup(pythonPath())
 EOF
+'''
+
+[[plugins]]
+# デバッグツール
+repo = 'rcarriga/nvim-dap-ui'
+# depends = ['nvim-dap']
+on_ft = ['python']
+hook_source = '''
+lua require('dapui').setup()
 '''
