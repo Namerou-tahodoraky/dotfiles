@@ -11,7 +11,7 @@ nnoremap  <leader>q :echo("aaa")<CR>
 
 
 " ESC キーを押してから挿入モードを出るまでの時間を短くする
-" set timeoutlen=100
+set timeoutlen=500
 """" FOR TAB INDENT
 set smartindent
 set expandtab
@@ -51,6 +51,8 @@ inoremap <C-l>  <right>
 inoremap <C-o>  <ESC>o
 inoremap <C-x>  <Del>
 inoremap <C-d>  <BS>
+
+inoremap <silent> jj <ESC>
 
 """"" FOR NETWORK.VIM
 ""let g:netrw_liststyle = 3
@@ -122,7 +124,7 @@ if dein#load_state(s:dein_dir)
   "# 遅延読み込みしたいプラグイン群
   call dein#load_toml(s:toml_dir .  '/dein_lazy.toml', {'lazy': 1})
 
-  call dein#add('w0ng/vim-hybrid')
+  "call dein#add('w0ng/vim-hybrid')
 
   call dein#end()
   call dein#save_state()
@@ -130,8 +132,10 @@ endif
 
 " solarized読み込み.
 " tomlに書くとキャッシュが変更される度に壊れてうまくいかないのでこちらに書く.
-set background=dark
-colorscheme hybrid
+" set background=dark
+" colorscheme hybrid
+
+colorscheme tokyonight
 " colorschemeを読み込んだ後に定義する
 syntax enable
 
