@@ -21,7 +21,10 @@ repo = 'karb94/neoscroll.nvim'
 on_event = 'BufEnter'
 hook_source = '''
 lua <<EOF
-require('neoscroll').setup()
+require('neoscroll').setup({
+    mappings = {'<C-u>', '<C-d>', '<C-y>', '<C-e>'},
+})
+-- require('neoscroll').setup()
 EOF
 '''
 
@@ -68,8 +71,8 @@ repo = 'vim-denops/denops.vim'
 '''
 # LSPの補完開始を遅くする設定(主にTerraformのresource補完用)
 hook_add = '''
-nnoremap g5 :call ddc#custom#patch_global('sourceOptions', {'nvim-lsp': {'minAutoCompleteLength': 5}})<CR>
-nnoremap g1 :call ddc#custom#patch_global('sourceOptions', {'nvim-lsp': {'minAutoCompleteLength': 1}})<CR>
+nnoremap <silent> gcl :call ddc#custom#patch_global('sourceOptions', {'nvim-lsp': {'minAutoCompleteLength': 5}})<CR>
+nnoremap <silent> gcs :call ddc#custom#patch_global('sourceOptions', {'nvim-lsp': {'minAutoCompleteLength': 1}})<CR>
 '''
 
 [[plugins]]
@@ -486,4 +489,123 @@ EOF
 repo = 'liuchengxu/vim-which-key'
 hook_add = '''
 nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
+'''
+
+# [[plugins]]
+# # 
+# repo = 'danymat/neogen'
+# on_event = 'BufEnter'
+# depends = ['nvim-treesitter']
+# hook_source = '''
+# lua <<EOF
+# require('neogen').setup {
+#     enabled = true,
+#     languages = {
+#         python = {
+#             template = {
+#                 annotation_convention = "numpydoc", -- for a full list of annotation_conventions, see supported-languages below,
+#                 -- numpydoc = {
+#                 --     { nil, '""" $1 """', { no_results = true, type = { "class", "func" } } },
+#                 --     { nil, '"""$1', { no_results = true, type = { "file" } } },
+#                 --     { nil, "", { no_results = true, type = { "file" } } },
+#                 --     { nil, "$1", { no_results = true, type = { "file" } } },
+#                 --     { nil, '"""', { no_results = true, type = { "file" } } },
+#                 --     { nil, "", { no_results = true, type = { "file" } } },
+# 
+#                 --     { nil, "# $1", { no_results = true, type = { "type" } } },
+# 
+#                 --     { nil, '"""$1' },
+#                 --     { "has_identifier", "", { type = { "func" } } },
+#                 --     { "has_identifier", "Parameters", { type = { "func" } } },
+#                 --     { "has_identifier", "----------", { type = { "func" } } },
+#                 --     {
+#                 --         "parameters",
+#                 --         "%s: $1",
+#                 --         { after_each = "    $1", type = { "func" } },
+#                 --     },
+#                 --     {
+#                 --         { "identifier", "type" },
+#                 --         "%s: %s",
+#                 --         { after_each = "    $1", required = "typed_parameters", type = { "func" } },
+#                 --     },
+#                 --     { "attributes", "%s: $1", { before_first_item = { "", "Attributes", "----------" } } },
+#                 --     { "has_return", "", { type = { "func" } } },
+#                 --     { "has_return", "Returns", { type = { "func" } } },
+#                 --     { "has_return", "-------", { type = { "func" } } },
+#                 --     {
+#                 --         "return_statement",
+#                 --         "%s : $1",
+#                 --         { after_each = "    $1" },
+#                 --     },
+#                 --     {
+#                 --         "anonymous_return",
+#                 --         "%s",
+#                 --         { after_each = "    $1" },
+#                 --     },
+#                 --     { nil, '"""' },
+#                 -- },
+#             }
+#         },
+#     }
+# }
+# require('neogen').generate()
+# EOF
+# '''
+# hook_add = '''
+# lua <<EOF
+# local opts = { noremap = true, silent = true }
+# vim.api.nvim_set_keymap("n", "<Leader>nf", ":lua require('neogen').generate({ type = 'func' })<CR>", opts)
+# vim.api.nvim_set_keymap("i", "<C-n>", "<ESC>:lua require('neogen').jump_next()<CR>", opts)
+# vim.api.nvim_set_keymap("i", "<C-p>", "<ESC>:lua require('neogen').jump_prev()<CR>", opts)
+# EOF
+# '''
+
+
+[[plugins]]
+# 
+repo = 'hrsh7th/vim-searchx'
+hook_add = '''
+" Overwrite / and ?.
+nnoremap ? <Cmd>call searchx#start({ 'dir': 0 })<CR>
+nnoremap / <Cmd>call searchx#start({ 'dir': 1 })<CR>
+xnoremap ? <Cmd>call searchx#start({ 'dir': 0 })<CR>
+xnoremap / <Cmd>call searchx#start({ 'dir': 1 })<CR>
+cnoremap ; <Cmd>call searchx#select()<CR>
+
+" Move to next/prev match.
+nnoremap N <Cmd>call searchx#prev_dir()<CR>
+nnoremap n <Cmd>call searchx#next_dir()<CR>
+xnoremap N <Cmd>call searchx#prev_dir()<CR>
+xnoremap n <Cmd>call searchx#next_dir()<CR>
+nnoremap <C-k> <Cmd>call searchx#prev()<CR>
+nnoremap <C-j> <Cmd>call searchx#next()<CR>
+xnoremap <C-k> <Cmd>call searchx#prev()<CR>
+xnoremap <C-j> <Cmd>call searchx#next()<CR>
+cnoremap <C-k> <Cmd>call searchx#prev()<CR>
+cnoremap <C-j> <Cmd>call searchx#next()<CR>
+
+" Clear highlights
+nnoremap <C-l> <Cmd>call searchx#clear()<CR>
+
+let g:searchx = {}
+
+" Auto jump if the recent input matches to any marker.
+let g:searchx.auto_accept = v:true
+
+" The scrolloff value for moving to next/prev.
+let g:searchx.scrolloff = &scrolloff
+
+" To enable scrolling animation.
+let g:searchx.scrolltime = 500
+
+" Marker characters.
+let g:searchx.markers = split('ABCDEFGHIJKLMNOPQRSTUVWXYZ', '.\zs')
+
+" Convert search pattern.
+function g:searchx.convert(input) abort
+  if a:input !~# '\k'
+    return '\V' .. a:input
+  endif
+  return a:input[0] .. substitute(a:input[1:], '\\\@<! ', '.\\{-}', 'g')
+endfunction
 '''
