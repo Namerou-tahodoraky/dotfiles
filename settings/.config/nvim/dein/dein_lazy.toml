@@ -295,6 +295,7 @@ EOF
 # '''
 
 [[plugins]]
+# テキストベースのスクロールバーを表示する
 repo = 'Xuyuanp/scrollbar.nvim'
 # on_event = 'BufEnter'
 on_event = ['BufEnter', 'BufNewFile']
@@ -307,12 +308,12 @@ augroup ScrollbarInit
   autocmd WinLeave,BufLeave,BufWinLeave,FocusLost            * silent! lua require('scrollbar').clear()
 augroup end
 '''
-# 
+
 # [[plugins]]
 #  repo = 'rafamadriz/friendly-snippets'
 
-# luaを記述するならon_*が必要っぽい
 [[plugins]]
+# 検索にヒットしたものが何個中何個目かをvertualtextで表示する
 repo = 'kevinhwang91/nvim-hlslens'
 on_event = 'BufEnter'
 hook_add = '''
@@ -441,6 +442,7 @@ EOF
 
 [[plugins]]
 # デバッグツール
+# デバッグ画面
 repo = 'rcarriga/nvim-dap-ui'
 # depends = ['nvim-dap']
 on_ft = ['python']
@@ -461,6 +463,7 @@ EOF
 
 [[plugins]]
 # デバッグツール
+# 変数の値をvertualtextで表示する
 repo = 'theHamsta/nvim-dap-virtual-text'
 # depends = ['nvim-dap']
 on_ft = ['python']
@@ -485,14 +488,15 @@ EOF
 '''
 
 [[plugins]]
-# 
+# キーバインドを通知
 repo = 'liuchengxu/vim-which-key'
 hook_add = '''
 nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
 '''
 
 # [[plugins]]
-# # 
+# # docstringの自動入力
+# # デフォルト値が入力されないなどまだ色々機能が足りない
 # repo = 'danymat/neogen'
 # on_event = 'BufEnter'
 # depends = ['nvim-treesitter']
@@ -562,7 +566,8 @@ nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
 
 
 [[plugins]]
-# 
+# 移動補助
+# /や?で検索した時検索先にeasymotionのような移動キーが表示される
 repo = 'hrsh7th/vim-searchx'
 hook_add = '''
 " Overwrite / and ?.
@@ -596,7 +601,8 @@ let g:searchx.auto_accept = v:true
 let g:searchx.scrolloff = &scrolloff
 
 " To enable scrolling animation.
-let g:searchx.scrolltime = 500
+" let g:searchx.scrolltime = 500
+let g:searchx.scrolltime = 0
 
 " Marker characters.
 let g:searchx.markers = split('ABCDEFGHIJKLMNOPQRSTUVWXYZ', '.\zs')
@@ -608,4 +614,58 @@ function g:searchx.convert(input) abort
   endif
   return a:input[0] .. substitute(a:input[1:], '\\\@<! ', '.\\{-}', 'g')
 endfunction
+'''
+
+[[plugins]]
+# 
+repo = 'kyazdani42/nvim-web-devicons'
+
+[[plugins]]
+# 
+repo = 'nvim-lualine/lualine.nvim'
+depends = ['nvim-web-devicons']
+on_event = 'BufRead'
+hook_source = '''
+lua << EOF
+require('lualine').setup {
+  options = {
+    icons_enabled = true,
+    theme = 'auto',
+    component_separators = { left = '', right = ''},
+    section_separators = { left = '', right = ''},
+    disabled_filetypes = {},
+    always_divide_middle = true,
+  },
+  sections = {
+    lualine_a = {'mode'},
+    lualine_b = {'branch', 'diagnostics'}, -- {'branch', 'diff', 'diagnostics'},
+    lualine_c = {'filename'},
+    lualine_x = {'encoding', 'fileformat', 'filetype'},
+    lualine_y = {}, -- {'progress'},
+    lualine_z = {}, -- {'location'}
+  },
+  inactive_sections = {
+    lualine_a = {},
+    lualine_b = {},
+    lualine_c = {'filename'},
+    lualine_x = {'location'},
+    lualine_y = {},
+    lualine_z = {}
+  },
+  tabline = {},
+  extensions = {}
+}
+EOF
+'''
+
+[[plugins]]
+# 
+repo = 'akinsho/bufferline.nvim'
+on_event = 'BufRead'
+depends = ['nvim-web-devicons']
+hook_source = '''
+lua << EOF
+vim.opt.termguicolors = true
+require("bufferline").setup{}
+EOF
 '''

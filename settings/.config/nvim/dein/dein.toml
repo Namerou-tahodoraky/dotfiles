@@ -19,8 +19,8 @@ xmap <leader>hc <Plug>(quickhl-manual-clear)
 nmap <leader>hC <Plug>(quickhl-manual-reset)
 '''
 
-[[plugins]]
-repo = 'itchyny/lightline.vim'
+# [[plugins]]
+# repo = 'itchyny/lightline.vim'
 
 [[plugins]]
 repo = 'nvim-lua/plenary.nvim'
