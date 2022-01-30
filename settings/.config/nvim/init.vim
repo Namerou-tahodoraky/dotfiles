@@ -19,6 +19,20 @@ set shiftwidth=4
 set tabstop=8
 set softtabstop=4
 
+""" FOR SEARCH
+set hlsearch
+set incsearch
+set ignorecase
+set smartcase
+set wrapscan
+nnoremap <Esc><Esc> :nohlsearch<CR>
+nnoremap n nzz
+nnoremap N Nzz
+nnoremap * *zz
+nnoremap # #zz
+nnoremap g* g*zz
+nnoremap g# g#zz
+
 """ FOR FILE OPEN
 if has("autocmd")
   augroup redhat
