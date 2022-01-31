@@ -199,7 +199,13 @@ augroup vimrc-auto-cursorline
 augroup END
 
 
-
+" yank時に一瞬ハイライトする
+" vimの場合は以下のプラグインを導入すれば可能
+" https://jdhao.github.io/2020/05/22/highlight_yank_region_nvim/
+augroup highlight_yank
+  autocmd!
+  au TextYankPost * silent! lua vim.highlight.on_yank{higroup="IncSearch", timeout=500}
+augroup END
 
 " " If you want to install not installed plugins on startup.
 " if dein#check_install()

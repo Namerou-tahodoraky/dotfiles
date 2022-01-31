@@ -8,6 +8,108 @@ let g:tokyonight_style = "night"
 '''
 
 [[plugins]]
+# キャメルケースの移動,テキストオブジェクト選択
+# ,はfの逆移動に遅延が起きるからちょっと悩む
+repo = 'bkad/CamelCaseMotion'
+hook_add = '''
+let g:camelcasemotion_key = ','
+'''
+
+[[plugins]]
+# 段落移動.
+# 微妙かも.暫く使ってみる.
+repo = 'haya14busa/vim-edgemotion'
+hook_add = '''
+map <C-j> <Plug>(edgemotion-j)
+map <C-k> <Plug>(edgemotion-k)
+'''
+
+[[plugins]]
+# ドットリピートの多対応化.
+repo = 'tpope/vim-repeat'
+
+[[plugins]]
+# operator操作系プラグインの依存元
+repo = 'kana/vim-operator-user'
+
+[[plugins]]
+# オペレータ動作時にカーソルが開始地点に動くのを防ぐ.
+repo = 'osyo-manga/vim-operator-stay-cursor'
+depends = ['vim-operator-user']
+hook_add = '''
+map y <Plug>(operator-stay-cursor-yank)
+map gu <Plug>(operator-stay-cursor-gu)
+map gU <Plug>(operator-stay-cursor-gU)
+'''
+[[plugins]]
+# ヤンク済みの文字列で上書きする.
+repo = 'kana/vim-operator-replace'
+depends = ['vim-operator-user']
+hook_add = '''
+nmap R <Plug>(operator-replace)
+'''
+
+[[plugins]]
+# 区切り文字で整形
+# alip=  段落を対象に=で位置を整形
+# alip*| 段落を対象に同列内の全ての|の位置を整形, テーブル表記とか
+# 選択-> Enter -> =入力  選択範囲で=位置で整形
+repo = 'junegunn/vim-easy-align'
+hook_add = '''
+xmap al <Plug>(EasyAlign)
+nmap al <Plug>(EasyAlign)
+vmap <Enter> <Plug>(EasyAlign)
+'''
+
+[[plugins]]
+# ""や()などを対象に追加削除置換する.
+# saiw", srb", sdbなど
+repo = 'machakann/vim-sandwich'
+
+[[plugins]]
+# 選択矩形の拡大縮小.
+repo = 'terryma/vim-expand-region'
+hook_add = '''
+vmap v <Plug>(expand_region_expand)
+vmap V <Plug>(expand_region_shrink)
+'''
+
+[[plugins]]
+# コメント操作.
+repo = 'tyru/caw.vim'
+depends = ['vim-operator-user']
+# hook_add = '''
+# map <C-j> <Plug>(edgemotion-j)
+# map <C-k> <Plug>(edgemotion-k)
+# '''
+
+# [[plugins]]
+# # # 検索時に勝手にカーソルが移動するのを防ぐ.
+# # # 選択範囲の文字列でアスタリスク検索する機能ももつ.
+# # # 動作してないっぽい.原因不明.
+# repo = 'haya14busa/vim-asterisk'
+# hook_add = '''
+# map *  <Plug>(asterisk-z*)
+# map #  <Plug>(asterisk-z#)
+# map g* <Plug>(asterisk-gz*)
+# map g# <Plug>(asterisk-gz#)
+# let g:asterisk#keeppos = 1
+# '''
+
+# [[plugins]]
+# # 選択範囲の文字列でアスタリスク検索する.
+# # 動作してないっぽい.原因不明.
+# repo = 'thinca/vim-visualstar'
+# hook_add = '''
+# " Search the text, but cursor don't move to next match. >
+# " map * <Plug>(visualstar-*)N
+# " map # <Plug>(visualstar-#)N
+# noremap <Plug>N N
+# map * <Plug>(visualstar-*)<Plug>N
+# map # <Plug>(visualstar-#)<Plug>N
+# '''
+
+[[plugins]]
 # 任意の単語をハイライト状態で維持する
 # lazyだと動かない
 repo = 't9md/vim-quickhl'
@@ -101,22 +203,6 @@ nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 # #  autocmd!
 # #  autocmd FileType zsh let g:cheatsheet#cheat_file = '~/.cheatsheet-zsh.md'
 # #augroup END
-# 
-# [[plugins]]
-# # 区切り文字で整形
-# repo = 'junegunn/vim-easy-align'
-# hook_add = '''
-# xmap ga <Plug>(EasyAlign)
-# nmap ga <Plug>(EasyAlign)))
-# '''
-# 
-# [[plugins]]
-# # visual選択の簡易化
-# repo = 'terryma/vim-expand-region'
-# #hook_add = '''
-# #xmap ga <Plug>(EasyAlign)
-# #nmap ga <Plug>(EasyAlign)))
-# #'''
 # 
 # [[plugins]]
 # # ファイルツリー

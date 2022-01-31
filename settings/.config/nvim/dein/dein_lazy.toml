@@ -570,16 +570,11 @@ nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
 # /や?で検索した時検索先にeasymotionのような移動キーが表示される
 repo = 'hrsh7th/vim-searchx'
 hook_add = '''
-" Overwrite / and ?.
-" nnoremap ? <Cmd>call searchx#start({ 'dir': 0 })<CR>
-" nnoremap / <Cmd>call searchx#start({ 'dir': 1 })<CR>
-" xnoremap ? <Cmd>call searchx#start({ 'dir': 0 })<CR>
-" xnoremap / <Cmd>call searchx#start({ 'dir': 1 })<CR>
-" cnoremap ; <Cmd>call searchx#select()<CR>
-nnoremap S <Cmd>call searchx#start({ 'dir': 0 })<CR>
-nnoremap s <Cmd>call searchx#start({ 'dir': 1 })<CR>
-xnoremap S <Cmd>call searchx#start({ 'dir': 0 })<CR>
-xnoremap s <Cmd>call searchx#start({ 'dir': 1 })<CR>
+" " Overwrite / and ?.
+nnoremap ? <Cmd>call searchx#start({ 'dir': 0 })<CR>
+nnoremap / <Cmd>call searchx#start({ 'dir': 1 })<CR>
+xnoremap ? <Cmd>call searchx#start({ 'dir': 0 })<CR>
+xnoremap / <Cmd>call searchx#start({ 'dir': 1 })<CR>
 cnoremap ; <Cmd>call searchx#select()<CR>
 
 " Move to next/prev match.
@@ -587,12 +582,12 @@ nnoremap N <Cmd>call searchx#prev_dir()<CR>
 nnoremap n <Cmd>call searchx#next_dir()<CR>
 xnoremap N <Cmd>call searchx#prev_dir()<CR>
 xnoremap n <Cmd>call searchx#next_dir()<CR>
-nnoremap <C-k> <Cmd>call searchx#prev()<CR>
-nnoremap <C-j> <Cmd>call searchx#next()<CR>
-xnoremap <C-k> <Cmd>call searchx#prev()<CR>
-xnoremap <C-j> <Cmd>call searchx#next()<CR>
-cnoremap <C-k> <Cmd>call searchx#prev()<CR>
-cnoremap <C-j> <Cmd>call searchx#next()<CR>
+" nnoremap <C-k> <Cmd>call searchx#prev()<CR>
+" nnoremap <C-j> <Cmd>call searchx#next()<CR>
+" xnoremap <C-k> <Cmd>call searchx#prev()<CR>
+" xnoremap <C-j> <Cmd>call searchx#next()<CR>
+" cnoremap <C-k> <Cmd>call searchx#prev()<CR>
+" cnoremap <C-j> <Cmd>call searchx#next()<CR>
 
 " Clear highlights
 nnoremap <C-l> <Cmd>call searchx#clear()<CR>
