@@ -5,13 +5,12 @@ filetype on
 filetype plugin indent on
 
 let mapleader = "\<space>"
-""let mapleader = ","
-nnoremap  <leader>q :echo("aaa")<CR>
-" "nnoremap  <leader>ds :echo("bbb")<CR>
 
+" let g:lexima_enable_newline_rules = 0
 
 " ESC キーを押してから挿入モードを出るまでの時間を短くする
 set timeoutlen=500
+
 """" FOR TAB INDENT
 set smartindent
 set expandtab
@@ -19,19 +18,19 @@ set shiftwidth=4
 set tabstop=8
 set softtabstop=4
 
-""" FOR SEARCH
+""""" FOR SEARCH
 set hlsearch
 set incsearch
 set ignorecase
 set smartcase
 set wrapscan
 nnoremap <Esc><Esc> :nohlsearch<CR>
-nnoremap n nzz
-nnoremap N Nzz
-nnoremap * *zz
-nnoremap # #zz
-nnoremap g* g*zz
-nnoremap g# g#zz
+" nnoremap n nzz
+" nnoremap N Nzz
+" nnoremap * *zz
+" nnoremap # #zz
+" nnoremap g* g*zz
+" nnoremap g# g#zz
 
 """ FOR FILE OPEN
 if has("autocmd")
@@ -52,14 +51,12 @@ endif
 """ FOR AUTO INSERT
 noremap <S-h> ^
 noremap <S-l> $
-inoremap { {}<Left>
-inoremap ( ()<LEFT>
-inoremap [ []<LEFT>
-inoremap ' ''<LEFT>
-inoremap " ""<LEFT>
-inoremap " ""<LEFT>
-" inoremap <C-j>  <down>
-" inoremap <C-k>  <up>
+" inoremap { {}<Left>
+" inoremap ( ()<LEFT>
+" inoremap [ []<LEFT>
+" inoremap ' ''<LEFT>
+" inoremap " ""<LEFT>
+" inoremap " ""<LEFT>
 inoremap <C-h>  <left>
 inoremap <C-l>  <right>
 inoremap <C-o>  <ESC>o
@@ -207,69 +204,9 @@ augroup highlight_yank
   au TextYankPost * silent! lua vim.highlight.on_yank{higroup="IncSearch", timeout=500}
 augroup END
 
-" " If you want to install not installed plugins on startup.
-" if dein#check_install()
-"   call dein#install()
-" endif
-""End dein Scripts-------------------------
-
-
-" augroup lsp_install
-"   au!
-"   autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
-" augroup END
-" command! LspDebug let lsp_log_verbose=1 | let lsp_log_file = expand('~/vim-lsp.log')
-" 
-" let s:pyls_config = {'pyls': {'plugins': {
-"   \   'autopep8': {
-"   \     'enabled': v:true,
-"   \   },
-"   \   'pycodestyle': {'enabled': v:false},
-"   \   'pydocstyle': {'enabled': v:false},
-"   \   'pylint': {'enabled': v:false},
-"   \   'pyflakes': {'enabled': v:false},
-"   \   'flake8': {'enabled': v:true},
-"   \   'jedi_definition': {
-"   \     'follow_imports': v:true,
-"   \     'follow_builtin_imports': v:true,
-"   \   },
-"   \ }}}
-" 
-" ""pylsの起動定義
-" augroup LspPython
-"   autocmd!
-"   autocmd User lsp_setup call lsp#register_server({
-"     \ 'name': 'pyls',
-"     \ 'cmd': { server_info -> ['pyls'] },
-"     \ 'whitelist': ['python'],
-"     \ 'workspace_config': s:pyls_config
-"     \})
-" augroup END
-" 
-" function! s:on_lsp_buffer_enabled() abort
-"   setlocal omnifunc=lsp#complete
-"   setlocal signcolumn=yes
-"   nmap <buffer> gd <plug>(lsp-definition)
-"   nmap <buffer> <f2> <plug>(lsp-rename)
-"   inoremap <expr> <cr> pumvisible() ? "\<c-y>\<cr>" : "\<cr>"
-" 
-"   "定義情報のホバー表示
-"   nnoremap <buffer> K :<C-u>LspHover<CR>
-"   "参照検索
-"   nnoremap <buffer> gr :<C-u>LspReferences<CR>
-"   "Lint結果をQuickFixで表示
-"   nnoremap <buffer> gl :<C-u>LspDocumentDiagnostics<CR>
-"   "テキスト整形
-"   nnoremap <buffer> gf :<C-u>LspDocumentFormat<CR>
-" endfunction
-" 
-" " vim-lspの各種オプション設定
-" let g:lsp_diagnostics_highlights_enabled = 0
-" let g:lsp_diagnostics_enabled = 1
-" let g:lsp_diagnostics_echo_cursor = 1
-" let g:lsp_virtual_text_enabled = 1
-" let g:asyncomplete_auto_popup = 1
-" let g:asyncomplete_auto_completeopt = 0
-" let g:asyncomplete_popup_delay = 400
-" let g:lsp_text_edit_enabled = 1
-
+" 行末の空白のハイライト
+augroup HighlightTrailingSpaces
+  autocmd!
+  autocmd VimEnter,WinEnter,ColorScheme * highlight TrailingSpaces term=underline guibg=#6495ed ctermbg=222
+  autocmd VimEnter,WinEnter * match TrailingSpaces /\s\+$/
+augroup END
