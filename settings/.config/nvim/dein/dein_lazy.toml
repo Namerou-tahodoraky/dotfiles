@@ -11,6 +11,22 @@ require'nvim-treesitter.configs'.setup {
         enable = true,
         disable = {},
     },
+    -- 編集中に動くのが気持ち悪い.挙動が予測しにくい.
+    -- indent = {
+    --     enable = true,
+    -- },
+}
+EOF
+'''
+
+[[plugins]]
+# インデントの可視化
+repo = 'lukas-reineke/indent-blankline.nvim'
+on_event = 'BufEnter'
+hook_source = '''
+lua <<EOF
+require("indent_blankline").setup {
+    show_first_indent_level = false,
 }
 EOF
 '''
@@ -33,6 +49,25 @@ EOF
 [[plugins]]
 repo = 'vim-denops/denops.vim'
 
+# [[plugins]]
+# repo='vim-skk/denops-skkeleton.vim'
+# # on_event = 'InsertEnter'
+# on_source = 'ddc.vim'
+# depends = ['denops.vim']
+# hook_source = '''
+# ""call skkeleton#config({ 'globalJisyo': '~/.skk/SKK-JISYO.L' })
+# call skkeleton#config({
+#   \'globalJisyo': '~/.skk/SKK-JISYO.L',
+#   \'eggLikeNewline': v:true,
+#   \'tabCompletion': v:false,
+#   \'usePopup': v:false,
+# \})
+# '''
+# hook_add = '''
+# imap <C-j> <Plug>(skkeleton-toggle)
+# cmap <C-j> <Plug>(skkeleton-toggle)
+# '''
+
 # 入力に対応して様々な補完候補を集約してポップアップする.
 # 補完候補を生成するのはsource用プラグインの役割. 
 [[plugins]]
@@ -41,7 +76,7 @@ repo = 'vim-denops/denops.vim'
  depends = ['denops.vim']
  hook_source = '''
  call ddc#custom#patch_global('completionMenu', 'pum.vim')
- call ddc#custom#patch_global('sources', ['nvim-lsp', 'vsnip', 'around', 'file'])
+ call ddc#custom#patch_global('sources', ['skkeleton', 'nvim-lsp', 'vsnip', 'around', 'file'])
  call ddc#custom#patch_global('sourceOptions', {
       \ '_': {
       \   'matchers': ['matcher_fuzzy'],
@@ -55,6 +90,12 @@ repo = 'vim-denops/denops.vim'
       \   'mark': 'LSP',
       \   'forceCompletionPattern': '\.\w*|:\w*|->\w*',
       \   'minAutoCompleteLength': 1,
+      \ },
+      \ 'skkeleton': {
+      \   'mark': 'SKK',
+      \   'matchers': ['skkeleton'],
+      \   'sorters': [],
+      \   'minAutoCompleteLength': 2,
       \ },
       \ })
  " call ddc#custom#patch_global('filterParams', {
@@ -233,6 +274,11 @@ EOF
  hook_add = '''
  " "inoremap <Tab> <Cmd>call pum#map#insert_relative(+1)<CR>
  " "inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
+ " "inoremap <silent><expr> <TAB>
+ " "     \ pum#visible() ? '<Cmd>call pum#map#insert_relative(+1)<CR>' :
+ " "     \ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
+ " "     \ '<TAB>' : ddc#manual_complete()
+ " "inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
  inoremap <C-n>   <Cmd>call pum#map#insert_relative(+1)<CR>
  inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
 
@@ -321,13 +367,21 @@ noremap <silent> n <Cmd>execute('normal! ' . v:count1 . 'n')<CR>
             \<Cmd>lua require('hlslens').start()<CR>
 noremap <silent> N <Cmd>execute('normal! ' . v:count1 . 'N')<CR>
             \<Cmd>lua require('hlslens').start()<CR>
-noremap * *<Cmd>lua require('hlslens').start()<CR>
-noremap # #<Cmd>lua require('hlslens').start()<CR>
-noremap g* g*<Cmd>lua require('hlslens').start()<CR>
-noremap g# g#<Cmd>lua require('hlslens').start()<CR>
+'''
 
-" use : instead of <Cmd>
-nnoremap <silent> <leader>l :noh<CR>
+[[plugins]]
+# 検索時に勝手にカーソルが移動するのを防ぐ.
+# 選択範囲の文字列でアスタリスク検索する機能ももつ.
+# キーマップにvim-asteriskとnvim-hlslensの機能両方を結びつける為に、nvim-hlslensをdependsにしている.
+# 最後にカーソル位置調整でzzしている.
+repo = 'haya14busa/vim-asterisk'
+depends = ['nvim-hlslens']
+hook_add = '''
+map * <Plug>(asterisk-z*)<Cmd>lua require('hlslens').start()<CR>zz
+map # <Plug>(asterisk-z#)<Cmd>lua require('hlslens').start()<CR>zz
+map g* <Plug>(asterisk-gz*)<Cmd>lua require('hlslens').start()<CR>zz
+map g# <Plug>(asterisk-gz#)<Cmd>lua require('hlslens').start()<CR>zz
+let g:asterisk#keeppos = 1
 '''
 
 # [[plugins]]
