@@ -8,21 +8,38 @@ let g:tokyonight_style = "night"
 '''
 
 [[plugins]]
-# キャメルケースの移動,テキストオブジェクト選択
-# ,はfの逆移動に遅延が起きるからちょっと悩む
+# f移動の拡張.
+# ;,によるリピートからfF連打によるリピートに変更.
+# ヒット文字がハイライトされる. 行をまたいでヒットする.
+repo = 'rhysd/clever-f.vim'
+hook_add = '''
+let g:clever_f_fix_key_direction = 1  "検索開始がf,Fどちらでもリピート移動の方向を固定する.
+let g:clever_f_use_migemo = 1  "日本語がヒットする
+let g:clever_f_smart_case = 1  "大文字を入力した時は大文字のみ、小文字を入力した時は両方にヒットする.
+let g:clever_f_timeout_ms = 2000  "指定時間でfFのリピート移動が切れる
+'''
+
+[[plugins]]
+# キャメルケースの移動,テキストオブジェクト選択.
+# ,はfの逆移動に遅延が起きるからちょっと悩む.
+# スネークケースでの移動選択もできる.AA_BB_CCでBBの上でdi,wを押すとAA_CCになる(後ろの_は消えるので注意).
 repo = 'bkad/CamelCaseMotion'
 hook_add = '''
 let g:camelcasemotion_key = ','
 '''
 
-# [[plugins]]
-# # 段落移動.
-# # 微妙かも.暫く使ってみる.
-# repo = 'haya14busa/vim-edgemotion'
-# hook_add = '''
-# map <C-j> <Plug>(edgemotion-j)
-# map <C-k> <Plug>(edgemotion-k)
-# '''
+[[plugins]]
+# 空白を無視したインデント数ベースの移動.
+# Shiftで同インデント内の移動.深いインデントから浅いインデントには抜けれる.現在行より浅いインデント行は無視される.
+# sで最も浅いインデント部分に移動.
+# 開始と終了に^をつけることで,移動開始列に関係なく動作するようにしている.
+repo = 'tyru/columnskip.vim'
+hook_add = '''
+map J ^<Plug>(columnskip:nonblank:next)^
+map K ^<Plug>(columnskip:nonblank:prev)^
+map sj ^<Plug>(columnskip:first-nonblank:next)^
+map sk ^<Plug>(columnskip:first-nonblank:prev)^
+'''
 
 [[plugins]]
 # ドットリピートの多対応化.
@@ -52,8 +69,17 @@ nmap R <Plug>(operator-replace)
 
 [[plugins]]
 # コメント操作.
+# <Leader>cj: トグル(jの理由は押しやすいから)
+# <Leader>ca: 末尾にコメント挿入
+# よくやるタイポ：先にcを押してしまい挿入モードになって元の文字を消してしまう.<Leader>さえしっかり入力していれば残りは急ぐ必要はない.
 repo = 'tyru/caw.vim'
 depends = ['vim-operator-user']
+hook_add = '''
+nmap <Leader>c      <Plug>(caw:prefix)
+vmap <Leader>c      <Plug>(caw:prefix)
+nmap <Leader>cj     <Plug>(caw:hatpos:toggle)
+vmap <Leader>cj     <Plug>(caw:hatpos:toggle)
+'''
 
 [[plugins]]
 # textobj拡張プラグインの依存元
@@ -96,14 +122,14 @@ repo = 'michaeljsmith/vim-indent-object'
 
 [[plugins]]
 # 区切り文字で整形
-# alip=  段落を対象に=で位置を整形
-# alip*| 段落を対象に同列内の全ての|の位置を整形, テーブル表記とか
-# 選択-> Enter -> =入力  選択範囲で=位置で整形
+# alip=  段落を対象に=で位置を整形 -> aで待ちが発生するし複雑だから止めた.
+# alip*| 段落を対象に同列内の全ての|の位置を整形, テーブル表記とか -> aで待ちが発生するし複雑だから止めた.
+# 選択-> al -> =入力  選択範囲で=位置で整形
 repo = 'junegunn/vim-easy-align'
 hook_add = '''
-xmap al <Plug>(EasyAlign)
-nmap al <Plug>(EasyAlign)
-vmap <Enter> <Plug>(EasyAlign)
+" xmap al <Plug>(EasyAlign)
+" nmap al <Plug>(EasyAlign)
+vmap al <Plug>(EasyAlign)
 '''
 
 [[plugins]]

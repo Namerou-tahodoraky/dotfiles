@@ -76,7 +76,7 @@ repo = 'vim-denops/denops.vim'
  depends = ['denops.vim']
  hook_source = '''
  call ddc#custom#patch_global('completionMenu', 'pum.vim')
- call ddc#custom#patch_global('sources', ['skkeleton', 'nvim-lsp', 'vsnip', 'around', 'file'])
+ call ddc#custom#patch_global('sources', ['nvim-lsp', 'vsnip', 'around', 'file'])
  call ddc#custom#patch_global('sourceOptions', {
       \ '_': {
       \   'matchers': ['matcher_fuzzy'],
@@ -90,12 +90,6 @@ repo = 'vim-denops/denops.vim'
       \   'mark': 'LSP',
       \   'forceCompletionPattern': '\.\w*|:\w*|->\w*',
       \   'minAutoCompleteLength': 1,
-      \ },
-      \ 'skkeleton': {
-      \   'mark': 'SKK',
-      \   'matchers': ['skkeleton'],
-      \   'sorters': [],
-      \   'minAutoCompleteLength': 2,
       \ },
       \ })
  " call ddc#custom#patch_global('filterParams', {
@@ -130,7 +124,7 @@ nnoremap <silent> gcs :call ddc#custom#patch_global('sourceOptions', {'nvim-lsp'
 
    local opts = { noremap=true, silent=true }
    buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
-   buf_set_keymap('n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
+   buf_set_keymap('n', 'gK', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
    buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
    buf_set_keymap('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
    buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
@@ -176,7 +170,7 @@ nnoremap <silent> gcs :call ddc#custom#patch_global('sourceOptions', {'nvim-lsp'
      -- virtual_text = {
      --   spacing = 4,
      -- },
-     virtual_text = false,
+     virtual_text = true,
      -- Use a function to dynamically turn signs off
      -- and on, using buffer local variables
      -- signs = function(bufnr, client_id)
@@ -304,12 +298,12 @@ EOF
  imap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
  smap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
  
- " Select or cut text to use as $TM_SELECTED_TEXT in the next snippet.
- " See https://github.com/hrsh7th/vim-vsnip/pull/50
- nmap        s   <Plug>(vsnip-select-text)
- xmap        s   <Plug>(vsnip-select-text)
- nmap        S   <Plug>(vsnip-cut-text)
- xmap        S   <Plug>(vsnip-cut-text)
+ " " Select or cut text to use as $TM_SELECTED_TEXT in the next snippet.
+ " " See https://github.com/hrsh7th/vim-vsnip/pull/50
+ " nmap        s   <Plug>(vsnip-select-text)
+ " xmap        s   <Plug>(vsnip-select-text)
+ " nmap        S   <Plug>(vsnip-cut-text)
+ " xmap        S   <Plug>(vsnip-cut-text)
  
  " If you want to use snippet for multiple filetypes, you can `g:vsnip_filetypes` for it.
  let g:vsnip_filetypes = {}
@@ -363,9 +357,9 @@ augroup end
 repo = 'kevinhwang91/nvim-hlslens'
 on_event = 'BufEnter'
 hook_add = '''
-noremap <silent> n <Cmd>execute('normal! ' . v:count1 . 'n')<CR>
+noremap <silent> n <Cmd>execute('normal! ' . v:count1 . 'nzz')<CR>
             \<Cmd>lua require('hlslens').start()<CR>
-noremap <silent> N <Cmd>execute('normal! ' . v:count1 . 'N')<CR>
+noremap <silent> N <Cmd>execute('normal! ' . v:count1 . 'Nzz')<CR>
             \<Cmd>lua require('hlslens').start()<CR>
 '''
 
@@ -373,14 +367,14 @@ noremap <silent> N <Cmd>execute('normal! ' . v:count1 . 'N')<CR>
 # 検索時に勝手にカーソルが移動するのを防ぐ.
 # 選択範囲の文字列でアスタリスク検索する機能ももつ.
 # キーマップにvim-asteriskとnvim-hlslensの機能両方を結びつける為に、nvim-hlslensをdependsにしている.
-# 最後にカーソル位置調整でzzしている.
 repo = 'haya14busa/vim-asterisk'
-depends = ['nvim-hlslens']
+# depends = ['nvim-hlslens']
+on_source = 'nvim-hlslens'
 hook_add = '''
-map * <Plug>(asterisk-z*)<Cmd>lua require('hlslens').start()<CR>zz
-map # <Plug>(asterisk-z#)<Cmd>lua require('hlslens').start()<CR>zz
-map g* <Plug>(asterisk-gz*)<Cmd>lua require('hlslens').start()<CR>zz
-map g# <Plug>(asterisk-gz#)<Cmd>lua require('hlslens').start()<CR>zz
+map * <Plug>(asterisk-z*)<Cmd>lua require('hlslens').start()<CR>
+map # <Plug>(asterisk-z#)<Cmd>lua require('hlslens').start()<CR>
+map g* <Plug>(asterisk-gz*)<Cmd>lua require('hlslens').start()<CR>
+map g# <Plug>(asterisk-gz#)<Cmd>lua require('hlslens').start()<CR>
 let g:asterisk#keeppos = 1
 '''
 
@@ -462,10 +456,10 @@ nnoremap <silent> <F10> :lua require'dap'.step_over()<CR>
 nnoremap <silent> <F11> :lua require'dap'.step_into()<CR>
 nnoremap <silent> <F12> :lua require'dap'.step_out()<CR>
 nnoremap <silent> <leader>b :lua require'dap'.toggle_breakpoint()<CR>
-nnoremap <silent> <leader>B :lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
-nnoremap <silent> <leader>lp :lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>
-nnoremap <silent> <leader>dr :lua require'dap'.repl.open()<CR>
-nnoremap <silent> <leader>dl :lua require'dap'.run_last()<CR>
+" nnoremap <silent> <leader>B :lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
+" nnoremap <silent> <leader>lp :lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>
+" nnoremap <silent> <leader>dr :lua require'dap'.repl.open()<CR>
+" nnoremap <silent> <leader>dl :lua require'dap'.run_last()<CR>
 '''
 
 [[plugins]]
@@ -499,7 +493,8 @@ EOF
 # デバッグ画面
 repo = 'rcarriga/nvim-dap-ui'
 # depends = ['nvim-dap']
-on_ft = ['python']
+# on_ft = ['python']
+on_source = ['nvim-dap']
 hook_source = '''
 lua << EOF
 require('dapui').setup()
@@ -631,11 +626,11 @@ xnoremap ? <Cmd>call searchx#start({ 'dir': 0 })<CR>
 xnoremap / <Cmd>call searchx#start({ 'dir': 1 })<CR>
 cnoremap ; <Cmd>call searchx#select()<CR>
 
-" Move to next/prev match.
-nnoremap N <Cmd>call searchx#prev_dir()<CR>
-nnoremap n <Cmd>call searchx#next_dir()<CR>
-xnoremap N <Cmd>call searchx#prev_dir()<CR>
-xnoremap n <Cmd>call searchx#next_dir()<CR>
+" " Move to next/prev match.
+" nnoremap N <Cmd>call searchx#prev_dir()<CR>
+" nnoremap n <Cmd>call searchx#next_dir()<CR>
+" xnoremap N <Cmd>call searchx#prev_dir()<CR>
+" xnoremap n <Cmd>call searchx#next_dir()<CR>
 " nnoremap <C-k> <Cmd>call searchx#prev()<CR>
 " nnoremap <C-j> <Cmd>call searchx#next()<CR>
 " xnoremap <C-k> <Cmd>call searchx#prev()<CR>
@@ -709,6 +704,17 @@ require('lualine').setup {
   tabline = {},
   extensions = {}
 }
+EOF
+'''
+
+[[plugins]]
+# 
+repo = 'folke/trouble.nvim'
+depends = ['nvim-web-devicons']
+on_event = 'BufRead'
+hook_source = '''
+lua << EOF
+require("trouble").setup {}
 EOF
 '''
 
