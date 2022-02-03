@@ -30,15 +30,15 @@ let g:camelcasemotion_key = ','
 
 [[plugins]]
 # 空白を無視したインデント数ベースの移動.
-# Shiftで同インデント内の移動.深いインデントから浅いインデントには抜けれる.現在行より浅いインデント行は無視される.
-# sで最も浅いインデント部分に移動.
+# sで同インデント内の移動.深いインデントから浅いインデントには抜けれる.現在行より浅いインデント行は無視される.
+# Shiftで最も浅いインデント部分に移動.
 # 開始と終了に^をつけることで,移動開始列に関係なく動作するようにしている.
 repo = 'tyru/columnskip.vim'
 hook_add = '''
-map J ^<Plug>(columnskip:nonblank:next)^
-map K ^<Plug>(columnskip:nonblank:prev)^
-map sj ^<Plug>(columnskip:first-nonblank:next)^
-map sk ^<Plug>(columnskip:first-nonblank:prev)^
+map sj ^<Plug>(columnskip:nonblank:next)^
+map sk ^<Plug>(columnskip:nonblank:prev)^
+map J  ^<Plug>(columnskip:first-nonblank:next)^
+map K  ^<Plug>(columnskip:first-nonblank:prev)^
 '''
 
 [[plugins]]
@@ -82,6 +82,28 @@ vmap <Leader>cj     <Plug>(caw:hatpos:toggle)
 '''
 
 [[plugins]]
+# 長さが同じブロック行をtextobjとして扱う.
+# C+vやvim-operator-blockwiseで同じことができるので直接使わない.
+# vim-operator-blockwiseの必須プラグインなので導入している.
+repo = 'osyo-manga/vim-textobj-blockwise'
+depends = ['vim-textobj-user']
+
+[[plugins]]
+# 長さの違うブロック行に対するoperator.
+# myiw, mRib, mdif/など
+# yank時ハイライトが出ないので注意. vは対応してない.
+repo = 'osyo-manga/vim-operator-blockwise'
+depends = ['vim-textobj-blockwise', 'vim-operator-replace']
+on_map = ['<Plug>(operator-blockwise-yank-head)', '<Plug>(operator-blockwise-delete-head)', '<Plug>(operator-blockwise-change-head)']
+hook_add = '''
+nmap my <Plug>(operator-blockwise-yank-head)
+nmap md <Plug>(operator-blockwise-delete-head)
+nmap mc <Plug>(operator-blockwise-change-head)
+nmap <expr> mR operator#blockwise#mapexpr_head("\<Plug>(operator-replace)")
+'''
+
+
+[[plugins]]
 # textobj拡張プラグインの依存元
 repo = 'kana/vim-textobj-user'
 
@@ -98,27 +120,44 @@ repo = 'kana/vim-textobj-user'
 # '''
 
 [[plugins]]
-# インデントと改行を除く一行に対する操作.
+# インデントと改行を除く一行をtextobjとして扱う.
 # yil, dil, cil, vil
-# alはeasy-alignに設定しているので押さないこと.
 # hook_addでキーマップを書くと動かなくなる.
 repo = 'kana/vim-textobj-line'
 depends = ['vim-textobj-user']
-# hook_add = '''
-# omap il <Plug>(textobj-line-l)
-# vmap il <Plug>(textobj-line-l)
-# '''
 
 [[plugins]]
-# インデントと改行を除く一行に対する操作.
+# 任意の文字で挟まれた範囲をtextobjとして扱う.
+# cif_, dif/ など
+repo = 'thinca/vim-textobj-between'
+depends = ['vim-textobj-user']
+
+[[plugins]]
+# 対象ブロック内をtextobjとして扱う.
+# 対象は(),[],{},<>,"",''
+# cib, yibなど.
+repo = 'osyo-manga/vim-textobj-multiblock'
+depends = ['vim-textobj-user']
+hook_add = '''
+omap ab <Plug>(textobj-multiblock-a)
+omap ib <Plug>(textobj-multiblock-i)
+vmap ab <Plug>(textobj-multiblock-a)
+vmap ib <Plug>(textobj-multiblock-i)
+'''
+
+[[plugins]]
+# 同インデントの範囲をtextobjとして扱う.
+# viiなど.
+# 空行を無視できるのでvipとはそこで差別化できる.
+# vaiは上下の外側の行も含まれるので、JSON形式などでは役立つかも.
+repo = 'michaeljsmith/vim-indent-object'
+
+[[plugins]]
+# "や(などのペアを自動補完する.
 repo = 'cohama/lexima.vim'
 # hook_add = '''
 # let g:lexima_enable_newline_rules = 0
 # '''
-
-[[plugins]]
-# インデントをテキストオブジェクトに追加
-repo = 'michaeljsmith/vim-indent-object'
 
 [[plugins]]
 # 区切り文字で整形
