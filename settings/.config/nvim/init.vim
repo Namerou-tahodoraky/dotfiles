@@ -150,6 +150,10 @@ colorscheme tokyonight
 syntax enable
 
 
+" set showmatch
+" hi MatchParen ctermbg=1
+
+
 
 " 初期状態はcursorlineを表示しない
 " 以下の一行は必ずcolorschemeの設定後に追加すること

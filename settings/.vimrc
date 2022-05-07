@@ -31,7 +31,7 @@ set wrap
 set display=lastline
 set foldmethod=indent
 set foldlevel=100
-set foldcolumn=1
+" set foldcolumn=1
 "au BufWinLeave * mkview
 "au BufWinEnter * silent loadview
 "" FOR CURSOL

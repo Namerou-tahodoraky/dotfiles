@@ -20,6 +20,41 @@ EOF
 '''
 
 [[plugins]]
+# treesitterを利用した自動インデントプラグイン.
+# treesitterや別プラグインだとバグや誤動作がちょくちょくある.
+repo = 'yioneko/nvim-yati'
+on_source = 'nvim-treesitter'
+hook_source = '''
+lua <<EOF
+require("nvim-treesitter.configs").setup {
+  yati = { enable = true },
+}
+EOF
+'''
+
+[[plugins]]
+repo = 'p00f/nvim-ts-rainbow'
+on_source = 'nvim-treesitter'
+hook_source = '''
+lua <<EOF
+require("nvim-treesitter.configs").setup {
+  -- highlight = {
+  --     -- ...
+  -- },
+  -- -- ...
+  rainbow = {
+    enable = true,
+    -- disable = { "jsx", "cpp" }, list of languages you want to disable the plugin for
+    extended_mode = true, -- Also highlight non-bracket delimiters like html tags, boolean or table: lang -> boolean
+    max_file_lines = nil, -- Do not enable for files with more than n lines, int
+    -- colors = {}, -- table of hex strings
+    -- termcolors = {} -- table of colour name strings
+  }
+}
+EOF
+'''
+
+[[plugins]]
 # インデントの可視化
 repo = 'lukas-reineke/indent-blankline.nvim'
 on_event = 'BufEnter'
@@ -111,7 +146,13 @@ nnoremap <silent> gcs :call ddc#custom#patch_global('sourceOptions', {'nvim-lsp'
 '''
 
 [[plugins]]
+repo = 'b0o/SchemaStore.nvim'
+on_event = 'BufEnter'
+
+
+[[plugins]]
  repo = 'neovim/nvim-lspconfig'
+ depends = ['SchemaStore.nvim']
  on_event = 'BufEnter'
  hook_source = '''
  lua << EOF
@@ -132,6 +173,19 @@ nnoremap <silent> gcs :call ddc#custom#patch_global('sourceOptions', {'nvim-lsp'
    buf_set_keymap('n', 'g[', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
    buf_set_keymap('n', 'g]', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
  end
+
+ -- これつけるとyamllsが動かない.
+ -- nvim-lsp.yamlls.setup {
+ --   settings = {
+ --     yaml = {
+ --       schemas = require('schemastore').yaml.schemas {
+ --        select = {
+ --          'docker-compose.yml',
+ --        },
+ --      },
+ --     },
+ --   },
+ -- }
 
  -- local servers = {
  --   pylsp = {
@@ -200,12 +254,54 @@ nnoremap <silent> gcs :call ddc#custom#patch_global('sourceOptions', {'nvim-lsp'
    server:setup(opts)
    vim.cmd [[ do User LspAttachBuffers ]]
  end)
+
+
 EOF
 '''
 
 [[plugins]]
  repo ='williamboman/nvim-lsp-installer'
  on_source = 'nvim-lspconfig'
+
+[[plugins]]
+# インストール済みのlinterやforatterを呼び出しての出力結果をLSPに渡す
+repo ='jose-elias-alvarez/null-ls.nvim'
+depends = ['plenary.nvim']
+on_source = 'nvim-lspconfig'
+hook_source = '''
+lua << EOF
+require("null-ls").setup({
+    sources = {
+        -- require("null-ls").builtins.completion.spell,
+        require("null-ls").builtins.diagnostics.mypy,
+        require("null-ls").builtins.diagnostics.shellcheck,
+        -- require("null-ls").builtins.diagnostics.mypy.with({
+        --     command = "pipenv run mypy",
+        -- }),
+    }
+})
+EOF
+'''
+
+[[plugins]]
+# プロジェクト内のファイルの一斉置換
+repo ='nvim-pack/nvim-spectre'
+depends = ['plenary.nvim']
+# on_source = 'nvim-lspconfig'
+on_event = 'BufRead'
+hook_source = '''
+lua << EOF
+require('spectre').setup()
+EOF
+'''
+hook_add = '''
+nnoremap <leader>R :lua require('spectre').open()<CR>
+"search current word
+nnoremap <leader>rw :lua require('spectre').open_visual({select_word=true})<CR>
+vnoremap <leader>r :lua require('spectre').open_visual()<CR>
+"  search in current file
+nnoremap <leader>rp viw:lua require('spectre').open_file_search()<cr>
+'''
 
 [[plugins]]
  repo = 'Shougo/ddc-nvim-lsp'
@@ -728,4 +824,31 @@ lua << EOF
 vim.opt.termguicolors = true
 require("bufferline").setup{}
 EOF
+'''
+
+[[plugins]]
+# 
+repo ='tani/glance-vim'
+depends = ['denops.vim']
+on_ft = 'markdown'
+# hook_source = '''
+# let g:glance#stylesheet = '@import url("https://cdn.jsdelivr.net/npm/water.css@2/out/water.css");'
+# let g:glance#markdown_html = v:true
+# let g:glance#markdown_linkify = v:true
+# let g:glance#markdown_breaks = v:true
+# let g:glance#server_port = 58765
+# '''
+# hook_post_source = '''
+# let g:glance#stylesheet = '@import url("https://cdn.jsdelivr.net/npm/water.css@2/out/water.css");'
+# let g:glance#markdown_html = v:true
+# let g:glance#markdown_linkify = v:true
+# let g:glance#markdown_breaks = v:true
+# let g:glance#server_port = 58765
+# '''
+hook_add = '''
+let g:glance#stylesheet = '@import url("https://cdn.jsdelivr.net/npm/water.css@2/out/water.css");'
+let g:glance#markdown_html = v:true
+let g:glance#markdown_linkify = v:true
+let g:glance#markdown_breaks = v:true
+let g:glance#server_port = 58765
 '''

@@ -120,106 +120,99 @@ export PATH="$HOME/.local/bin:$PATH"
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 if command -v pyenv 1>/dev/null 2>&1; then
-  eval "$(pyenv init -)"
+  eval "$(pyenv init --path)"
 fi
 
 export PIPENV_VENV_IN_PROJECT=1
 # alias vim='nvim'
 # alias ovim='/usr/bin/vim'
-alias nv='nvim'
-alias cdd='cd /mnt/d/dev'
+# alias nv='nvim'
+# alias cdd='cd /mnt/d/dev'
 alias fe='explorer.exe .'
-alias tmux='tmux -2'
+# alias tmux='tmux -2'
 
-
-# export FZF_DEFAULT_COMMAND='rg --files --no-ignore-vcs --hidden'
-# # export FZF_DEFAULT_COMMAND='rg --files --hidden --glob "!.git"'
-# # 全画面(オプション補完なども全画面になるのが使いづらい)
-# # export FZF_DEFAULT_OPTS='--no-height --reverse'
-# # export FZF_DEFAULT_OPTS='--inline-info'
-# 
-# # export FZF_DEFAULT_OPTS='--height 50% --reverse --border --inline-info --multi --color 'fg:#bbccdd,fg+:#ddeeff,bg:#334455,preview-bg:#223344,border:#778899''
-# export FZF_DEFAULT_OPTS='--select-1 --exit-0 --height 50% --reverse --border --info=inline --multi --preview-window=down:70%'
-# 
-# # export FZF_CTRL_T_OPTS='--preview "bat  --color=always --style=header,grid --line-range :100 {}"'
-# # export FZF_ALT_C_OPTS='--select-1 --exit-0 --color 'fg:#bbccdd,fg+:#ddeeff,bg:#334455,preview-bg:#223344,border:#778899' --preview "ls {}"'
-# # export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
-# 
-# export FZF_CTRL_T_OPTS='--no-height --reverse --select-1 --exit-0 --preview "bat --paging=never --color=always {} | head -n 55"'
-# export FZF_ALT_C_OPTS='--no-height --reverse --select-1 --exit-0 --preview "exa -al -T -L 2 {} | head -n 55"'
-# export FZF_COMPLETION_OPTS='--select-1 --exit-0 --border --info=inline'
 
 . "$HOME/.cargo/env"
 
-function img2sixel_watch() {
-  image_path=$1
-  sleep_time=$2
+export DENO_INSTALL="$HOME/.deno"
+export PATH="$DENO_INSTALL/bin:$PATH"
 
-  if [ -z ${image_path} ]; then
-    echo "one argment must be requwired.\nUsage: img2sixel ${image_path} [${sleep_time}:default=3]"
-    return 
-  fi
-
-  img2sixel -w 10 -h 10 ${image_path} > /dev/null 2>&1
-  echo status=$?
-  if [ $? -ne 0 ]; then
-    echo "${image_path} is not image.\nUsage: img2sixel ${image_path} [${sleep_time}:default=3]"
-    return 
-  fi
-
-  if [ -z ${sleep_time} ]; then
-    sleep_time=3
-  fi
-
-  CHAR=`expr "$sleep_time" : '\([0-9][0-9]*\)'`
-  if [ "$sleep_time" != "$CHAR" ]; then
-    echo "second param must be numeric.\nUsage: img2sixel ${image_path} [${sleep_time}:default=3]"
-    # exit 1
-    return 
-  fi
-
-  echo image_path=${image_path}
-  echo sleep_time=${sleep_time}
-  echo "start watching ${image_path}. if want to stop, press Ctrl+C."
-  while true ;
-  do
-    clear
-    img2sixel -w 20% -h 20% ${image_path}
-    echo $(date "+%H:%M:%S") ${image_path}
-    sleep ${sleep_time}
-  done
-}
+# function img2sixel_watch() {
+#   image_path=$1
+#   sleep_time=$2
+# 
+#   if [ -z ${image_path} ]; then
+#     echo "one argment must be requwired.\nUsage: img2sixel ${image_path} [${sleep_time}:default=3]"
+#     return 
+#   fi
+# 
+#   img2sixel -w 10 -h 10 ${image_path} > /dev/null 2>&1
+#   echo status=$?
+#   if [ $? -ne 0 ]; then
+#     echo "${image_path} is not image.\nUsage: img2sixel ${image_path} [${sleep_time}:default=3]"
+#     return 
+#   fi
+# 
+#   if [ -z ${sleep_time} ]; then
+#     sleep_time=3
+#   fi
+# 
+#   CHAR=`expr "$sleep_time" : '\([0-9][0-9]*\)'`
+#   if [ "$sleep_time" != "$CHAR" ]; then
+#     echo "second param must be numeric.\nUsage: img2sixel ${image_path} [${sleep_time}:default=3]"
+#     # exit 1
+#     return 
+#   fi
+# 
+#   echo image_path=${image_path}
+#   echo sleep_time=${sleep_time}
+#   echo "start watching ${image_path}. if want to stop, press Ctrl+C."
+#   while true ;
+#   do
+#     clear
+#     img2sixel -w 20% -h 20% ${image_path}
+#     echo $(date "+%H:%M:%S") ${image_path}
+#     sleep ${sleep_time}
+#   done
+# }
 
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
-# TMUX
-# tmuxがインストールされてるか確認
-if which tmux >/dev/null 2>&1; then
-  # 現在のシェルがtmux内であるか確認
-  if [ -z ${TMUX} ]; then
-    # tmuxのセッションがあるか確認
-    if $(tmux has-session 2> /dev/null ) ; then
-      tmux -2 a -t $(tmux ls | fzf | awk -F ':' '{print $1}')
-      if [ $? -ne 0 ]; then
-        tmux -2
-      fi
+# # TMUX
+# # tmuxがインストールされてるか確認
+# if which tmux >/dev/null 2>&1; then
+#   # 現在のシェルがtmux内であるか確認
+#   if [ -z ${TMUX} ]; then
+#     # tmuxのセッションがあるか確認
+#     if $(tmux has-session 2> /dev/null ) ; then
+#       tmux -2 a -t $(tmux ls | fzf | awk -F ':' '{print $1}')
+#       if [ $? -ne 0 ]; then
+#         tmux -2
+#       fi
+# 
+#     else
+#       tmux -2
+#     fi
+#   fi
+# fi
 
-    else
-      tmux -2
-    fi
-  fi
-fi
+
+# if [ -z "${FISH_AUTO_START}" ]; then
+#   export FISH_AUTO_START=1
+# fi
+# 
+# if [ "${FISH_AUTO_START}" -eq 1 ]; then
+#   case $- in
+#       *i*) exec fish;;
+#         *) return;;
+#   esac
+# fi
 
 
-if [ -z "${FISH_AUTO_START}" ]; then
-  export FISH_AUTO_START=1
-fi
+complete -C /usr/bin/terraform terraform
+export PATH="$HOME/.tfenv/bin:$PATH"
 
-if [ "${FISH_AUTO_START}" -eq 1 ]; then
-  case $- in
-      *i*) exec fish;;
-        *) return;;
-  esac
-fi
-
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

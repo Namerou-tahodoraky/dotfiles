@@ -9,24 +9,39 @@ let g:tokyonight_style = "night"
 
 [[plugins]]
 # f移動の拡張.
-# ;,によるリピートからfF連打によるリピートに変更.
+# ;,によるリピートからfF連打によるリピートに変更される.(;,は効かなくなる)
 # ヒット文字がハイライトされる. 行をまたいでヒットする.
+# 日本語にヒットする
+# fが上書きされる関係で異なる文字のf移動を連続でやりたい場合は,一度hlで横移動してfの入力待ち状態を切る必要がある.
+# lfで手癖にしても問題なさそう.
 repo = 'rhysd/clever-f.vim'
 hook_add = '''
 let g:clever_f_fix_key_direction = 1  "検索開始がf,Fどちらでもリピート移動の方向を固定する.
 let g:clever_f_use_migemo = 1  "日本語がヒットする
 let g:clever_f_smart_case = 1  "大文字を入力した時は大文字のみ、小文字を入力した時は両方にヒットする.
-let g:clever_f_timeout_ms = 2000  "指定時間でfFのリピート移動が切れる
+let g:clever_f_timeout_ms = 5000  "指定時間でfFのリピート移動が切れる
+let g:clever_f_highlight_timeout_ms = 5000  "指定時間でfFのリピート移動が切れる
+" map ; <Plug>(clever-f-repeat-forward) ";へのマッピングを残す. which-key.vimとバッティングするっぽい
+" map , <Plug>(clever-f-repeat-back) ",へのマッピングを残す. which-key.vimとバッティングするっぽい
 '''
 
 [[plugins]]
-# キャメルケースの移動,テキストオブジェクト選択.
-# ,はfの逆移動に遅延が起きるからちょっと悩む.
-# スネークケースでの移動選択もできる.AA_BB_CCでBBの上でdi,wを押すとAA_CCになる(後ろの_は消えるので注意).
-repo = 'bkad/CamelCaseMotion'
+# f移動の補助.
+# カーソル行に存在する各単語について、fで一発で移動できる場所(ユニークな文字)がハイライトされる.
+# 移動後にciwなどで単語に対して操作する場合はその単語上のどの文字に移動してもいいので、そういう状況で便利.
+repo = 'unblevable/quick-scope'
 hook_add = '''
-let g:camelcasemotion_key = ','
+let g:qs_max_chars=120
 '''
+
+# [[plugins]]
+# # キャメルケース,スネークケースの移動とtextobjとして扱う機能.
+# # ,はfの逆移動に遅延が起きるからちょっと悩む.(clever-f.vimを導入したことで,のマッピングは消えたので解決).
+# # スネークケースでの移動選択もできる.AA_BB_CCでBBの上でdi,wを押すとAA_CCになる(後ろの_は消えるので注意).
+# repo = 'bkad/CamelCaseMotion'
+# hook_add = '''
+# let g:camelcasemotion_key = ','
+# '''
 
 [[plugins]]
 # 空白を無視したインデント数ベースの移動.
@@ -35,15 +50,19 @@ let g:camelcasemotion_key = ','
 # 開始と終了に^をつけることで,移動開始列に関係なく動作するようにしている.
 repo = 'tyru/columnskip.vim'
 hook_add = '''
-map sj ^<Plug>(columnskip:nonblank:next)^
-map sk ^<Plug>(columnskip:nonblank:prev)^
-map J  ^<Plug>(columnskip:first-nonblank:next)^
-map K  ^<Plug>(columnskip:first-nonblank:prev)^
+map SJ ^<Plug>(columnskip:nonblank:next)^
+map SK ^<Plug>(columnskip:nonblank:prev)^
+map sj  ^<Plug>(columnskip:first-nonblank:next)^
+map sk  ^<Plug>(columnskip:first-nonblank:prev)^
 '''
 
 [[plugins]]
 # ドットリピートの多対応化.
 repo = 'tpope/vim-repeat'
+
+[[plugins]]
+# マルチカーソル
+repo = 'mg979/vim-visual-multi'
 
 [[plugins]]
 # operator操作系プラグインの依存元
@@ -90,7 +109,7 @@ depends = ['vim-textobj-user']
 
 [[plugins]]
 # 長さの違うブロック行に対するoperator.
-# myiw, mRib, mdif/など
+# myiw, mRib, mdif/など.入力後に<ENTER>必須.
 # yank時ハイライトが出ないので注意. vは対応してない.
 repo = 'osyo-manga/vim-operator-blockwise'
 depends = ['vim-textobj-blockwise', 'vim-operator-replace']
@@ -133,6 +152,19 @@ repo = 'thinca/vim-textobj-between'
 depends = ['vim-textobj-user']
 
 [[plugins]]
+# (,)を区切りとする関数引数部分をtextobjとして扱う.
+# ci,やda,など
+repo = 'sgur/vim-textobj-parameter'
+depends = ['vim-textobj-user']
+
+[[plugins]]
+# コメント部分をtextobjとして扱う.
+# vac, dac など
+# 複数行に対して実施する用途が主であり、複数行に対してはaを使う.
+repo = 'glts/vim-textobj-comment'
+depends = ['vim-textobj-user']
+
+[[plugins]]
 # 対象ブロック内をtextobjとして扱う.
 # 対象は(),[],{},<>,"",''
 # cib, yibなど.
@@ -151,6 +183,14 @@ vmap ib <Plug>(textobj-multiblock-i)
 # 空行を無視できるのでvipとはそこで差別化できる.
 # vaiは上下の外側の行も含まれるので、JSON形式などでは役立つかも.
 repo = 'michaeljsmith/vim-indent-object'
+
+[[plugins]]
+# スネークケースやキャメルケースの1単語をtextobjとして扱う.
+# div, dav, civなど.
+# aaa_bbb_cccにおいて、avとすると aaa_(bbb_)cccが範囲になる.後ろの区切り文字が含まれる.
+# キャメルケースの場合はaにしても範囲の変化はなし.
+depends = ['vim-textobj-user']
+repo = 'Julian/vim-textobj-variable-segment'
 
 [[plugins]]
 # "や(などのペアを自動補完する.
