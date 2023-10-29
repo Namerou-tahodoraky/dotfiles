@@ -76,7 +76,14 @@ SETUVAR _fish_abbr_dvrm:docker\x20volume\x20rm
 SETUVAR _fish_abbr_fe:explorer\x2eexe\x20\x2e
 SETUVAR _fish_abbr_find:find\x20\x2dtype\x20\x2dname\x20\x22\x22
 SETUVAR _fish_abbr_fishl:FISH_AUTO_START\x3d0\x20bash\x20\x2dc\x20\x27FISH_AUTO_START\x3d1\x20source\x20\x7e/\x2ebashrc\x27
+SETUVAR _fish_abbr_gcma:git\x20commit\x20\x2da
+SETUVAR _fish_abbr_gcmam:git\x20commit\x20\x2da\x20\x2dm\x20\x22\x22
+SETUVAR _fish_abbr_gco:git\x20checkout
+SETUVAR _fish_abbr_gcob:git\x20checkout\x20\x2db
+SETUVAR _fish_abbr_gcom:git\x20checkout\x20\x2dm
+SETUVAR _fish_abbr_gini:git\x20init\x20\x26\x26\x20git\x20commit\x20\x2d\x2dallow\x2dempty\x20\x2dm\x20\x22first\x20commit\x22
 SETUVAR _fish_abbr_glow:glow\x20\x2dp
+SETUVAR _fish_abbr_gs:git\x20status\x20\x2dbs
 SETUVAR _fish_abbr_less:bat
 SETUVAR _fish_abbr_less_2D_:less
 SETUVAR _fish_abbr_ln:ln\x20\x2ds
@@ -87,7 +94,7 @@ SETUVAR _fish_abbr_mdkir:mkdir\x20\x2dp
 SETUVAR _fish_abbr_mkdir:mkdir\x20\x2dp
 SETUVAR _fish_abbr_mkdri:mkdir\x20\x2dp
 SETUVAR _fish_abbr_mv:mv\x20\x2di
-SETUVAR _fish_abbr_nv:nvim
+SETUVAR _fish_abbr_nv:nv
 SETUVAR _fish_abbr_ps:ps\x20\x2da
 SETUVAR _fish_abbr_psf:ps\x20aux\x20\x7c\x20fzf
 SETUVAR _fish_abbr_rm:rm\x20\x2drf

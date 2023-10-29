@@ -198,21 +198,23 @@ export PATH="$DENO_INSTALL/bin:$PATH"
 # fi
 
 
-# if [ -z "${FISH_AUTO_START}" ]; then
-#   export FISH_AUTO_START=1
-# fi
-# 
-# if [ "${FISH_AUTO_START}" -eq 1 ]; then
-#   case $- in
-#       *i*) exec fish;;
-#         *) return;;
-#   esac
-# fi
-
-
 complete -C /usr/bin/terraform terraform
 export PATH="$HOME/.tfenv/bin:$PATH"
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+
+if [ -z "${FISH_AUTO_START}" ]; then
+  export FISH_AUTO_START=1
+fi
+
+if [ "${FISH_AUTO_START}" -eq 1 ]; then
+  case $- in
+      *i*) exec fish;;
+        *) return;;
+  esac
+fi
+
+

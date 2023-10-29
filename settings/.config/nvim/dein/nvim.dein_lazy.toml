@@ -1,4 +1,55 @@
 [[plugins]]
+# 移動補助
+# /や?で検索した時検索先にeasymotionのような移動キーが表示される
+repo = 'hrsh7th/vim-searchx'
+hook_add = '''
+" " Overwrite / and ?.
+nnoremap ? <Cmd>call searchx#start({ 'dir': 0 })<CR>
+nnoremap / <Cmd>call searchx#start({ 'dir': 1 })<CR>
+xnoremap ? <Cmd>call searchx#start({ 'dir': 0 })<CR>
+xnoremap / <Cmd>call searchx#start({ 'dir': 1 })<CR>
+cnoremap ; <Cmd>call searchx#select()<CR>
+
+" " Move to next/prev match.
+" nnoremap N <Cmd>call searchx#prev_dir()<CR>
+" nnoremap n <Cmd>call searchx#next_dir()<CR>
+" xnoremap N <Cmd>call searchx#prev_dir()<CR>
+" xnoremap n <Cmd>call searchx#next_dir()<CR>
+" nnoremap <C-k> <Cmd>call searchx#prev()<CR>
+" nnoremap <C-j> <Cmd>call searchx#next()<CR>
+" xnoremap <C-k> <Cmd>call searchx#prev()<CR>
+" xnoremap <C-j> <Cmd>call searchx#next()<CR>
+" cnoremap <C-k> <Cmd>call searchx#prev()<CR>
+" cnoremap <C-j> <Cmd>call searchx#next()<CR>
+
+" Clear highlights
+nnoremap <C-l> <Cmd>call searchx#clear()<CR>
+
+let g:searchx = {}
+
+" Auto jump if the recent input matches to any marker.
+let g:searchx.auto_accept = v:true
+
+" The scrolloff value for moving to next/prev.
+let g:searchx.scrolloff = &scrolloff
+
+" To enable scrolling animation.
+" let g:searchx.scrolltime = 500
+let g:searchx.scrolltime = 0
+
+" Marker characters.
+let g:searchx.markers = split('ABCDEFGHIJKLMNOPQRSTUVWXYZ', '.\zs')
+
+" Convert search pattern.
+function g:searchx.convert(input) abort
+  if a:input !~# '\k'
+    return '\V' .. a:input
+  endif
+  return a:input[0] .. substitute(a:input[1:], '\\\@<! ', '.\\{-}', 'g')
+endfunction
+'''
+
+[[plugins]]
 repo = 'nvim-treesitter/nvim-treesitter'
 if = 'has("nvim")'
 on_event = 'BufRead'
@@ -145,123 +196,175 @@ nnoremap <silent> gcl :call ddc#custom#patch_global('sourceOptions', {'nvim-lsp'
 nnoremap <silent> gcs :call ddc#custom#patch_global('sourceOptions', {'nvim-lsp': {'minAutoCompleteLength': 1}})<CR>
 '''
 
-[[plugins]]
-repo = 'b0o/SchemaStore.nvim'
-on_event = 'BufEnter'
+# [[plugins]]
+# repo = 'b0o/SchemaStore.nvim'
+# on_event = 'BufEnter'
 
 
-[[plugins]]
- repo = 'neovim/nvim-lspconfig'
- depends = ['SchemaStore.nvim']
- on_event = 'BufEnter'
- hook_source = '''
- lua << EOF
- local nvim_lsp = require('lspconfig')
+# [[plugins]]
+#  repo = 'neovim/nvim-lspconfig'
+#  # depends = ['SchemaStore.nvim']
+#  on_event = 'BufEnter'
+#  hook_source = '''
+#  lua << EOF
+#  local nvim_lsp = require('lspconfig')
+# 
+#  -- language serverがバッファにアタッチされたときに実行する関数
+#  local on_attach = function (client, bufnr)
+#    local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+#    local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+# 
+#    local opts = { noremap=true, silent=true }
+#    buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
+#    buf_set_keymap('n', 'gK', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
+#    buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+#    buf_set_keymap('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+#    buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+#    buf_set_keymap('n', 'gx', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
+#    buf_set_keymap('n', 'g[', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+#    buf_set_keymap('n', 'g]', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+#  end
+# 
+#  -- これつけるとyamllsが動かない.
+#  -- nvim-lsp.yamlls.setup {
+#  --   settings = {
+#  --     yaml = {
+#  --       schemas = require('schemastore').yaml.schemas {
+#  --        select = {
+#  --          'docker-compose.yml',
+#  --        },
+#  --      },
+#  --     },
+#  --   },
+#  -- }
+# 
+#  -- local servers = {
+#  --   pylsp = {
+#  --     cmd = {"pylsp"},
+#  --     root_dir = function(fname)
+#  --       local root_files = {
+#  --         'pyproject.toml',
+#  --         'setup.py',
+#  --         'setup.cfg',
+#  --         'requirements.txt',
+#  --         'Pipfile',
+#  --       }
+#  --       return util.root_pattern(unpack(root_files))(fname) or util.find_git_ancestor(fname)
+#  --     end,
+#  --     settings = {
+#  --       pylsp = {
+#  --         configurationSources = {"pylint"},
+#  --         plugins = {
+#  --           pylint = { enabled = true },
+#  --           flake8 = { enabled = false },
+#  --           pycodestyle = { enabled = false },
+#  --           pyflakes = { enabled = false },
+#  --         }
+#  --       }
+#  --     }
+#  --   }
+#  -- }
+# 
+#  -- リント表示の設定
+#  vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+#    vim.lsp.diagnostic.on_publish_diagnostics, {
+#      -- -- Enable underline, use default values
+#      -- underline = true,
+#      underline = false,
+#      -- -- Enable virtual text, override spacing to 4
+#      -- virtual_text = {
+#      --   spacing = 4,
+#      -- },
+#      virtual_text = true,
+#      -- Use a function to dynamically turn signs off
+#      -- and on, using buffer local variables
+#      -- signs = function(bufnr, client_id)
+#      --   return vim.bo[bufnr].show_signs == false
+#      -- end,
+#      signs = true,
+#      -- -- Disable a feature
+#      update_in_insert = false,
+#    }
+#  )
+# 
+#  require'lspconfig'.yamlls.setup{
+#     cmd = {"~/.local/share/nvim/lsp_servers/yaml/node_modules/.bin/yaml-language-server", "--stdio"},
+#     -- on_attach = require'lsp'.common_on_attach,
+#     settings = {
+#         yaml = {
+#             format = {
+#                     enable = true,
+#             },
+#             hover = true,
+#             completion = true,
+# 
+#             customTags = {
+#                 "!fn",
+#                 "!And",
+#                 "!If",
+#                 "!Not",
+#                 "!Equals",
+#                 "!Or",
+#                 "!FindInMap sequence",
+#                 "!Base64",
+#                 "!Cidr",
+#                 "!Ref",
+#                 "!Ref Scalar",
+#                 "!Sub",
+#                 "!GetAtt",
+#                 "!GetAZs",
+#                 "!ImportValue",
+#                 "!Select",
+#                 "!Split",
+#                 "!Join sequence"
+#             },
+#         },
+#     },
+#   }
+#  require('lspconfig').ruff_lsp.setup {
+#    -- on_attach = on_attach,
+#    init_options = {
+#      settings = {
+#        -- Any extra CLI arguments for `ruff` go here.
+#        args = {},
+#      }
+#    }
+#  }
+# 
+# 
+#  local lsp_installer = require("nvim-lsp-installer")
+# 
+#  -- サーバー起動時に自動でon_attachをアタッチする
+#  lsp_installer.on_server_ready(function(server)
+# 
+#    local capabilities = vim.lsp.protocol.make_client_capabilities()
+#    capabilities.textDocument.completion.completionItem.snippetSupport = true
+# 
+#    -- language serverごとにcapabilitiesを追加する必要があります。
+#    -- on_attachは必要に応じて
+#    -- require'lspconfig'.clangd.setup{on_attach = on_attach, capabilities = capabilities}
+#    local opts = {}
+#    opts.on_attach = on_attach
+#    opts.capabilities = capabilities
+#    server:setup(opts)
+#    vim.cmd [[ do User LspAttachBuffers ]]
+#  end)
+# 
+# 
+# EOF
+# '''
 
- -- language serverがバッファにアタッチされたときに実行する関数
- local on_attach = function (client, bufnr)
-   local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
-   local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+# [[plugins]]
+#  repo ='williamboman/nvim-lsp-installer'
+#  on_source = 'nvim-lspconfig'
 
-   local opts = { noremap=true, silent=true }
-   buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
-   buf_set_keymap('n', 'gK', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
-   buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
-   buf_set_keymap('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
-   buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
-   buf_set_keymap('n', 'gx', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
-   buf_set_keymap('n', 'g[', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
-   buf_set_keymap('n', 'g]', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
- end
-
- -- これつけるとyamllsが動かない.
- -- nvim-lsp.yamlls.setup {
- --   settings = {
- --     yaml = {
- --       schemas = require('schemastore').yaml.schemas {
- --        select = {
- --          'docker-compose.yml',
- --        },
- --      },
- --     },
- --   },
- -- }
-
- -- local servers = {
- --   pylsp = {
- --     cmd = {"pylsp"},
- --     root_dir = function(fname)
- --       local root_files = {
- --         'pyproject.toml',
- --         'setup.py',
- --         'setup.cfg',
- --         'requirements.txt',
- --         'Pipfile',
- --       }
- --       return util.root_pattern(unpack(root_files))(fname) or util.find_git_ancestor(fname)
- --     end,
- --     settings = {
- --       pylsp = {
- --         configurationSources = {"pylint"},
- --         plugins = {
- --           pylint = { enabled = true },
- --           flake8 = { enabled = false },
- --           pycodestyle = { enabled = false },
- --           pyflakes = { enabled = false },
- --         }
- --       }
- --     }
- --   }
- -- }
-
- -- リント表示の設定
- vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-   vim.lsp.diagnostic.on_publish_diagnostics, {
-     -- -- Enable underline, use default values
-     -- underline = true,
-     underline = false,
-     -- -- Enable virtual text, override spacing to 4
-     -- virtual_text = {
-     --   spacing = 4,
-     -- },
-     virtual_text = true,
-     -- Use a function to dynamically turn signs off
-     -- and on, using buffer local variables
-     -- signs = function(bufnr, client_id)
-     --   return vim.bo[bufnr].show_signs == false
-     -- end,
-     signs = true,
-     -- -- Disable a feature
-     update_in_insert = false,
-   }
- )
-
-
- local lsp_installer = require("nvim-lsp-installer")
-
- -- サーバー起動時に自動でon_attachをアタッチする
- lsp_installer.on_server_ready(function(server)
-
-   local capabilities = vim.lsp.protocol.make_client_capabilities()
-   capabilities.textDocument.completion.completionItem.snippetSupport = true
-
-   -- language serverごとにcapabilitiesを追加する必要があります。
-   -- on_attachは必要に応じて
-   -- require'lspconfig'.clangd.setup{on_attach = on_attach, capabilities = capabilities}
-   local opts = {}
-   opts.on_attach = on_attach
-   opts.capabilities = capabilities
-   server:setup(opts)
-   vim.cmd [[ do User LspAttachBuffers ]]
- end)
-
-
-EOF
-'''
-
-[[plugins]]
- repo ='williamboman/nvim-lsp-installer'
- on_source = 'nvim-lspconfig'
+# [[plugins]]
+#  repo ='williamboman/mason.nvim'
+#  on_source = 'nvim-lspconfig'
+# 
+# [[plugins]]
+#  repo ='williamboman/mason-lspconfig.nvim'
+#  on_source = 'nvim-lspconfig'
 
 [[plugins]]
 # インストール済みのlinterやforatterを呼び出しての出力結果をLSPに渡す
@@ -273,8 +376,12 @@ lua << EOF
 require("null-ls").setup({
     sources = {
         -- require("null-ls").builtins.completion.spell,
+        require("null-ls").builtins.diagnostics.flake8,
         require("null-ls").builtins.diagnostics.mypy,
         require("null-ls").builtins.diagnostics.shellcheck,
+        require("null-ls").builtins.diagnostics.cfn_lint,
+        require("null-ls").builtins.formatting.ruff,
+        require("null-ls").builtins.diagnostics.ruff,
         -- require("null-ls").builtins.diagnostics.mypy.with({
         --     command = "pipenv run mypy",
         -- }),
@@ -309,10 +416,9 @@ nnoremap <leader>rp viw:lua require('spectre').open_file_search()<cr>
 
 [[plugins]]
 # LSPの動作待ち中プログレスバーを表示する.
-# pylspはおそらく対応していない.
+# pylspはおそらく対応していない. -> pyrightが対応しているっぽい.
+# null-lsは対応している.
 # terraform-lsはおそらく対応している.
-# 正常動作は確認できていない
-# （待ちがなさ過ぎて見えないのか,progressに対応してないのか,動作していないのかわからない)
  repo = 'j-hui/fidget.nvim'
  on_event = 'BufEnter'
  hook_source = '''
@@ -333,7 +439,7 @@ nnoremap <leader>rp viw:lua require('spectre').open_file_search()<cr>
 # ddcやdenops-popup-preview.vimとは独立して動く.
 [[plugins]]
 repo = 'ray-x/lsp_signature.nvim'
-depends = ['nvim-lsp']
+# depends = ['nvim-lsp']
 # on_source = ['ddc.vim', "denops-popup_preview"]
 on_event = 'BufRead'
 hook_source = '''
@@ -404,10 +510,14 @@ EOF
  " If you want to use snippet for multiple filetypes, you can `g:vsnip_filetypes` for it.
  let g:vsnip_filetypes = {}
  let g:vsnip_filetypes.python = ['python']
- let g:vsnip_filetypes.javascriptreact = ['javascript']
- let g:vsnip_filetypes.typescriptreact = ['typescript']
+ " let g:vsnip_filetypes.javascriptreact = ['javascript']
+ " let g:vsnip_filetypes.typescriptreact = ['typescript']
 
- let g:vsnip_snippet_dir = expand('~/.config/nvim/vsnips')
+ " let g:vsnip_snippet_dir = expand('~/.config/nvim/vsnips')
+ let g:vsnip_snippet_dirs = []
+ let g:vsnip_snippet_dirs += ['~/.config/nvim/vsnips/python']
+ let g:vsnip_snippet_dirs += ['~/.config/nvim/vsnips/python/pytest']
+ let g:vsnip_snippet_dirs += ['~/.config/nvim/vsnips/terraform']
  '''
 
 [[plugins]]
@@ -544,18 +654,22 @@ let g:asterisk#keeppos = 1
 
 [[plugins]]
 # デバッグツール
+# ステップイン: 1行進む.
+# ステップオーバー: 1行進む.進み先が関数内に入る場合は、関数内はスキップする.
+# ステップアウト: そのスコープを出るまで進む.
 repo = 'mfussenegger/nvim-dap'
 on_ft = ['python']
 hook_add = '''
-nnoremap <silent> <F5> :lua require'dap'.continue()<CR>
-nnoremap <silent> <F10> :lua require'dap'.step_over()<CR>
-nnoremap <silent> <F11> :lua require'dap'.step_into()<CR>
-nnoremap <silent> <F12> :lua require'dap'.step_out()<CR>
-nnoremap <silent> <leader>b :lua require'dap'.toggle_breakpoint()<CR>
-" nnoremap <silent> <leader>B :lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
-" nnoremap <silent> <leader>lp :lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>
+nnoremap <silent> <Leader>0 :lua require'dap'.continue()<CR>
+nnoremap <silent> <Leader>1 :lua require'dap'.step_into()<CR>
+nnoremap <silent> <Leader>2 :lua require'dap'.step_over()<CR>
+nnoremap <silent> <Leader>3 :lua require'dap'.step_out()<CR>
+nnoremap <silent> <leader>dq :lua require'dap'.terminate(); require'dapui'.close()<CR>
+nnoremap <silent> <leader>db :lua require'dap'.toggle_breakpoint()<CR>
+nnoremap <silent> <leader>dc :lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
+nnoremap <silent> <leader>dB :lua require'dap'.clear_breakpoints()<CR>
+" nnoremap <silent> <leader>dp :lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>
 " nnoremap <silent> <leader>dr :lua require'dap'.repl.open()<CR>
-" nnoremap <silent> <leader>dl :lua require'dap'.run_last()<CR>
 '''
 
 [[plugins]]
@@ -711,57 +825,6 @@ nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
 
 
 [[plugins]]
-# 移動補助
-# /や?で検索した時検索先にeasymotionのような移動キーが表示される
-repo = 'hrsh7th/vim-searchx'
-hook_add = '''
-" " Overwrite / and ?.
-nnoremap ? <Cmd>call searchx#start({ 'dir': 0 })<CR>
-nnoremap / <Cmd>call searchx#start({ 'dir': 1 })<CR>
-xnoremap ? <Cmd>call searchx#start({ 'dir': 0 })<CR>
-xnoremap / <Cmd>call searchx#start({ 'dir': 1 })<CR>
-cnoremap ; <Cmd>call searchx#select()<CR>
-
-" " Move to next/prev match.
-" nnoremap N <Cmd>call searchx#prev_dir()<CR>
-" nnoremap n <Cmd>call searchx#next_dir()<CR>
-" xnoremap N <Cmd>call searchx#prev_dir()<CR>
-" xnoremap n <Cmd>call searchx#next_dir()<CR>
-" nnoremap <C-k> <Cmd>call searchx#prev()<CR>
-" nnoremap <C-j> <Cmd>call searchx#next()<CR>
-" xnoremap <C-k> <Cmd>call searchx#prev()<CR>
-" xnoremap <C-j> <Cmd>call searchx#next()<CR>
-" cnoremap <C-k> <Cmd>call searchx#prev()<CR>
-" cnoremap <C-j> <Cmd>call searchx#next()<CR>
-
-" Clear highlights
-nnoremap <C-l> <Cmd>call searchx#clear()<CR>
-
-let g:searchx = {}
-
-" Auto jump if the recent input matches to any marker.
-let g:searchx.auto_accept = v:true
-
-" The scrolloff value for moving to next/prev.
-let g:searchx.scrolloff = &scrolloff
-
-" To enable scrolling animation.
-" let g:searchx.scrolltime = 500
-let g:searchx.scrolltime = 0
-
-" Marker characters.
-let g:searchx.markers = split('ABCDEFGHIJKLMNOPQRSTUVWXYZ', '.\zs')
-
-" Convert search pattern.
-function g:searchx.convert(input) abort
-  if a:input !~# '\k'
-    return '\V' .. a:input
-  endif
-  return a:input[0] .. substitute(a:input[1:], '\\\@<! ', '.\\{-}', 'g')
-endfunction
-'''
-
-[[plugins]]
 # 
 repo = 'kyazdani42/nvim-web-devicons'
 
@@ -804,7 +867,11 @@ EOF
 '''
 
 [[plugins]]
-# 
+# diagnosticsの一覧を表示する.diagnosticsの発生個所に飛べる.
+# 一覧にカーソルを合わせるだけで発生個所が表示されるので、
+# LSPのショートカットキーで一つずつ飛ぶより楽.
+# 実行コマンド :TroubleToggle
+# 実行コマンド :TroubleRefresh
 repo = 'folke/trouble.nvim'
 depends = ['nvim-web-devicons']
 on_event = 'BufRead'
@@ -852,3 +919,8 @@ let g:glance#markdown_linkify = v:true
 let g:glance#markdown_breaks = v:true
 let g:glance#server_port = 58765
 '''
+
+[[plugins]]
+repo = 'Shougo/ddu.vim'
+depends = 'denops.vim'
+on_source = 'denops.vim'

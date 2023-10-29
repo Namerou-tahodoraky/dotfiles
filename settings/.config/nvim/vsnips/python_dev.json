@@ -1,0 +1,13 @@
+{
+    "dddddd": {
+        "prefix": ["ddd"],
+        "scope": ["python"],
+        "body": [
+            "with open($1) as f:",
+            "    $2 = json.load(f)",
+            "${3| ,import json|}",
+            "$0"
+        ],
+        "description": "description"
+    }
+}

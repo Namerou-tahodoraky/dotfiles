@@ -1,0 +1,308 @@
+[[plugins]]
+repo = 'folke/tokyonight.nvim'
+hook_add = '''
+let g:tokyonight_style = "night"
+'''
+
+# [[plugins]]
+# # マルチカーソル
+# repo = 'mg979/vim-visual-multi'
+
+[[plugins]]
+# "や(などのペアを自動補完する.
+repo = 'cohama/lexima.vim'
+# hook_add = '''
+# let g:lexima_enable_newline_rules = 0
+# '''
+
+[[plugins]]
+# 区切り文字で整形
+# alip=  段落を対象に=で位置を整形 -> aで待ちが発生するし複雑だから止めた.
+# alip*| 段落を対象に同列内の全ての|の位置を整形, テーブル表記とか -> aで待ちが発生するし複雑だから止めた.
+# 選択-> al -> =入力  選択範囲で=位置で整形
+repo = 'junegunn/vim-easy-align'
+hook_add = '''
+" xmap al <Plug>(EasyAlign)
+" nmap al <Plug>(EasyAlign)
+vmap al <Plug>(EasyAlign)
+'''
+
+# [[plugins]]
+# repo = 'itchyny/lightline.vim'
+
+[[plugins]]
+repo = 'nvim-lua/plenary.nvim'
+
+[[plugins]]
+repo = 'nvim-telescope/telescope.nvim'
+hook_add = '''
+" Find files using Telescope command-line sugar.
+nnoremap <leader>ff <cmd>Telescope find_files<cr>
+nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+nnoremap <leader>fb <cmd>Telescope buffers<cr>
+nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+
+" "" Using Lua functions
+" "nnoremap <leader>ff <cmd>lua require('telescope.builtin').find_files()<cr>
+" "nnoremap <leader>fg <cmd>lua require('telescope.builtin').live_grep()<cr>
+" "nnoremap <leader>fb <cmd>lua require('telescope.builtin').buffers()<cr>
+" "nnoremap <leader>fh <cmd>lua require('telescope.builtin').help_tags()<cr>
+'''
+
+# [[plugins]]
+# repo = 'airblade/vim-gitgutter'
+# 
+# [[plugins]]
+# repo = 'tpope/vim-fugitive'
+# 
+# [[plugins]]
+# # 文字検索時マッチング個数と何番目かを表示するプラグイン
+# repo = 'osyo-manga/vim-anzu'
+# hook_add = '''
+# nmap n <Plug>(anzu-n-with-echo)
+# nmap N <Plug>(anzu-N-with-echo)
+# nmap * <Plug>(anzu-star-with-echo)
+# nmap # <Plug>(anzu-sharp-with-echo)
+# '''
+# #nmap <Esc><Esc> <Plug>(anzu-clear-search-status)#効かない？
+# 
+# [[plugins]]
+# # 多形式対応のシンタックスハイライト
+# repo = 'sheerun/vim-polyglot'
+# 
+# [[plugins]]
+# # インデントの可視化
+# repo = 'Yggdroot/indentLine'
+# 
+# [[plugins]]
+# # 行末空白の可視化
+# repo = 'bronson/vim-trailing-whitespace'
+# 
+# [[plugins]]
+# # 画面スクロール過程を可視化
+# repo = 'yuttie/comfortable-motion.vim'
+# 
+# [[plugins]]
+# # ウィンドウサイズ変更の簡易化
+# repo = 'simeji/winresizer'
+# hook_add = '''
+# let g:winresizer_vert_resize = 2
+# let g:winresizer_horiz_resize = 1
+# '''
+# 
+# [[plugins]]
+# # ウィンドウのひとつを最大化
+# # 動くけどエラーがたくさんでる.NeoVim未対応？
+# repo = 'vim-scripts/ZoomWin'
+# 
+# [[plugins]]
+# # チートシート表示
+# repo = 'reireias/vim-cheatsheet'
+# hook_add = '''
+# let g:cheatsheet#cheat_file = '~/.cheetsheets/sample.md'
+# let g:cheatsheet#float_window = 1
+# " you can change float window size.
+# let g:cheatsheet#float_window_width_ratio = 0.6
+# let g:cheatsheet#float_window_height_ratio = 0.6
+# '''
+# #augroup vimrc_filetype
+# #  autocmd!
+# #  autocmd FileType zsh let g:cheatsheet#cheat_file = '~/.cheatsheet-zsh.md'
+# #augroup END
+# 
+# [[plugins]]
+# # ファイルツリー
+# repo = 'lambdalisue/fern.vim'
+# hook_add = '''
+# nnoremap <C-n> :Fern . -reveal=% -drawer -toggle -width=40<CR>
+# '''
+
+
+#---------------------------------------------
+# LSP関連(masonがlazy非推奨なので全てこちらに
+#---------------------------------------------
+[[plugins]]
+repo = 'neovim/nvim-lspconfig'
+on_event = 'BufEnter'
+hook_source = '''
+lua << EOF
+local nvim_lsp = require('lspconfig')
+
+-- language serverがバッファにアタッチされたときに実行する関数
+local on_attach = function (client, bufnr)
+  local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+  local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+
+  local opts = { noremap=true, silent=true }
+  buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
+  buf_set_keymap('n', 'gK', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
+  buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+  buf_set_keymap('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+  buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+  buf_set_keymap('n', 'gx', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
+  buf_set_keymap('n', 'g[', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+  buf_set_keymap('n', 'g]', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+end
+
+-- これつけるとyamllsが動かない.
+-- nvim-lsp.yamlls.setup {
+--   settings = {
+--     yaml = {
+--       schemas = require('schemastore').yaml.schemas {
+--        select = {
+--          'docker-compose.yml',
+--        },
+--      },
+--     },
+--   },
+-- }
+
+-- local servers = {
+--   pylsp = {
+--     cmd = {"pylsp"},
+--     root_dir = function(fname)
+--       local root_files = {
+--         'pyproject.toml',
+--         'setup.py',
+--         'setup.cfg',
+--         'requirements.txt',
+--         'Pipfile',
+--       }
+--       return util.root_pattern(unpack(root_files))(fname) or util.find_git_ancestor(fname)
+--     end,
+--     settings = {
+--       pylsp = {
+--         configurationSources = {"pylint"},
+--         plugins = {
+--           pylint = { enabled = true },
+--           flake8 = { enabled = false },
+--           pycodestyle = { enabled = false },
+--           pyflakes = { enabled = false },
+--         }
+--       }
+--     }
+--   }
+-- }
+
+-- リント表示の設定
+vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+  vim.lsp.diagnostic.on_publish_diagnostics, {
+    -- -- Enable underline, use default values
+    -- underline = true,
+    underline = false,
+    -- -- Enable virtual text, override spacing to 4
+    -- virtual_text = {
+    --   spacing = 4,
+    -- },
+    virtual_text = true,
+    -- Use a function to dynamically turn signs off
+    -- and on, using buffer local variables
+    -- signs = function(bufnr, client_id)
+    --   return vim.bo[bufnr].show_signs == false
+    -- end,
+    signs = true,
+    -- -- Disable a feature
+    update_in_insert = false,
+  }
+)
+
+require'lspconfig'.yamlls.setup{
+   cmd = {"~/.local/share/nvim/lsp_servers/yaml/node_modules/.bin/yaml-language-server", "--stdio"},
+   -- on_attach = require'lsp'.common_on_attach,
+   settings = {
+       yaml = {
+           format = {
+                   enable = true,
+           },
+           hover = true,
+           completion = true,
+
+           customTags = {
+               "!fn",
+               "!And",
+               "!If",
+               "!Not",
+               "!Equals",
+               "!Or",
+               "!FindInMap sequence",
+               "!Base64",
+               "!Cidr",
+               "!Ref",
+               "!Ref Scalar",
+               "!Sub",
+               "!GetAtt",
+               "!GetAZs",
+               "!ImportValue",
+               "!Select",
+               "!Split",
+               "!Join sequence"
+           },
+       },
+   },
+ }
+-- require('lspconfig').ruff_lsp.setup {
+--   -- on_attach = on_attach,
+--   init_options = {
+--     settings = {
+--       -- Any extra CLI arguments for `ruff` go here.
+--       args = {},
+--     }
+--   }
+-- }
+
+
+-- local lsp_installer = require("nvim-lsp-installer")
+
+-- -- サーバー起動時に自動でon_attachをアタッチする
+-- lsp_installer.on_server_ready(function(server)
+
+--   local capabilities = vim.lsp.protocol.make_client_capabilities()
+--   capabilities.textDocument.completion.completionItem.snippetSupport = true
+
+--   -- language serverごとにcapabilitiesを追加する必要があります。
+--   -- on_attachは必要に応じて
+--   -- require'lspconfig'.clangd.setup{on_attach = on_attach, capabilities = capabilities}
+--   local opts = {}
+--   opts.on_attach = on_attach
+--   opts.capabilities = capabilities
+--   server:setup(opts)
+--   vim.cmd [[ do User LspAttachBuffers ]]
+-- end)
+
+
+EOF
+'''
+
+[[plugins]]
+repo ='williamboman/mason.nvim'
+on_source = 'nvim-lspconfig'
+hook_source = '''
+lua << EOF
+require("mason").setup({
+  ui = {
+    icons = {
+      package_installed = "✓",
+      package_pending = "➜",
+      package_uninstalled = "✗"
+    }
+  }
+})
+EOF
+'''
+
+[[plugins]]
+repo ='williamboman/mason-lspconfig.nvim'
+on_source = 'nvim-lspconfig'
+hook_source = '''
+lua << EOF
+require("mason-lspconfig").setup()
+require("mason-lspconfig").setup_handlers {
+  function(server_name) -- default handler (optional)
+    require("lspconfig")[server_name].setup {
+      on_attach = on_attach,
+    }
+  end
+}
+EOF
+'''
+

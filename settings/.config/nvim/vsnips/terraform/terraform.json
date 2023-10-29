@@ -1,0 +1,21 @@
+{
+    "json_load": {
+        "prefix": ["zzz"],
+        "scope": ["terraform"],
+        "body": [
+            "with open(${1:filename}) as f:",
+            "    $1 = json.load(f)",
+            "${3| ,import json|}",
+            "$0"
+        ],
+        "description": "(py)(json) load json."
+    },
+
+    "_____EOF______": {
+        "prefix": [""],
+        "body": [
+            ""
+        ],
+        "description": "EOF"
+    }
+} 

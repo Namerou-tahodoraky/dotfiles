@@ -3,3 +3,6 @@
 	name = Namerou-tahodoraky
 [core]
 	editor = /bin/vim
+[color]
+        # ui = auto
+        ui = always

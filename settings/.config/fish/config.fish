@@ -4,7 +4,8 @@ abbr -a bdd "cd ../.."
 abbr -a bddd "cd ../../.."
 abbr -a bdddd "cd ../../../.."
 abbr -a bddddd "cd ../../../../.."
-abbr -a nv "nvim"
+# abbr -a nv "nvim"
+abbr -a nv "nv"
 abbr -a vi "vim"
 abbr -a ls "ls -a"
 abbr -a rm "rm -rf"
@@ -81,6 +82,16 @@ abbr -a dcpp "docker-compose ps -a"
 abbr -a suod "sudo"
 abbr -a mdkir "mkdir -p"
 abbr -a mkdri "mkdir -p"
+
+abbr -a gini "git init && git commit --allow-empty -m \"first commit\"" 
+abbr -a gs "git status -bs"
+abbr -a gcma "git commit -a"
+abbr -a gcmam "git commit -a -m \"\""
+abbr -a gco "git checkout"
+abbr -a gcob "git checkout -b"
+abbr -a gcom "git checkout -m"
+# abbr -a zlibdpy "python -c "import sys,zlib;print(zlib.decompress(open(sys.argv[1], 'rb').read()).decode('utf-8'), end='')""
+
 
 # abbr -a bash bash
 

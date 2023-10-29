@@ -2,12 +2,6 @@
 repo = 'Shougo/dein.vim'
 
 [[plugins]]
-repo = 'folke/tokyonight.nvim'
-hook_add = '''
-let g:tokyonight_style = "night"
-'''
-
-[[plugins]]
 # f移動の拡張.
 # ;,によるリピートからfF連打によるリピートに変更される.(;,は効かなくなる)
 # ヒット文字がハイライトされる. 行をまたいでヒットする.
@@ -33,6 +27,8 @@ repo = 'unblevable/quick-scope'
 hook_add = '''
 let g:qs_max_chars=120
 '''
+
+
 
 # [[plugins]]
 # # キャメルケース,スネークケースの移動とtextobjとして扱う機能.
@@ -60,9 +56,6 @@ map sk  ^<Plug>(columnskip:first-nonblank:prev)^
 # ドットリピートの多対応化.
 repo = 'tpope/vim-repeat'
 
-[[plugins]]
-# マルチカーソル
-repo = 'mg979/vim-visual-multi'
 
 [[plugins]]
 # operator操作系プラグインの依存元
@@ -88,16 +81,15 @@ nmap R <Plug>(operator-replace)
 
 [[plugins]]
 # コメント操作.
-# <Leader>cj: トグル(jの理由は押しやすいから)
+# <Leader>c; :トグル
 # <Leader>ca: 末尾にコメント挿入
-# よくやるタイポ：先にcを押してしまい挿入モードになって元の文字を消してしまう.<Leader>さえしっかり入力していれば残りは急ぐ必要はない.
 repo = 'tyru/caw.vim'
 depends = ['vim-operator-user']
 hook_add = '''
-nmap <Leader>c      <Plug>(caw:prefix)
-vmap <Leader>c      <Plug>(caw:prefix)
-nmap <Leader>cj     <Plug>(caw:hatpos:toggle)
-vmap <Leader>cj     <Plug>(caw:hatpos:toggle)
+"nmap <Leader>c      <Plug>(caw:prefix)
+"vmap <Leader>c      <Plug>(caw:prefix)
+nmap <Leader>;     <Plug>(caw:hatpos:toggle)
+vmap <Leader>;     <Plug>(caw:hatpos:toggle)
 '''
 
 [[plugins]]
@@ -110,7 +102,7 @@ depends = ['vim-textobj-user']
 [[plugins]]
 # 長さの違うブロック行に対するoperator.
 # myiw, mRib, mdif/など.入力後に<ENTER>必須.
-# yank時ハイライトが出ないので注意. vは対応してない.
+# yank時は最期の行しかハイライトが出ないので注意. vは対応してない.
 repo = 'osyo-manga/vim-operator-blockwise'
 depends = ['vim-textobj-blockwise', 'vim-operator-replace']
 on_map = ['<Plug>(operator-blockwise-yank-head)', '<Plug>(operator-blockwise-delete-head)', '<Plug>(operator-blockwise-change-head)']
@@ -193,27 +185,9 @@ depends = ['vim-textobj-user']
 repo = 'Julian/vim-textobj-variable-segment'
 
 [[plugins]]
-# "や(などのペアを自動補完する.
-repo = 'cohama/lexima.vim'
-# hook_add = '''
-# let g:lexima_enable_newline_rules = 0
-# '''
-
-[[plugins]]
-# 区切り文字で整形
-# alip=  段落を対象に=で位置を整形 -> aで待ちが発生するし複雑だから止めた.
-# alip*| 段落を対象に同列内の全ての|の位置を整形, テーブル表記とか -> aで待ちが発生するし複雑だから止めた.
-# 選択-> al -> =入力  選択範囲で=位置で整形
-repo = 'junegunn/vim-easy-align'
-hook_add = '''
-" xmap al <Plug>(EasyAlign)
-" nmap al <Plug>(EasyAlign)
-vmap al <Plug>(EasyAlign)
-'''
-
-[[plugins]]
 # ""や()などを対象に追加削除置換する.
 # saiw", srb", sdbなど
+# 範囲選択にも対応している.範囲選択してsai->左側の囲い文字を入力してEnter->右側の囲い文字を入力してEnter
 repo = 'machakann/vim-sandwich'
 
 [[plugins]]
@@ -263,92 +237,3 @@ xmap <leader>hc <Plug>(quickhl-manual-clear)
 nmap <leader>hC <Plug>(quickhl-manual-reset)
 '''
 
-# [[plugins]]
-# repo = 'itchyny/lightline.vim'
-
-[[plugins]]
-repo = 'nvim-lua/plenary.nvim'
-
-[[plugins]]
-repo = 'nvim-telescope/telescope.nvim'
-hook_add = '''
-" Find files using Telescope command-line sugar.
-nnoremap <leader>ff <cmd>Telescope find_files<cr>
-nnoremap <leader>fg <cmd>Telescope live_grep<cr>
-nnoremap <leader>fb <cmd>Telescope buffers<cr>
-nnoremap <leader>fh <cmd>Telescope help_tags<cr>
-
-" "" Using Lua functions
-" "nnoremap <leader>ff <cmd>lua require('telescope.builtin').find_files()<cr>
-" "nnoremap <leader>fg <cmd>lua require('telescope.builtin').live_grep()<cr>
-" "nnoremap <leader>fb <cmd>lua require('telescope.builtin').buffers()<cr>
-" "nnoremap <leader>fh <cmd>lua require('telescope.builtin').help_tags()<cr>
-'''
-
-# [[plugins]]
-# repo = 'airblade/vim-gitgutter'
-# 
-# [[plugins]]
-# repo = 'tpope/vim-fugitive'
-# 
-# [[plugins]]
-# # 文字検索時マッチング個数と何番目かを表示するプラグイン
-# repo = 'osyo-manga/vim-anzu'
-# hook_add = '''
-# nmap n <Plug>(anzu-n-with-echo)
-# nmap N <Plug>(anzu-N-with-echo)
-# nmap * <Plug>(anzu-star-with-echo)
-# nmap # <Plug>(anzu-sharp-with-echo)
-# '''
-# #nmap <Esc><Esc> <Plug>(anzu-clear-search-status)#効かない？
-# 
-# [[plugins]]
-# # 多形式対応のシンタックスハイライト
-# repo = 'sheerun/vim-polyglot'
-# 
-# [[plugins]]
-# # インデントの可視化
-# repo = 'Yggdroot/indentLine'
-# 
-# [[plugins]]
-# # 行末空白の可視化
-# repo = 'bronson/vim-trailing-whitespace'
-# 
-# [[plugins]]
-# # 画面スクロール過程を可視化
-# repo = 'yuttie/comfortable-motion.vim'
-# 
-# [[plugins]]
-# # ウィンドウサイズ変更の簡易化
-# repo = 'simeji/winresizer'
-# hook_add = '''
-# let g:winresizer_vert_resize = 2
-# let g:winresizer_horiz_resize = 1
-# '''
-# 
-# [[plugins]]
-# # ウィンドウのひとつを最大化
-# # 動くけどエラーがたくさんでる.NeoVim未対応？
-# repo = 'vim-scripts/ZoomWin'
-# 
-# [[plugins]]
-# # チートシート表示
-# repo = 'reireias/vim-cheatsheet'
-# hook_add = '''
-# let g:cheatsheet#cheat_file = '~/.cheetsheets/sample.md'
-# let g:cheatsheet#float_window = 1
-# " you can change float window size.
-# let g:cheatsheet#float_window_width_ratio = 0.6
-# let g:cheatsheet#float_window_height_ratio = 0.6
-# '''
-# #augroup vimrc_filetype
-# #  autocmd!
-# #  autocmd FileType zsh let g:cheatsheet#cheat_file = '~/.cheatsheet-zsh.md'
-# #augroup END
-# 
-# [[plugins]]
-# # ファイルツリー
-# repo = 'lambdalisue/fern.vim'
-# hook_add = '''
-# nnoremap <C-n> :Fern . -reveal=% -drawer -toggle -width=40<CR>
-# '''
