@@ -474,16 +474,18 @@ inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
 # # EOF
 # # '''
 
-[[plugins]]
-# LSPの動作待ち中プログレスバーを表示する.
-# pylspはおそらく対応していない. -> pyrightが対応しているっぽい.
-# null-lsは対応している.
-# terraform-lsはおそらく対応している.
-repo = 'j-hui/fidget.nvim'
-on_event = 'BufEnter'
-hook_source = '''
-lua require"fidget".setup{}
-'''
+# [[plugins]]
+# # LSPの動作待ち中プログレスバーを表示する.
+# # pylspはおそらく対応していない. -> pyrightが対応しているっぽい.
+# # null-lsは対応している.
+# # terraform-lsはおそらく対応している.
+# 下記エラーが表示されるようになったのでとりあえず外した. # TODO: 要調査
+# fidget.nvim will soon be rewritten. Please checkout the 'legacy' tag to avoid breaking changes
+# repo = 'j-hui/fidget.nvim'
+# on_event = 'BufEnter'
+# hook_source = '''
+# lua require"fidget".setup{}
+# '''
 
 # ddcの候補選択中にシグネイチャーとドキュメントをポップアップする.
 [[plugins]]
@@ -678,27 +680,27 @@ nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
 # # ---------------------------------------------------------------------------------------------
 # # 画面描画ツール(色, アイコン,ステータスラインなど)
 # # ---------------------------------------------------------------------------------------------
-# 
-# [[plugins]]
-# repo = 'nvim-treesitter/nvim-treesitter'
-# if = 'has("nvim")'
-# on_event = 'BufRead'
-# hook_post_update = 'TSUpdate'
-# hook_source = '''
-# lua <<EOF
-# require'nvim-treesitter.configs'.setup {
-#     ensure_installed = 'all',
-#     highlight = {
-#         enable = true,
-#         disable = {},
-#     },
-#     -- 編集中に動くのが気持ち悪い.挙動が予測しにくい.
-#     -- indent = {
-#     --     enable = true,
-#     -- },
-# }
-# EOF
-# '''
+
+[[plugins]]
+repo = 'nvim-treesitter/nvim-treesitter'
+if = 'has("nvim")'
+on_event = 'BufRead'
+hook_post_update = 'TSUpdate'
+hook_source = '''
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+    -- ensure_installed = 'all',
+    highlight = {
+        enable = true,
+        disable = {},
+    },
+    -- 編集中に動くのが気持ち悪い.挙動が予測しにくい.
+    -- indent = {
+    --     enable = true,
+    -- },
+}
+EOF
+'''
 
 # [[plugins]] # 少し使ってみたけど余り目に馴染まないから消した. # TODO: 削除検討.
 # repo = 'p00f/nvim-ts-rainbow'
