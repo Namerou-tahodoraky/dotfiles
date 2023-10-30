@@ -12,38 +12,38 @@ repo = 'vim-denops/denops.vim'
 # ファイル/テキスト編集補助ツール.
 # ---------------------------------------------------------------------------------------------
 
-[[plugins]]
-# treesitterを利用した自動インデントプラグイン.
-# treesitterや別プラグインだとバグや誤動作がちょくちょくある.
-repo = 'yioneko/nvim-yati'
-on_source = 'nvim-treesitter'
-hook_source = '''
-lua <<EOF
-require("nvim-treesitter.configs").setup {
-  yati = { enable = true },
-}
-EOF
-'''
+# [[plugins]]
+# # treesitterを利用した自動インデントプラグイン.
+# # treesitterや別プラグインだとバグや誤動作がちょくちょくある.
+# repo = 'yioneko/nvim-yati'
+# on_source = 'nvim-treesitter'
+# hook_source = '''
+# lua <<EOF
+# require("nvim-treesitter.configs").setup {
+#   yati = { enable = true },
+# }
+# EOF
+# '''
 
-[[plugins]]
-# プロジェクト内のファイルの一斉置換
-repo ='nvim-pack/nvim-spectre'
-depends = ['plenary.nvim']
-# on_source = 'nvim-lspconfig'
-on_event = 'BufRead'
-hook_source = '''
-lua << EOF
-require('spectre').setup()
-EOF
-'''
-hook_add = '''
-nnoremap <leader>R :lua require('spectre').open()<CR>
-"search current word
-nnoremap <leader>rw :lua require('spectre').open_visual({select_word=true})<CR>
-vnoremap <leader>r :lua require('spectre').open_visual()<CR>
-"  search in current file
-nnoremap <leader>rp viw:lua require('spectre').open_file_search()<cr>
-'''
+# [[plugins]] # TODO: 全然使ってないので一時的に削除. 使うのか再考する.
+# # プロジェクト内のファイルの一斉置換
+# repo ='nvim-pack/nvim-spectre'
+# depends = ['plenary.nvim']
+# # on_source = 'nvim-lspconfig'
+# on_event = 'BufRead'
+# hook_source = '''
+# lua << EOF
+# require('spectre').setup()
+# EOF
+# '''
+# hook_add = '''
+# nnoremap <leader>R :lua require('spectre').open()<CR>
+# "search current word
+# nnoremap <leader>rw :lua require('spectre').open_visual({select_word=true})<CR>
+# vnoremap <leader>r :lua require('spectre').open_visual()<CR>
+# "  search in current file
+# nnoremap <leader>rp viw:lua require('spectre').open_file_search()<cr>
+# '''
 
 
 # ---------------------------------------------------------------------------------------------
@@ -146,158 +146,158 @@ EOF
 # 自動補完などの入力補助系.
 # ---------------------------------------------------------------------------------------------
 
-# 入力に対応して様々な補完候補を集約してポップアップする.
-# 補完候補を生成するのはsource用プラグインの役割. 
-[[plugins]]
- repo = 'Shougo/ddc.vim'
- on_event = 'InsertEnter'
- depends = ['denops.vim']
- hook_source = '''
- call ddc#custom#patch_global('completionMenu', 'pum.vim')
- call ddc#custom#patch_global('sources', ['nvim-lsp', 'vsnip', 'around', 'file'])
- call ddc#custom#patch_global('sourceOptions', {
-      \ '_': {
-      \   'matchers': ['matcher_fuzzy'],
-      \   'sorters': ['sorter_fuzzy'],
-      \   'converters': ['converter_fuzzy'],
-      \ },
-      \ 'around': {'mark': 'AROUND'},
-      \ 'file': {'mark': 'FILE'},
-      \ 'vsnip': {'mark': 'VSNIP'},
-      \ 'nvim-lsp': {
-      \   'mark': 'LSP',
-      \   'forceCompletionPattern': '\.\w*|:\w*|->\w*',
-      \   'minAutoCompleteLength': 1,
-      \ },
-      \ })
- " call ddc#custom#patch_global('filterParams', {
- "  \   'matcher_fuzzy': {
- "  \     'splitMode': 'word'
- "  \   }
- "  \ })
-
- call ddc#custom#patch_global('sourceParams', {
-      \ 'around': {'maxSize': 500},
-      \ })
-
- call ddc#enable()
-'''
-# LSPの補完開始を遅くする設定(主にTerraformのresource補完用)
-hook_add = '''
-nnoremap <silent> gcl :call ddc#custom#patch_global('sourceOptions', {'nvim-lsp': {'minAutoCompleteLength': 5}})<CR>
-nnoremap <silent> gcs :call ddc#custom#patch_global('sourceOptions', {'nvim-lsp': {'minAutoCompleteLength': 1}})<CR>
-'''
-
-
-# [[plugins]] # TODO: 削除する.
-# # インストール済みのlinterやforatterを呼び出しての出力結果をLSPに渡す
-# repo ='jose-elias-alvarez/null-ls.nvim'
-# depends = ['plenary.nvim']
-# on_source = 'nvim-lspconfig'
+# # 入力に対応して様々な補完候補を集約してポップアップする.
+# # 補完候補を生成するのはsource用プラグインの役割. 
+# [[plugins]]
+#  repo = 'Shougo/ddc.vim'
+#  on_event = 'InsertEnter'
+#  depends = ['denops.vim']
+#  hook_source = '''
+#  call ddc#custom#patch_global('completionMenu', 'pum.vim')
+#  call ddc#custom#patch_global('sources', ['nvim-lsp', 'vsnip', 'around', 'file'])
+#  call ddc#custom#patch_global('sourceOptions', {
+#       \ '_': {
+#       \   'matchers': ['matcher_fuzzy'],
+#       \   'sorters': ['sorter_fuzzy'],
+#       \   'converters': ['converter_fuzzy'],
+#       \ },
+#       \ 'around': {'mark': 'AROUND'},
+#       \ 'file': {'mark': 'FILE'},
+#       \ 'vsnip': {'mark': 'VSNIP'},
+#       \ 'nvim-lsp': {
+#       \   'mark': 'LSP',
+#       \   'forceCompletionPattern': '\.\w*|:\w*|->\w*',
+#       \   'minAutoCompleteLength': 1,
+#       \ },
+#       \ })
+#  " call ddc#custom#patch_global('filterParams', {
+#  "  \   'matcher_fuzzy': {
+#  "  \     'splitMode': 'word'
+#  "  \   }
+#  "  \ })
+# 
+#  call ddc#custom#patch_global('sourceParams', {
+#       \ 'around': {'maxSize': 500},
+#       \ })
+# 
+#  call ddc#enable()
+# '''
+# # LSPの補完開始を遅くする設定(主にTerraformのresource補完用)
+# hook_add = '''
+# nnoremap <silent> gcl :call ddc#custom#patch_global('sourceOptions', {'nvim-lsp': {'minAutoCompleteLength': 5}})<CR>
+# nnoremap <silent> gcs :call ddc#custom#patch_global('sourceOptions', {'nvim-lsp': {'minAutoCompleteLength': 1}})<CR>
+# '''
+# 
+# 
+# # [[plugins]] # TODO: 削除する.
+# # # インストール済みのlinterやforatterを呼び出しての出力結果をLSPに渡す
+# # repo ='jose-elias-alvarez/null-ls.nvim'
+# # depends = ['plenary.nvim']
+# # on_source = 'nvim-lspconfig'
+# # hook_source = '''
+# # lua << EOF
+# # require("null-ls").setup({
+# #     sources = {
+# #         -- require("null-ls").builtins.completion.spell,
+# #         require("null-ls").builtins.diagnostics.flake8,
+# #         require("null-ls").builtins.diagnostics.mypy,
+# #         require("null-ls").builtins.diagnostics.shellcheck,
+# #         require("null-ls").builtins.diagnostics.cfn_lint,
+# #         require("null-ls").builtins.formatting.ruff,
+# #         require("null-ls").builtins.diagnostics.ruff,
+# #         -- require("null-ls").builtins.diagnostics.mypy.with({
+# #         --     command = "pipenv run mypy",
+# #         -- }),
+# #     }
+# # })
+# # EOF
+# # '''
+# 
+# # [[plugins]] # TODO: 削除.
+# #  repo = 'Shougo/ddc-nvim-lsp'
+# #  on_source = 'ddc.vim'
+# 
+# [[plugins]]
+# # LSPの動作待ち中プログレスバーを表示する.
+# # pylspはおそらく対応していない. -> pyrightが対応しているっぽい.
+# # null-lsは対応している.
+# # terraform-lsはおそらく対応している.
+#  repo = 'j-hui/fidget.nvim'
+#  on_event = 'BufEnter'
+#  hook_source = '''
+#  lua require"fidget".setup{}
+#  '''
+# 
+# 
+# # ddcの候補選択中にシグネイチャーとドキュメントをポップアップする.
+# [[plugins]]
+#  repo = 'matsui54/denops-popup-preview.vim'
+#  on_source = 'ddc.vim'
+#  depends = ['denops.vim']
+#  hook_source = '''
+#  call popup_preview#enable()
+#  '''
+# 
+# # 関数の()内入力中にシグネイチャーをポップアップする.
+# # ddcやdenops-popup-preview.vimとは独立して動く.
+# [[plugins]]
+# repo = 'ray-x/lsp_signature.nvim'
+# # depends = ['nvim-lsp']
+# # on_source = ['ddc.vim', "denops-popup_preview"]
+# on_event = 'BufRead'
 # hook_source = '''
 # lua << EOF
-# require("null-ls").setup({
-#     sources = {
-#         -- require("null-ls").builtins.completion.spell,
-#         require("null-ls").builtins.diagnostics.flake8,
-#         require("null-ls").builtins.diagnostics.mypy,
-#         require("null-ls").builtins.diagnostics.shellcheck,
-#         require("null-ls").builtins.diagnostics.cfn_lint,
-#         require("null-ls").builtins.formatting.ruff,
-#         require("null-ls").builtins.diagnostics.ruff,
-#         -- require("null-ls").builtins.diagnostics.mypy.with({
-#         --     command = "pipenv run mypy",
-#         -- }),
-#     }
-# })
+# require("lsp_signature").setup()
+# EOF
+#  '''
+# 
+# [[plugins]]
+#  repo = 'tani/ddc-fuzzy'
+#  on_source = 'ddc.vim'
+# 
+# [[plugins]]
+#  repo = 'Shougo/ddc-around'
+#  on_source = 'ddc.vim'
+# 
+# # ファイル名を補完するsource
+# [[plugins]]
+#  repo = 'LumaKernel/ddc-file'
+#  on_source = 'ddc.vim'
+# 
+# # ポップアップウィンドウを表示するプラグイン
+# [[plugins]]
+#  repo = 'Shougo/pum.vim'
+#  on_source = 'ddc.vim'
+#  depends = ['vim-vsnip-integ']
+#  # <Tab>と<S-Tab>が何故か効かないのでいっそのことコメントアウトしている.
+#  hook_add = '''
+#  " "inoremap <Tab> <Cmd>call pum#map#insert_relative(+1)<CR>
+#  " "inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
+#  " "inoremap <silent><expr> <TAB>
+#  " "     \ pum#visible() ? '<Cmd>call pum#map#insert_relative(+1)<CR>' :
+#  " "     \ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
+#  " "     \ '<TAB>' : ddc#manual_complete()
+#  " "inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
+#  inoremap <C-n>   <Cmd>call pum#map#insert_relative(+1)<CR>
+#  inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
+# 
+#  autocmd User PumCompleteDone call vsnip_integ#on_complete_done(g:pum#completed_item)
+#  '''
+# 
+# [[plugins]]
+# # diagnosticsの一覧を表示する.diagnosticsの発生個所に飛べる.
+# # 一覧にカーソルを合わせるだけで発生個所が表示されるので、
+# # LSPのショートカットキーで一つずつ飛ぶより楽.
+# # 実行コマンド :TroubleToggle
+# # 実行コマンド :TroubleRefresh
+# repo = 'folke/trouble.nvim'
+# depends = ['nvim-web-devicons']
+# on_event = 'BufRead'
+# hook_source = '''
+# lua << EOF
+# require("trouble").setup {}
 # EOF
 # '''
-
-# [[plugins]] # TODO: 削除.
-#  repo = 'Shougo/ddc-nvim-lsp'
-#  on_source = 'ddc.vim'
-
-[[plugins]]
-# LSPの動作待ち中プログレスバーを表示する.
-# pylspはおそらく対応していない. -> pyrightが対応しているっぽい.
-# null-lsは対応している.
-# terraform-lsはおそらく対応している.
- repo = 'j-hui/fidget.nvim'
- on_event = 'BufEnter'
- hook_source = '''
- lua require"fidget".setup{}
- '''
-
-
-# ddcの候補選択中にシグネイチャーとドキュメントをポップアップする.
-[[plugins]]
- repo = 'matsui54/denops-popup-preview.vim'
- on_source = 'ddc.vim'
- depends = ['denops.vim']
- hook_source = '''
- call popup_preview#enable()
- '''
-
-# 関数の()内入力中にシグネイチャーをポップアップする.
-# ddcやdenops-popup-preview.vimとは独立して動く.
-[[plugins]]
-repo = 'ray-x/lsp_signature.nvim'
-# depends = ['nvim-lsp']
-# on_source = ['ddc.vim', "denops-popup_preview"]
-on_event = 'BufRead'
-hook_source = '''
-lua << EOF
-require("lsp_signature").setup()
-EOF
- '''
-
-[[plugins]]
- repo = 'tani/ddc-fuzzy'
- on_source = 'ddc.vim'
-
-[[plugins]]
- repo = 'Shougo/ddc-around'
- on_source = 'ddc.vim'
-
-# ファイル名を補完するsource
-[[plugins]]
- repo = 'LumaKernel/ddc-file'
- on_source = 'ddc.vim'
-
-# ポップアップウィンドウを表示するプラグイン
-[[plugins]]
- repo = 'Shougo/pum.vim'
- on_source = 'ddc.vim'
- depends = ['vim-vsnip-integ']
- # <Tab>と<S-Tab>が何故か効かないのでいっそのことコメントアウトしている.
- hook_add = '''
- " "inoremap <Tab> <Cmd>call pum#map#insert_relative(+1)<CR>
- " "inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
- " "inoremap <silent><expr> <TAB>
- " "     \ pum#visible() ? '<Cmd>call pum#map#insert_relative(+1)<CR>' :
- " "     \ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
- " "     \ '<TAB>' : ddc#manual_complete()
- " "inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
- inoremap <C-n>   <Cmd>call pum#map#insert_relative(+1)<CR>
- inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
-
- autocmd User PumCompleteDone call vsnip_integ#on_complete_done(g:pum#completed_item)
- '''
-
-[[plugins]]
-# diagnosticsの一覧を表示する.diagnosticsの発生個所に飛べる.
-# 一覧にカーソルを合わせるだけで発生個所が表示されるので、
-# LSPのショートカットキーで一つずつ飛ぶより楽.
-# 実行コマンド :TroubleToggle
-# 実行コマンド :TroubleRefresh
-repo = 'folke/trouble.nvim'
-depends = ['nvim-web-devicons']
-on_event = 'BufRead'
-hook_source = '''
-lua << EOF
-require("trouble").setup {}
-EOF
-'''
 
 
 # [[plugins]] # TODO: 更新対応.
@@ -452,30 +452,30 @@ nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
 '''
 
 
-# ---------------------------------------------------------------------------------------------
-# 画面描画ツール(色, アイコン,ステータスラインなど)
-# ---------------------------------------------------------------------------------------------
-
-[[plugins]]
-repo = 'nvim-treesitter/nvim-treesitter'
-if = 'has("nvim")'
-on_event = 'BufRead'
-hook_post_update = 'TSUpdate'
-hook_source = '''
-lua <<EOF
-require'nvim-treesitter.configs'.setup {
-    ensure_installed = 'all',
-    highlight = {
-        enable = true,
-        disable = {},
-    },
-    -- 編集中に動くのが気持ち悪い.挙動が予測しにくい.
-    -- indent = {
-    --     enable = true,
-    -- },
-}
-EOF
-'''
+# # ---------------------------------------------------------------------------------------------
+# # 画面描画ツール(色, アイコン,ステータスラインなど)
+# # ---------------------------------------------------------------------------------------------
+# 
+# [[plugins]]
+# repo = 'nvim-treesitter/nvim-treesitter'
+# if = 'has("nvim")'
+# on_event = 'BufRead'
+# hook_post_update = 'TSUpdate'
+# hook_source = '''
+# lua <<EOF
+# require'nvim-treesitter.configs'.setup {
+#     ensure_installed = 'all',
+#     highlight = {
+#         enable = true,
+#         disable = {},
+#     },
+#     -- 編集中に動くのが気持ち悪い.挙動が予測しにくい.
+#     -- indent = {
+#     --     enable = true,
+#     -- },
+# }
+# EOF
+# '''
 
 # [[plugins]] # 少し使ってみたけど余り目に馴染まないから消した. # TODO: 削除検討.
 # repo = 'p00f/nvim-ts-rainbow'
