@@ -1,5 +1,5 @@
-" let g:python3_host_prog = "/home/wsl/.pyenv/versions/3.9.9/bin/python3"
 let g:python3_host_prog = expand("~/.cache/nvim/.venv/bin/python")
+let $PATH = expand("~/.cache/nvim/.venv/bin/") . ':' . $PATH
 
 let mapleader = "\<space>"
 

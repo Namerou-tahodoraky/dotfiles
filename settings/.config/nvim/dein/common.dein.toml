@@ -1,23 +1,23 @@
 [[plugins]]
 repo = 'Shougo/dein.vim'
 
-[[plugins]]
-# f移動の拡張.
-# ;,によるリピートからfF連打によるリピートに変更される.(;,は効かなくなる)
-# ヒット文字がハイライトされる. 行をまたいでヒットする.
-# 日本語にヒットする
-# fが上書きされる関係で異なる文字のf移動を連続でやりたい場合は,一度hlで横移動してfの入力待ち状態を切る必要がある.
-# lfで手癖にしても問題なさそう.
-repo = 'rhysd/clever-f.vim'
-hook_add = '''
-let g:clever_f_fix_key_direction = 1  "検索開始がf,Fどちらでもリピート移動の方向を固定する.
-let g:clever_f_use_migemo = 1  "日本語がヒットする
-let g:clever_f_smart_case = 1  "大文字を入力した時は大文字のみ、小文字を入力した時は両方にヒットする.
-let g:clever_f_timeout_ms = 5000  "指定時間でfFのリピート移動が切れる
-let g:clever_f_highlight_timeout_ms = 5000  "指定時間でfFのリピート移動が切れる
-" map ; <Plug>(clever-f-repeat-forward) ";へのマッピングを残す. which-key.vimとバッティングするっぽい
-" map , <Plug>(clever-f-repeat-back) ",へのマッピングを残す. which-key.vimとバッティングするっぽい
-'''
+# [[plugins]] # TODO: 暫定的に削除.
+# # f移動の拡張.
+# # ;,によるリピートからfF連打によるリピートに変更される.(;,は効かなくなる)
+# # ヒット文字がハイライトされる. 行をまたいでヒットする.
+# # 日本語にヒットする
+# # fが上書きされる関係で異なる文字のf移動を連続でやりたい場合は,一度hlで横移動してfの入力待ち状態を切る必要がある.
+# # lfで手癖にしても問題なさそう.
+# repo = 'rhysd/clever-f.vim'
+# hook_add = '''
+# let g:clever_f_fix_key_direction = 1  "検索開始がf,Fどちらでもリピート移動の方向を固定する.
+# let g:clever_f_use_migemo = 1  "日本語がヒットする
+# let g:clever_f_smart_case = 1  "大文字を入力した時は大文字のみ、小文字を入力した時は両方にヒットする.
+# let g:clever_f_timeout_ms = 5000  "指定時間でfFのリピート移動が切れる
+# let g:clever_f_highlight_timeout_ms = 5000  "指定時間でfFのリピート移動が切れる
+# " map ; <Plug>(clever-f-repeat-forward) ";へのマッピングを残す. which-key.vimとバッティングするっぽい
+# " map , <Plug>(clever-f-repeat-back) ",へのマッピングを残す. which-key.vimとバッティングするっぽい
+# '''
 
 [[plugins]]
 # f移動の補助.
