@@ -140,55 +140,301 @@ EOF
 # let g:asterisk#keeppos = 1
 # '''
 
+# ---------------------------------------------------------------------------------------------
+# プログラミング補助.
+# LSPセットアップ.
+# ---------------------------------------------------------------------------------------------
+
+[[plugins]]
+repo = 'neovim/nvim-lspconfig'
+on_event = 'BufEnter'
+depends = ["ddc-nvim-lsp-setup"]
+hook_source = '''
+lua << EOF
+local nvim_lsp = require('lspconfig')
+
+-- language serverがバッファにアタッチされたときに実行する関数
+local on_attach = function (client, bufnr)
+  local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+  local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+
+  local opts = { noremap=true, silent=true }
+  buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
+  buf_set_keymap('n', 'gK', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
+  buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+  buf_set_keymap('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+  buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+  buf_set_keymap('n', 'gx', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
+  buf_set_keymap('n', 'g[', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+  buf_set_keymap('n', 'g]', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+end
+
+-- -- これつけるとyamllsが動かない.
+-- -- nvim-lsp.yamlls.setup {
+-- --   settings = {
+-- --     yaml = {
+-- --       schemas = require('schemastore').yaml.schemas {
+-- --        select = {
+-- --          'docker-compose.yml',
+-- --        },
+-- --      },
+-- --     },
+-- --   },
+-- -- }
+-- 
+-- -- local servers = {
+-- --   pylsp = {
+-- --     cmd = {"pylsp"},
+-- --     root_dir = function(fname)
+-- --       local root_files = {
+-- --         'pyproject.toml',
+-- --         'setup.py',
+-- --         'setup.cfg',
+-- --         'requirements.txt',
+-- --         'Pipfile',
+-- --       }
+-- --       return util.root_pattern(unpack(root_files))(fname) or util.find_git_ancestor(fname)
+-- --     end,
+-- --     settings = {
+-- --       pylsp = {
+-- --         configurationSources = {"pylint"},
+-- --         plugins = {
+-- --           pylint = { enabled = true },
+-- --           flake8 = { enabled = false },
+-- --           pycodestyle = { enabled = false },
+-- --           pyflakes = { enabled = false },
+-- --         }
+-- --       }
+-- --     }
+-- --   }
+-- -- }
+-- 
+-- -- リント表示の設定
+-- vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+--   vim.lsp.diagnostic.on_publish_diagnostics, {
+--     -- -- Enable underline, use default values
+--     -- underline = true,
+--     underline = false,
+--     -- -- Enable virtual text, override spacing to 4
+--     -- virtual_text = {
+--     --   spacing = 4,
+--     -- },
+--     virtual_text = true,
+--     -- Use a function to dynamically turn signs off
+--     -- and on, using buffer local variables
+--     -- signs = function(bufnr, client_id)
+--     --   return vim.bo[bufnr].show_signs == false
+--     -- end,
+--     signs = true,
+--     -- -- Disable a feature
+--     update_in_insert = false,
+--   }
+-- )
+-- 
+-- require'lspconfig'.yamlls.setup{
+--    cmd = {"~/.local/share/nvim/lsp_servers/yaml/node_modules/.bin/yaml-language-server", "--stdio"},
+--    -- on_attach = require'lsp'.common_on_attach,
+--    settings = {
+--        yaml = {
+--            format = {
+--                    enable = true,
+--            },
+--            hover = true,
+--            completion = true,
+-- 
+--            customTags = {
+--                "!fn",
+--                "!And",
+--                "!If",
+--                "!Not",
+--                "!Equals",
+--                "!Or",
+--                "!FindInMap sequence",
+--                "!Base64",
+--                "!Cidr",
+--                "!Ref",
+--                "!Ref Scalar",
+--                "!Sub",
+--                "!GetAtt",
+--                "!GetAZs",
+--                "!ImportValue",
+--                "!Select",
+--                "!Split",
+--                "!Join sequence"
+--            },
+--        },
+--    },
+--  }
+-- -- require('lspconfig').ruff_lsp.setup {
+-- --   -- on_attach = on_attach,
+-- --   init_options = {
+-- --     settings = {
+-- --       -- Any extra CLI arguments for `ruff` go here.
+-- --       args = {},
+-- --     }
+-- --   }
+-- -- }
+-- 
+-- 
+-- -- local lsp_installer = require("nvim-lsp-installer")
+-- 
+-- -- -- サーバー起動時に自動でon_attachをアタッチする
+-- -- lsp_installer.on_server_ready(function(server)
+-- 
+-- --   local capabilities = vim.lsp.protocol.make_client_capabilities()
+-- --   capabilities.textDocument.completion.completionItem.snippetSupport = true
+-- 
+-- --   -- language serverごとにcapabilitiesを追加する必要があります。
+-- --   -- on_attachは必要に応じて
+-- --   -- require'lspconfig'.clangd.setup{on_attach = on_attach, capabilities = capabilities}
+-- --   local opts = {}
+-- --   opts.on_attach = on_attach
+-- --   opts.capabilities = capabilities
+-- --   server:setup(opts)
+-- --   vim.cmd [[ do User LspAttachBuffers ]]
+-- -- end)
+
+EOF
+'''
+
+[[plugins]]
+repo ='williamboman/mason-lspconfig.nvim'
+on_source = ['nvim-lspconfig', "masson.nvim"]
+hook_source = '''
+lua << EOF
+require("mason-lspconfig").setup()
+require("mason-lspconfig").setup_handlers {
+  function(server_name) -- default handler (optional)
+    require("lspconfig")[server_name].setup {
+      on_attach = on_attach,
+    }
+  end
+}
+EOF
+'''
+
 
 # ---------------------------------------------------------------------------------------------
 # プログラミング補助.
 # 自動補完などの入力補助系.
 # ---------------------------------------------------------------------------------------------
 
-# # 入力に対応して様々な補完候補を集約してポップアップする.
-# # 補完候補を生成するのはsource用プラグインの役割. 
-# [[plugins]]
-#  repo = 'Shougo/ddc.vim'
-#  on_event = 'InsertEnter'
-#  depends = ['denops.vim']
-#  hook_source = '''
-#  call ddc#custom#patch_global('completionMenu', 'pum.vim')
-#  call ddc#custom#patch_global('sources', ['nvim-lsp', 'vsnip', 'around', 'file'])
-#  call ddc#custom#patch_global('sourceOptions', {
-#       \ '_': {
-#       \   'matchers': ['matcher_fuzzy'],
-#       \   'sorters': ['sorter_fuzzy'],
-#       \   'converters': ['converter_fuzzy'],
-#       \ },
-#       \ 'around': {'mark': 'AROUND'},
-#       \ 'file': {'mark': 'FILE'},
-#       \ 'vsnip': {'mark': 'VSNIP'},
-#       \ 'nvim-lsp': {
-#       \   'mark': 'LSP',
-#       \   'forceCompletionPattern': '\.\w*|:\w*|->\w*',
-#       \   'minAutoCompleteLength': 1,
-#       \ },
-#       \ })
-#  " call ddc#custom#patch_global('filterParams', {
-#  "  \   'matcher_fuzzy': {
-#  "  \     'splitMode': 'word'
-#  "  \   }
-#  "  \ })
-# 
-#  call ddc#custom#patch_global('sourceParams', {
-#       \ 'around': {'maxSize': 500},
-#       \ })
-# 
-#  call ddc#enable()
-# '''
+# 入力に対応して様々な補完候補を集約してポップアップする.
+# 補完候補を生成するのはsource用プラグインの役割.
+[[plugins]]
+repo = 'Shougo/ddc.vim'
+on_event = 'InsertEnter'
+depends = ['denops.vim']
+hook_source = '''
+" call ddc#custom#patch_global('completionMenu', 'pum.vim')
+" call ddc#custom#patch_global('sources', ['nvim-lsp', 'vsnip', 'around', 'file'])
+call ddc#custom#patch_global('sources', ['nvim-lsp', 'around', 'file'])
+call ddc#custom#patch_global('ui', 'pum')
+" call ddc#custom#patch_global('sourceOptions', {
+"      \ '_': {
+"      \   'matchers': ['matcher_fuzzy'],
+"      \   'sorters': ['sorter_fuzzy'],
+"      \   'converters': ['converter_fuzzy'],
+"      \ },
+"      \ 'around': {'mark': 'AROUND'},
+"      \ 'file': {'mark': 'FILE'},
+"      \ 'nvim-lsp': {
+"      \   'mark': 'LSP',
+"      \   'forceCompletionPattern': '\.\w*|:\w*|->\w*',
+"      \   'minAutoCompleteLength': 1,
+"      \ },
+"      \ })
+call ddc#custom#patch_global('sourceOptions', {
+     \ '_': {
+     \   'matchers': ['matcher_fuzzy'],
+     \   'sorters': ['sorter_fuzzy'],
+     \   'converters': ['converter_fuzzy'],
+     \ },
+     \ 'around': {'mark': 'AROUND'},
+     \ 'file': {'mark': 'FILE'},
+     \ 'nvim-lsp': {
+     \   'mark': 'LSP',
+     \   'dup': 'keep',
+     \   'keywordPattern': '\k+',
+     \   'sorters': ['sorter_lsp-kind']
+     \ },
+\})
+" call ddc#custom#patch_global('filterParams', {
+"  \   'matcher_fuzzy': {
+"  \     'splitMode': 'word'
+"  \   }
+"  \ })
+
+call ddc#custom#patch_global('sourceParams', {
+\  'around': {'maxSize': 500},
+\  'nvim-lsp': {
+\    'snippetEngine': denops#callback#register({
+\          body -> vsnip#anonymous(body) }),
+\    'enableResolveItem': v:true,
+\    'enableAdditionalTextEdit': v:true,
+\    'confirmBehavior': 'replace',
+\  },
+\})
+
+call ddc#enable()
+'''
 # # LSPの補完開始を遅くする設定(主にTerraformのresource補完用)
 # hook_add = '''
 # nnoremap <silent> gcl :call ddc#custom#patch_global('sourceOptions', {'nvim-lsp': {'minAutoCompleteLength': 5}})<CR>
 # nnoremap <silent> gcs :call ddc#custom#patch_global('sourceOptions', {'nvim-lsp': {'minAutoCompleteLength': 1}})<CR>
-# '''
-# 
-# 
+
+[[plugins]]
+repo = 'Shougo/ddc-ui-pum'
+on_source = 'ddc.vim'
+
+[[plugins]]
+repo = 'Shougo/ddc-source-nvim-lsp'
+on_source = 'ddc.vim'
+
+[[plugins]]
+repo = 'uga-rosa/ddc-nvim-lsp-setup'
+on_source = 'ddc.vim'
+hook_source = '''
+lua << EOF
+require("ddc_nvim_lsp_setup").setup()
+EOF
+'''
+
+[[plugins]]
+repo = 'tani/ddc-fuzzy'
+on_source = 'ddc.vim'
+
+[[plugins]]
+repo = 'Shougo/ddc-source-around'
+on_source = 'ddc.vim'
+
+# ファイル名を補完するsource
+[[plugins]]
+repo = 'LumaKernel/ddc-source-file'
+on_source = 'ddc.vim'
+
+# ポップアップウィンドウを表示するプラグイン
+[[plugins]]
+repo = 'Shougo/pum.vim'
+# on_source = 'ddc.vim'
+# depends = ['vim-vsnip-integ']
+# <Tab>と<S-Tab>が何故か効かないのでいっそのことコメントアウトしている.
+hook_add = '''
+" "inoremap <Tab> <Cmd>call pum#map#insert_relative(+1)<CR>
+" "inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
+" "inoremap <silent><expr> <TAB>
+" "     \ pum#visible() ? '<Cmd>call pum#map#insert_relative(+1)<CR>' :
+" "     \ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
+" "     \ '<TAB>' : ddc#manual_complete()
+" "inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
+inoremap <C-n>   <Cmd>call pum#map#insert_relative(+1)<CR>
+inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
+
+" autocmd User PumCompleteDone call vsnip_integ#on_complete_done(g:pum#completed_item)
+'''
+
+
+
 # # [[plugins]] # TODO: 削除する.
 # # # インストール済みのlinterやforatterを呼び出しての出力結果をLSPに渡す
 # # repo ='jose-elias-alvarez/null-ls.nvim'
@@ -212,77 +458,39 @@ EOF
 # # })
 # # EOF
 # # '''
-# 
-# # [[plugins]] # TODO: 削除.
-# #  repo = 'Shougo/ddc-nvim-lsp'
-# #  on_source = 'ddc.vim'
-# 
-# [[plugins]]
-# # LSPの動作待ち中プログレスバーを表示する.
-# # pylspはおそらく対応していない. -> pyrightが対応しているっぽい.
-# # null-lsは対応している.
-# # terraform-lsはおそらく対応している.
-#  repo = 'j-hui/fidget.nvim'
-#  on_event = 'BufEnter'
-#  hook_source = '''
-#  lua require"fidget".setup{}
-#  '''
-# 
-# 
-# # ddcの候補選択中にシグネイチャーとドキュメントをポップアップする.
-# [[plugins]]
-#  repo = 'matsui54/denops-popup-preview.vim'
-#  on_source = 'ddc.vim'
-#  depends = ['denops.vim']
-#  hook_source = '''
-#  call popup_preview#enable()
-#  '''
-# 
-# # 関数の()内入力中にシグネイチャーをポップアップする.
-# # ddcやdenops-popup-preview.vimとは独立して動く.
-# [[plugins]]
-# repo = 'ray-x/lsp_signature.nvim'
-# # depends = ['nvim-lsp']
-# # on_source = ['ddc.vim', "denops-popup_preview"]
-# on_event = 'BufRead'
-# hook_source = '''
-# lua << EOF
-# require("lsp_signature").setup()
-# EOF
-#  '''
-# 
-# [[plugins]]
-#  repo = 'tani/ddc-fuzzy'
-#  on_source = 'ddc.vim'
-# 
-# [[plugins]]
-#  repo = 'Shougo/ddc-around'
-#  on_source = 'ddc.vim'
-# 
-# # ファイル名を補完するsource
-# [[plugins]]
-#  repo = 'LumaKernel/ddc-file'
-#  on_source = 'ddc.vim'
-# 
-# # ポップアップウィンドウを表示するプラグイン
-# [[plugins]]
-#  repo = 'Shougo/pum.vim'
-#  on_source = 'ddc.vim'
-#  depends = ['vim-vsnip-integ']
-#  # <Tab>と<S-Tab>が何故か効かないのでいっそのことコメントアウトしている.
-#  hook_add = '''
-#  " "inoremap <Tab> <Cmd>call pum#map#insert_relative(+1)<CR>
-#  " "inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
-#  " "inoremap <silent><expr> <TAB>
-#  " "     \ pum#visible() ? '<Cmd>call pum#map#insert_relative(+1)<CR>' :
-#  " "     \ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
-#  " "     \ '<TAB>' : ddc#manual_complete()
-#  " "inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
-#  inoremap <C-n>   <Cmd>call pum#map#insert_relative(+1)<CR>
-#  inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
-# 
-#  autocmd User PumCompleteDone call vsnip_integ#on_complete_done(g:pum#completed_item)
-#  '''
+
+[[plugins]]
+# LSPの動作待ち中プログレスバーを表示する.
+# pylspはおそらく対応していない. -> pyrightが対応しているっぽい.
+# null-lsは対応している.
+# terraform-lsはおそらく対応している.
+repo = 'j-hui/fidget.nvim'
+on_event = 'BufEnter'
+hook_source = '''
+lua require"fidget".setup{}
+'''
+
+# ddcの候補選択中にシグネイチャーとドキュメントをポップアップする.
+[[plugins]]
+repo = 'matsui54/denops-popup-preview.vim'
+on_source = 'ddc.vim'
+depends = ['denops.vim']
+hook_source = '''
+call popup_preview#enable()
+'''
+
+# 関数の()内入力中にシグネイチャーをポップアップする.
+# ddcやdenops-popup-preview.vimとは独立して動く.
+[[plugins]]
+repo = 'ray-x/lsp_signature.nvim'
+# depends = ['nvim-lsp']
+# on_source = ['ddc.vim', "denops-popup_preview"]
+on_event = 'BufRead'
+hook_source = '''
+lua << EOF
+require("lsp_signature").setup()
+EOF
+ '''
 # 
 # [[plugins]]
 # # diagnosticsの一覧を表示する.diagnosticsの発生個所に飛べる.
