@@ -1,3 +1,55 @@
+# ---------------------------------------------------------------------------------------------
+# プラットフォーム系ツール.
+# 他ツールが動作する為の依存関係.
+# ---------------------------------------------------------------------------------------------
+
+# Deno依存のプラグインを動作させる
+[[plugins]]
+repo = 'vim-denops/denops.vim'
+
+
+# ---------------------------------------------------------------------------------------------
+# ファイル/テキスト編集補助ツール.
+# ---------------------------------------------------------------------------------------------
+
+[[plugins]]
+# treesitterを利用した自動インデントプラグイン.
+# treesitterや別プラグインだとバグや誤動作がちょくちょくある.
+repo = 'yioneko/nvim-yati'
+on_source = 'nvim-treesitter'
+hook_source = '''
+lua <<EOF
+require("nvim-treesitter.configs").setup {
+  yati = { enable = true },
+}
+EOF
+'''
+
+[[plugins]]
+# プロジェクト内のファイルの一斉置換
+repo ='nvim-pack/nvim-spectre'
+depends = ['plenary.nvim']
+# on_source = 'nvim-lspconfig'
+on_event = 'BufRead'
+hook_source = '''
+lua << EOF
+require('spectre').setup()
+EOF
+'''
+hook_add = '''
+nnoremap <leader>R :lua require('spectre').open()<CR>
+"search current word
+nnoremap <leader>rw :lua require('spectre').open_visual({select_word=true})<CR>
+vnoremap <leader>r :lua require('spectre').open_visual()<CR>
+"  search in current file
+nnoremap <leader>rp viw:lua require('spectre').open_file_search()<cr>
+'''
+
+
+# ---------------------------------------------------------------------------------------------
+# カーソル移動補助ツール.
+# ---------------------------------------------------------------------------------------------
+
 [[plugins]]
 # 移動補助
 # /や?で検索した時検索先にeasymotionのような移動キーが表示される
@@ -50,74 +102,6 @@ endfunction
 '''
 
 [[plugins]]
-repo = 'nvim-treesitter/nvim-treesitter'
-if = 'has("nvim")'
-on_event = 'BufRead'
-hook_post_update = 'TSUpdate'
-hook_source = '''
-lua <<EOF
-require'nvim-treesitter.configs'.setup {
-    ensure_installed = 'all',
-    highlight = {
-        enable = true,
-        disable = {},
-    },
-    -- 編集中に動くのが気持ち悪い.挙動が予測しにくい.
-    -- indent = {
-    --     enable = true,
-    -- },
-}
-EOF
-'''
-
-[[plugins]]
-# treesitterを利用した自動インデントプラグイン.
-# treesitterや別プラグインだとバグや誤動作がちょくちょくある.
-repo = 'yioneko/nvim-yati'
-on_source = 'nvim-treesitter'
-hook_source = '''
-lua <<EOF
-require("nvim-treesitter.configs").setup {
-  yati = { enable = true },
-}
-EOF
-'''
-
-[[plugins]]
-repo = 'p00f/nvim-ts-rainbow'
-on_source = 'nvim-treesitter'
-hook_source = '''
-lua <<EOF
-require("nvim-treesitter.configs").setup {
-  -- highlight = {
-  --     -- ...
-  -- },
-  -- -- ...
-  rainbow = {
-    enable = true,
-    -- disable = { "jsx", "cpp" }, list of languages you want to disable the plugin for
-    extended_mode = true, -- Also highlight non-bracket delimiters like html tags, boolean or table: lang -> boolean
-    max_file_lines = nil, -- Do not enable for files with more than n lines, int
-    -- colors = {}, -- table of hex strings
-    -- termcolors = {} -- table of colour name strings
-  }
-}
-EOF
-'''
-
-[[plugins]]
-# インデントの可視化
-repo = 'lukas-reineke/indent-blankline.nvim'
-on_event = 'BufEnter'
-hook_source = '''
-lua <<EOF
-require("indent_blankline").setup {
-    show_first_indent_level = false,
-}
-EOF
-'''
-
-[[plugins]]
 # スムーズスクロール
 repo = 'karb94/neoscroll.nvim'
 on_event = 'BufEnter'
@@ -130,29 +114,37 @@ require('neoscroll').setup({
 EOF
 '''
 
-
-# Deno依存のプラグインを動作させる
-[[plugins]]
-repo = 'vim-denops/denops.vim'
-
-# [[plugins]]
-# repo='vim-skk/denops-skkeleton.vim'
-# # on_event = 'InsertEnter'
-# on_source = 'ddc.vim'
-# depends = ['denops.vim']
-# hook_source = '''
-# ""call skkeleton#config({ 'globalJisyo': '~/.skk/SKK-JISYO.L' })
-# call skkeleton#config({
-#   \'globalJisyo': '~/.skk/SKK-JISYO.L',
-#   \'eggLikeNewline': v:true,
-#   \'tabCompletion': v:false,
-#   \'usePopup': v:false,
-# \})
-# '''
+# [[plugins]] # エラーが出て何個目かの情報が表示されない. # TODO: 調査.
+# # 検索にヒットしたものが何個中何個目かをvertualtextで表示する
+# repo = 'kevinhwang91/nvim-hlslens'
+# on_event = 'BufEnter'
 # hook_add = '''
-# imap <C-j> <Plug>(skkeleton-toggle)
-# cmap <C-j> <Plug>(skkeleton-toggle)
+# noremap <silent> n <Cmd>execute('normal! ' . v:count1 . 'nzz')<CR>
+#             \<Cmd>lua require('hlslens').start()<CR>
+# noremap <silent> N <Cmd>execute('normal! ' . v:count1 . 'Nzz')<CR>
+#             \<Cmd>lua require('hlslens').start()<CR>
 # '''
+
+# [[plugins]] # nvim-hlslensを一旦消したのでこっちも合わせて消しておく # TODO: 戻す.
+# # 検索時に勝手にカーソルが移動するのを防ぐ.
+# # 選択範囲の文字列でアスタリスク検索する機能ももつ.
+# # キーマップにvim-asteriskとnvim-hlslensの機能両方を結びつける為に、nvim-hlslensをdependsにしている.
+# repo = 'haya14busa/vim-asterisk'
+# # depends = ['nvim-hlslens']
+# on_source = 'nvim-hlslens'
+# hook_add = '''
+# map * <Plug>(asterisk-z*)<Cmd>lua require('hlslens').start()<CR>
+# map # <Plug>(asterisk-z#)<Cmd>lua require('hlslens').start()<CR>
+# map g* <Plug>(asterisk-gz*)<Cmd>lua require('hlslens').start()<CR>
+# map g# <Plug>(asterisk-gz#)<Cmd>lua require('hlslens').start()<CR>
+# let g:asterisk#keeppos = 1
+# '''
+
+
+# ---------------------------------------------------------------------------------------------
+# プログラミング補助.
+# 自動補完などの入力補助系.
+# ---------------------------------------------------------------------------------------------
 
 # 入力に対応して様々な補完候補を集約してポップアップする.
 # 補完候補を生成するのはsource用プラグインの役割. 
@@ -196,223 +188,34 @@ nnoremap <silent> gcl :call ddc#custom#patch_global('sourceOptions', {'nvim-lsp'
 nnoremap <silent> gcs :call ddc#custom#patch_global('sourceOptions', {'nvim-lsp': {'minAutoCompleteLength': 1}})<CR>
 '''
 
-# [[plugins]]
-# repo = 'b0o/SchemaStore.nvim'
-# on_event = 'BufEnter'
 
-
-# [[plugins]]
-#  repo = 'neovim/nvim-lspconfig'
-#  # depends = ['SchemaStore.nvim']
-#  on_event = 'BufEnter'
-#  hook_source = '''
-#  lua << EOF
-#  local nvim_lsp = require('lspconfig')
-# 
-#  -- language serverがバッファにアタッチされたときに実行する関数
-#  local on_attach = function (client, bufnr)
-#    local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
-#    local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
-# 
-#    local opts = { noremap=true, silent=true }
-#    buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
-#    buf_set_keymap('n', 'gK', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
-#    buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
-#    buf_set_keymap('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
-#    buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
-#    buf_set_keymap('n', 'gx', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
-#    buf_set_keymap('n', 'g[', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
-#    buf_set_keymap('n', 'g]', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
-#  end
-# 
-#  -- これつけるとyamllsが動かない.
-#  -- nvim-lsp.yamlls.setup {
-#  --   settings = {
-#  --     yaml = {
-#  --       schemas = require('schemastore').yaml.schemas {
-#  --        select = {
-#  --          'docker-compose.yml',
-#  --        },
-#  --      },
-#  --     },
-#  --   },
-#  -- }
-# 
-#  -- local servers = {
-#  --   pylsp = {
-#  --     cmd = {"pylsp"},
-#  --     root_dir = function(fname)
-#  --       local root_files = {
-#  --         'pyproject.toml',
-#  --         'setup.py',
-#  --         'setup.cfg',
-#  --         'requirements.txt',
-#  --         'Pipfile',
-#  --       }
-#  --       return util.root_pattern(unpack(root_files))(fname) or util.find_git_ancestor(fname)
-#  --     end,
-#  --     settings = {
-#  --       pylsp = {
-#  --         configurationSources = {"pylint"},
-#  --         plugins = {
-#  --           pylint = { enabled = true },
-#  --           flake8 = { enabled = false },
-#  --           pycodestyle = { enabled = false },
-#  --           pyflakes = { enabled = false },
-#  --         }
-#  --       }
-#  --     }
-#  --   }
-#  -- }
-# 
-#  -- リント表示の設定
-#  vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-#    vim.lsp.diagnostic.on_publish_diagnostics, {
-#      -- -- Enable underline, use default values
-#      -- underline = true,
-#      underline = false,
-#      -- -- Enable virtual text, override spacing to 4
-#      -- virtual_text = {
-#      --   spacing = 4,
-#      -- },
-#      virtual_text = true,
-#      -- Use a function to dynamically turn signs off
-#      -- and on, using buffer local variables
-#      -- signs = function(bufnr, client_id)
-#      --   return vim.bo[bufnr].show_signs == false
-#      -- end,
-#      signs = true,
-#      -- -- Disable a feature
-#      update_in_insert = false,
-#    }
-#  )
-# 
-#  require'lspconfig'.yamlls.setup{
-#     cmd = {"~/.local/share/nvim/lsp_servers/yaml/node_modules/.bin/yaml-language-server", "--stdio"},
-#     -- on_attach = require'lsp'.common_on_attach,
-#     settings = {
-#         yaml = {
-#             format = {
-#                     enable = true,
-#             },
-#             hover = true,
-#             completion = true,
-# 
-#             customTags = {
-#                 "!fn",
-#                 "!And",
-#                 "!If",
-#                 "!Not",
-#                 "!Equals",
-#                 "!Or",
-#                 "!FindInMap sequence",
-#                 "!Base64",
-#                 "!Cidr",
-#                 "!Ref",
-#                 "!Ref Scalar",
-#                 "!Sub",
-#                 "!GetAtt",
-#                 "!GetAZs",
-#                 "!ImportValue",
-#                 "!Select",
-#                 "!Split",
-#                 "!Join sequence"
-#             },
-#         },
-#     },
-#   }
-#  require('lspconfig').ruff_lsp.setup {
-#    -- on_attach = on_attach,
-#    init_options = {
-#      settings = {
-#        -- Any extra CLI arguments for `ruff` go here.
-#        args = {},
-#      }
-#    }
-#  }
-# 
-# 
-#  local lsp_installer = require("nvim-lsp-installer")
-# 
-#  -- サーバー起動時に自動でon_attachをアタッチする
-#  lsp_installer.on_server_ready(function(server)
-# 
-#    local capabilities = vim.lsp.protocol.make_client_capabilities()
-#    capabilities.textDocument.completion.completionItem.snippetSupport = true
-# 
-#    -- language serverごとにcapabilitiesを追加する必要があります。
-#    -- on_attachは必要に応じて
-#    -- require'lspconfig'.clangd.setup{on_attach = on_attach, capabilities = capabilities}
-#    local opts = {}
-#    opts.on_attach = on_attach
-#    opts.capabilities = capabilities
-#    server:setup(opts)
-#    vim.cmd [[ do User LspAttachBuffers ]]
-#  end)
-# 
-# 
+# [[plugins]] # TODO: 削除する.
+# # インストール済みのlinterやforatterを呼び出しての出力結果をLSPに渡す
+# repo ='jose-elias-alvarez/null-ls.nvim'
+# depends = ['plenary.nvim']
+# on_source = 'nvim-lspconfig'
+# hook_source = '''
+# lua << EOF
+# require("null-ls").setup({
+#     sources = {
+#         -- require("null-ls").builtins.completion.spell,
+#         require("null-ls").builtins.diagnostics.flake8,
+#         require("null-ls").builtins.diagnostics.mypy,
+#         require("null-ls").builtins.diagnostics.shellcheck,
+#         require("null-ls").builtins.diagnostics.cfn_lint,
+#         require("null-ls").builtins.formatting.ruff,
+#         require("null-ls").builtins.diagnostics.ruff,
+#         -- require("null-ls").builtins.diagnostics.mypy.with({
+#         --     command = "pipenv run mypy",
+#         -- }),
+#     }
+# })
 # EOF
 # '''
 
-# [[plugins]]
-#  repo ='williamboman/nvim-lsp-installer'
-#  on_source = 'nvim-lspconfig'
-
-# [[plugins]]
-#  repo ='williamboman/mason.nvim'
-#  on_source = 'nvim-lspconfig'
-# 
-# [[plugins]]
-#  repo ='williamboman/mason-lspconfig.nvim'
-#  on_source = 'nvim-lspconfig'
-
-[[plugins]]
-# インストール済みのlinterやforatterを呼び出しての出力結果をLSPに渡す
-repo ='jose-elias-alvarez/null-ls.nvim'
-depends = ['plenary.nvim']
-on_source = 'nvim-lspconfig'
-hook_source = '''
-lua << EOF
-require("null-ls").setup({
-    sources = {
-        -- require("null-ls").builtins.completion.spell,
-        require("null-ls").builtins.diagnostics.flake8,
-        require("null-ls").builtins.diagnostics.mypy,
-        require("null-ls").builtins.diagnostics.shellcheck,
-        require("null-ls").builtins.diagnostics.cfn_lint,
-        require("null-ls").builtins.formatting.ruff,
-        require("null-ls").builtins.diagnostics.ruff,
-        -- require("null-ls").builtins.diagnostics.mypy.with({
-        --     command = "pipenv run mypy",
-        -- }),
-    }
-})
-EOF
-'''
-
-[[plugins]]
-# プロジェクト内のファイルの一斉置換
-repo ='nvim-pack/nvim-spectre'
-depends = ['plenary.nvim']
-# on_source = 'nvim-lspconfig'
-on_event = 'BufRead'
-hook_source = '''
-lua << EOF
-require('spectre').setup()
-EOF
-'''
-hook_add = '''
-nnoremap <leader>R :lua require('spectre').open()<CR>
-"search current word
-nnoremap <leader>rw :lua require('spectre').open_visual({select_word=true})<CR>
-vnoremap <leader>r :lua require('spectre').open_visual()<CR>
-"  search in current file
-nnoremap <leader>rp viw:lua require('spectre').open_file_search()<cr>
-'''
-
-[[plugins]]
- repo = 'Shougo/ddc-nvim-lsp'
- on_source = 'ddc.vim'
+# [[plugins]] # TODO: 削除.
+#  repo = 'Shougo/ddc-nvim-lsp'
+#  on_source = 'ddc.vim'
 
 [[plugins]]
 # LSPの動作待ち中プログレスバーを表示する.
@@ -482,63 +285,231 @@ EOF
  '''
 
 [[plugins]]
- repo = 'hrsh7th/vim-vsnip'
- on_event = 'InsertEnter'
- depends = ['vim-vsnip-integ']
- hook_add = '''
- " Expand
- imap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
- smap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
- 
- " Expand or jump
- imap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
- smap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
- 
- " Jump forward or backward
- imap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
- smap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
- imap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
- smap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
- 
- " " Select or cut text to use as $TM_SELECTED_TEXT in the next snippet.
- " " See https://github.com/hrsh7th/vim-vsnip/pull/50
- " nmap        s   <Plug>(vsnip-select-text)
- " xmap        s   <Plug>(vsnip-select-text)
- " nmap        S   <Plug>(vsnip-cut-text)
- " xmap        S   <Plug>(vsnip-cut-text)
- 
- " If you want to use snippet for multiple filetypes, you can `g:vsnip_filetypes` for it.
- let g:vsnip_filetypes = {}
- let g:vsnip_filetypes.python = ['python']
- " let g:vsnip_filetypes.javascriptreact = ['javascript']
- " let g:vsnip_filetypes.typescriptreact = ['typescript']
+# diagnosticsの一覧を表示する.diagnosticsの発生個所に飛べる.
+# 一覧にカーソルを合わせるだけで発生個所が表示されるので、
+# LSPのショートカットキーで一つずつ飛ぶより楽.
+# 実行コマンド :TroubleToggle
+# 実行コマンド :TroubleRefresh
+repo = 'folke/trouble.nvim'
+depends = ['nvim-web-devicons']
+on_event = 'BufRead'
+hook_source = '''
+lua << EOF
+require("trouble").setup {}
+EOF
+'''
 
- " let g:vsnip_snippet_dir = expand('~/.config/nvim/vsnips')
- let g:vsnip_snippet_dirs = []
- let g:vsnip_snippet_dirs += ['~/.config/nvim/vsnips/python']
- let g:vsnip_snippet_dirs += ['~/.config/nvim/vsnips/python/pytest']
- let g:vsnip_snippet_dirs += ['~/.config/nvim/vsnips/terraform']
- '''
 
-[[plugins]]
- repo = 'hrsh7th/vim-vsnip-integ'
-
-[[plugins]]
- repo = 'plasticboy/vim-markdown'
-
-[[plugins]]
- repo = 'dhruvasagar/vim-table-mode'
-
-# GUIしか対応してないっぽい
+# [[plugins]] # TODO: 更新対応.
+#  repo = 'hrsh7th/vim-vsnip'
+#  on_event = 'InsertEnter'
+#  depends = ['vim-vsnip-integ']
+#  hook_add = '''
+#  " Expand
+#  imap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
+#  smap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
+#  
+#  " Expand or jump
+#  imap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+#  smap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+#  
+#  " Jump forward or backward
+#  imap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
+#  smap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
+#  imap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+#  smap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+#  
+#  " " Select or cut text to use as $TM_SELECTED_TEXT in the next snippet.
+#  " " See https://github.com/hrsh7th/vim-vsnip/pull/50
+#  " nmap        s   <Plug>(vsnip-select-text)
+#  " xmap        s   <Plug>(vsnip-select-text)
+#  " nmap        S   <Plug>(vsnip-cut-text)
+#  " xmap        S   <Plug>(vsnip-cut-text)
+#  
+#  " If you want to use snippet for multiple filetypes, you can `g:vsnip_filetypes` for it.
+#  let g:vsnip_filetypes = {}
+#  let g:vsnip_filetypes.python = ['python']
+#  " let g:vsnip_filetypes.javascriptreact = ['javascript']
+#  " let g:vsnip_filetypes.typescriptreact = ['typescript']
+# 
+#  " let g:vsnip_snippet_dir = expand('~/.config/nvim/vsnips')
+#  let g:vsnip_snippet_dirs = []
+#  let g:vsnip_snippet_dirs += ['~/.config/nvim/vsnips/python']
+#  let g:vsnip_snippet_dirs += ['~/.config/nvim/vsnips/python/pytest']
+#  let g:vsnip_snippet_dirs += ['~/.config/nvim/vsnips/terraform']
+#  '''
+# 
 # [[plugins]]
-# repo = 'petertriho/nvim-scrollbar'
-# on_event = 'BufRead'
-# # on_event = 'BufEnter'
+#  repo = 'hrsh7th/vim-vsnip-integ'
+
+
+# # ---------------------------------------------------------------------------------------------
+# # デバッグツール.
+# # ---------------------------------------------------------------------------------------------
+# [[plugins]]
+# # デバッグツール
+# # ステップイン: 1行進む.
+# # ステップオーバー: 1行進む.進み先が関数内に入る場合は、関数内はスキップする.
+# # ステップアウト: そのスコープを出るまで進む.
+# repo = 'mfussenegger/nvim-dap'
+# on_ft = ['python']
+# hook_add = '''
+# nnoremap <silent> <Leader>0 :lua require'dap'.continue()<CR>
+# nnoremap <silent> <Leader>1 :lua require'dap'.step_into()<CR>
+# nnoremap <silent> <Leader>2 :lua require'dap'.step_over()<CR>
+# nnoremap <silent> <Leader>3 :lua require'dap'.step_out()<CR>
+# nnoremap <silent> <leader>dq :lua require'dap'.terminate(); require'dapui'.close()<CR>
+# nnoremap <silent> <leader>db :lua require'dap'.toggle_breakpoint()<CR>
+# nnoremap <silent> <leader>dc :lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
+# nnoremap <silent> <leader>dB :lua require'dap'.clear_breakpoints()<CR>
+# " nnoremap <silent> <leader>dp :lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>
+# " nnoremap <silent> <leader>dr :lua require'dap'.repl.open()<CR>
+# '''
+# 
+# [[plugins]]
+# # 
+# repo = 'mfussenegger/nvim-dap-python'
+# depends = ['nvim-dap']
+# on_ft = 'python'
 # hook_source = '''
 # lua << EOF
-# require("scrollbar").setup()
+# pythonPath = function()
+#   -- debugpy supports launching an application with a different interpreter then the one used to launch debugpy itself.
+#   -- The code below looks for a `venv` or `.venv` folder in the current directly and uses the python within.
+#   -- You could adapt this - to for example use the `VIRTUAL_ENV` environment variable.
+#   local cwd = vim.fn.getcwd()
+#   if vim.fn.executable(cwd .. '/venv/bin/python') == 1 then
+#     return cwd .. '/venv/bin/python'
+#   elseif vim.fn.executable(cwd .. '/.venv/bin/python') == 1 then
+#     return cwd .. '/.venv/bin/python'
+#   else
+#     return '/usr/bin/python'
+#   end
+# end;
+# 
+# require('dap-python').setup(pythonPath())
+# require('dap-python').test_runner = 'pytest'
 # EOF
 # '''
+# 
+# [[plugins]]
+# # デバッグツール
+# # デバッグ画面
+# repo = 'rcarriga/nvim-dap-ui'
+# # depends = ['nvim-dap']
+# # on_ft = ['python']
+# on_source = ['nvim-dap']
+# hook_source = '''
+# lua << EOF
+# require('dapui').setup()
+# 
+# -- デバッグ開始時に自動でUI画面を開く.
+# require'dap'.listeners.before['event_initialized']['custom'] = function(session, body)
+#   require'dapui'.open()
+# end
+# -- デバッグ終了時に自動でUI画面を閉じる.
+# require'dap'.listeners.before['event_terminated']['custom'] = function(session, body)
+#   require'dapui'.close()
+# end
+# EOF
+# '''
+# 
+# [[plugins]]
+# # デバッグツール
+# # 変数の値をvertualtextで表示する
+# repo = 'theHamsta/nvim-dap-virtual-text'
+# # depends = ['nvim-dap']
+# on_ft = ['python']
+# hook_source = '''
+# lua << EOF
+# -- require("nvim-dap-virtual-text").setup()
+# require("nvim-dap-virtual-text").setup {
+#     enabled = true,                     -- enable this plugin (the default)
+#     enabled_commands = true,            -- create commands DapVirtualTextEnable, DapVirtualTextDisable, DapVirtualTextToggle, (DapVirtualTextForceRefresh for refreshing when debug adapter did not notify its termination)
+#     highlight_changed_variables = false, -- highlight changed values with NvimDapVirtualTextChanged, else always NvimDapVirtualText
+#     highlight_new_as_changed = false,   -- highlight new variables in the same way as changed variables (if highlight_changed_variables)
+#     show_stop_reason = true,            -- show stop reason when stopped for exceptions
+#     commented = false,                  -- prefix virtual text with comment string
+#     -- experimental features:
+#     virt_text_pos = 'eol',              -- position of virtual text, see `:h nvim_buf_set_extmark()`
+#     all_frames = false,                 -- show virtual text for all stack frames not only current. Only works for debugpy on my machine.
+#     virt_lines = false,                 -- show virtual lines instead of virtual text (will flicker!)
+#     virt_text_win_col = nil             -- position the virtual text at a fixed window column (starting from the first text column) ,
+#                                         -- e.g. 80 to position at column 80, see `:h nvim_buf_set_extmark()`
+# }
+# EOF
+# '''
+
+# ---------------------------------------------------------------------------------------------
+# カスタマイズ設定の索引ツール.
+# ---------------------------------------------------------------------------------------------
+
+[[plugins]]
+# キーバインドを通知
+repo = 'liuchengxu/vim-which-key'
+hook_add = '''
+nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
+'''
+
+
+# ---------------------------------------------------------------------------------------------
+# 画面描画ツール(色, アイコン,ステータスラインなど)
+# ---------------------------------------------------------------------------------------------
+
+[[plugins]]
+repo = 'nvim-treesitter/nvim-treesitter'
+if = 'has("nvim")'
+on_event = 'BufRead'
+hook_post_update = 'TSUpdate'
+hook_source = '''
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+    ensure_installed = 'all',
+    highlight = {
+        enable = true,
+        disable = {},
+    },
+    -- 編集中に動くのが気持ち悪い.挙動が予測しにくい.
+    -- indent = {
+    --     enable = true,
+    -- },
+}
+EOF
+'''
+
+# [[plugins]] # 少し使ってみたけど余り目に馴染まないから消した. # TODO: 削除検討.
+# repo = 'p00f/nvim-ts-rainbow'
+# on_source = 'nvim-treesitter'
+# hook_source = '''
+# lua <<EOF
+# require("nvim-treesitter.configs").setup {
+#   -- highlight = {
+#   --     -- ...
+#   -- },
+#   -- -- ...
+#   rainbow = {
+#     enable = true,
+#     -- disable = { "jsx", "cpp" }, list of languages you want to disable the plugin for
+#     extended_mode = true, -- Also highlight non-bracket delimiters like html tags, boolean or table: lang -> boolean
+#     max_file_lines = nil, -- Do not enable for files with more than n lines, int
+#     -- colors = {}, -- table of hex strings
+#     -- termcolors = {} -- table of colour name strings
+#   }
+# }
+# EOF
+# '''
+
+[[plugins]]
+# インデントの可視化
+repo = 'lukas-reineke/indent-blankline.nvim'
+on_event = 'BufEnter'
+hook_source = '''
+lua <<EOF
+require("indent_blankline").setup {
+    show_first_indent_level = false,
+}
+EOF
+'''
 
 [[plugins]]
 # テキストベースのスクロールバーを表示する
@@ -554,274 +525,6 @@ augroup ScrollbarInit
   autocmd WinLeave,BufLeave,BufWinLeave,FocusLost            * silent! lua require('scrollbar').clear()
 augroup end
 '''
-
-# [[plugins]]
-#  repo = 'rafamadriz/friendly-snippets'
-
-[[plugins]]
-# 検索にヒットしたものが何個中何個目かをvertualtextで表示する
-repo = 'kevinhwang91/nvim-hlslens'
-on_event = 'BufEnter'
-hook_add = '''
-noremap <silent> n <Cmd>execute('normal! ' . v:count1 . 'nzz')<CR>
-            \<Cmd>lua require('hlslens').start()<CR>
-noremap <silent> N <Cmd>execute('normal! ' . v:count1 . 'Nzz')<CR>
-            \<Cmd>lua require('hlslens').start()<CR>
-'''
-
-[[plugins]]
-# 検索時に勝手にカーソルが移動するのを防ぐ.
-# 選択範囲の文字列でアスタリスク検索する機能ももつ.
-# キーマップにvim-asteriskとnvim-hlslensの機能両方を結びつける為に、nvim-hlslensをdependsにしている.
-repo = 'haya14busa/vim-asterisk'
-# depends = ['nvim-hlslens']
-on_source = 'nvim-hlslens'
-hook_add = '''
-map * <Plug>(asterisk-z*)<Cmd>lua require('hlslens').start()<CR>
-map # <Plug>(asterisk-z#)<Cmd>lua require('hlslens').start()<CR>
-map g* <Plug>(asterisk-gz*)<Cmd>lua require('hlslens').start()<CR>
-map g# <Plug>(asterisk-gz#)<Cmd>lua require('hlslens').start()<CR>
-let g:asterisk#keeppos = 1
-'''
-
-# [[plugins]]
-# repo = 'lambdalisue/fern-git-status.vim'
-# depends = ['fern.vim']
-# hook_add = '''
-# let g:fern_git_status#disable_ignored = 1
-# 
-# let g:fern_git_status#disable_untracked = 1
-# 
-# let g:fern_git_status#disable_submodules = 1
-# 
-# let g:fern_git_status#disable_directories = 1
-# '''
-# # hook_add = '''
-# # #" Disable listing ignored files/directories
-# # let g:fern_git_status#disable_ignored = 1
-# # 
-# # #" Disable listing untracked files
-# # let g:fern_git_status#disable_untracked = 1
-# # 
-# # #" Disable listing status of submodules
-# # let g:fern_git_status#disable_submodules = 1
-# # 
-# # #" Disable listing status of directories
-# # let g:fern_git_status#disable_directories = 1
-# # '''
-# 
-# [[plugins]]
-# repo = 'heavenshell/vim-pydocstring'
-# on_ft = ['python']
-# hook_add = '''
-# let g:pydocstring_doq_path = expand('~/.pyenv/shims/doq')
-# let g:pydocstring_templates_path = expand('~/.config/nvim/vim-pydocstring/templates/')
-# nmap <silent> <C-_> <Plug>(pydocstring)
-# '''
-# # let g:pydocstring_doq_path = '/home/kazu-0918/.pyenv/shims/doq'
-# # let g:pydocstring_formatter = 'numpy'
-# # let g:pydocstring_templates_path = '/home/kazu-0918/.config/nvim/vim-pydocstring/templates/'
-
-# [[plugins]]
-#  repo = 'mattn/vim-lsp-settings'
-#  on_ft = ['python']
-#  on_source = 'vim_lsp'
-#  hook_add = '''
-#    " Hide signcolumn.
-#    let g:lsp_diagnostics_signs_enabled = 0
-#    " Show diagnostics message to status line
-#    let g:lsp_diagnostics_echo_cursor = 1
-#    " Enable flake8 and mypy
-#    let g:lsp_settings = {
-#    \  'pylsp-all': {
-#    \    'workspace_config': {
-#    \      'pylsp': {
-#    \        'configurationSources': [],
-#    \      }
-#    \    }
-#    \  }
-#    \}
-#   let g:lsp_text_edit_enabled = 1
-#   let g:lsp_virtual_text_enabled = 1
-#   let g:lsp_diagnostics_highlights_enabled = 0
-#   let g:lsp_diagnostics_enabled = 1
-#  '''
-# #    \        'plugins': {
-# #    \          'pylsp_mypy': {
-# #    \            'enabled': 1
-# #    \          }
-# #    \        }
-
-[[plugins]]
-# デバッグツール
-# ステップイン: 1行進む.
-# ステップオーバー: 1行進む.進み先が関数内に入る場合は、関数内はスキップする.
-# ステップアウト: そのスコープを出るまで進む.
-repo = 'mfussenegger/nvim-dap'
-on_ft = ['python']
-hook_add = '''
-nnoremap <silent> <Leader>0 :lua require'dap'.continue()<CR>
-nnoremap <silent> <Leader>1 :lua require'dap'.step_into()<CR>
-nnoremap <silent> <Leader>2 :lua require'dap'.step_over()<CR>
-nnoremap <silent> <Leader>3 :lua require'dap'.step_out()<CR>
-nnoremap <silent> <leader>dq :lua require'dap'.terminate(); require'dapui'.close()<CR>
-nnoremap <silent> <leader>db :lua require'dap'.toggle_breakpoint()<CR>
-nnoremap <silent> <leader>dc :lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
-nnoremap <silent> <leader>dB :lua require'dap'.clear_breakpoints()<CR>
-" nnoremap <silent> <leader>dp :lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>
-" nnoremap <silent> <leader>dr :lua require'dap'.repl.open()<CR>
-'''
-
-[[plugins]]
-# 
-repo = 'mfussenegger/nvim-dap-python'
-depends = ['nvim-dap']
-on_ft = 'python'
-hook_source = '''
-lua << EOF
-pythonPath = function()
-  -- debugpy supports launching an application with a different interpreter then the one used to launch debugpy itself.
-  -- The code below looks for a `venv` or `.venv` folder in the current directly and uses the python within.
-  -- You could adapt this - to for example use the `VIRTUAL_ENV` environment variable.
-  local cwd = vim.fn.getcwd()
-  if vim.fn.executable(cwd .. '/venv/bin/python') == 1 then
-    return cwd .. '/venv/bin/python'
-  elseif vim.fn.executable(cwd .. '/.venv/bin/python') == 1 then
-    return cwd .. '/.venv/bin/python'
-  else
-    return '/usr/bin/python'
-  end
-end;
-
-require('dap-python').setup(pythonPath())
-require('dap-python').test_runner = 'pytest'
-EOF
-'''
-
-[[plugins]]
-# デバッグツール
-# デバッグ画面
-repo = 'rcarriga/nvim-dap-ui'
-# depends = ['nvim-dap']
-# on_ft = ['python']
-on_source = ['nvim-dap']
-hook_source = '''
-lua << EOF
-require('dapui').setup()
-
--- デバッグ開始時に自動でUI画面を開く.
-require'dap'.listeners.before['event_initialized']['custom'] = function(session, body)
-  require'dapui'.open()
-end
--- デバッグ終了時に自動でUI画面を閉じる.
-require'dap'.listeners.before['event_terminated']['custom'] = function(session, body)
-  require'dapui'.close()
-end
-EOF
-'''
-
-[[plugins]]
-# デバッグツール
-# 変数の値をvertualtextで表示する
-repo = 'theHamsta/nvim-dap-virtual-text'
-# depends = ['nvim-dap']
-on_ft = ['python']
-hook_source = '''
-lua << EOF
--- require("nvim-dap-virtual-text").setup()
-require("nvim-dap-virtual-text").setup {
-    enabled = true,                     -- enable this plugin (the default)
-    enabled_commands = true,            -- create commands DapVirtualTextEnable, DapVirtualTextDisable, DapVirtualTextToggle, (DapVirtualTextForceRefresh for refreshing when debug adapter did not notify its termination)
-    highlight_changed_variables = false, -- highlight changed values with NvimDapVirtualTextChanged, else always NvimDapVirtualText
-    highlight_new_as_changed = false,   -- highlight new variables in the same way as changed variables (if highlight_changed_variables)
-    show_stop_reason = true,            -- show stop reason when stopped for exceptions
-    commented = false,                  -- prefix virtual text with comment string
-    -- experimental features:
-    virt_text_pos = 'eol',              -- position of virtual text, see `:h nvim_buf_set_extmark()`
-    all_frames = false,                 -- show virtual text for all stack frames not only current. Only works for debugpy on my machine.
-    virt_lines = false,                 -- show virtual lines instead of virtual text (will flicker!)
-    virt_text_win_col = nil             -- position the virtual text at a fixed window column (starting from the first text column) ,
-                                        -- e.g. 80 to position at column 80, see `:h nvim_buf_set_extmark()`
-}
-EOF
-'''
-
-[[plugins]]
-# キーバインドを通知
-repo = 'liuchengxu/vim-which-key'
-hook_add = '''
-nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
-'''
-
-# [[plugins]]
-# # docstringの自動入力
-# # デフォルト値が入力されないなどまだ色々機能が足りない
-# repo = 'danymat/neogen'
-# on_event = 'BufEnter'
-# depends = ['nvim-treesitter']
-# hook_source = '''
-# lua <<EOF
-# require('neogen').setup {
-#     enabled = true,
-#     languages = {
-#         python = {
-#             template = {
-#                 annotation_convention = "numpydoc", -- for a full list of annotation_conventions, see supported-languages below,
-#                 -- numpydoc = {
-#                 --     { nil, '""" $1 """', { no_results = true, type = { "class", "func" } } },
-#                 --     { nil, '"""$1', { no_results = true, type = { "file" } } },
-#                 --     { nil, "", { no_results = true, type = { "file" } } },
-#                 --     { nil, "$1", { no_results = true, type = { "file" } } },
-#                 --     { nil, '"""', { no_results = true, type = { "file" } } },
-#                 --     { nil, "", { no_results = true, type = { "file" } } },
-# 
-#                 --     { nil, "# $1", { no_results = true, type = { "type" } } },
-# 
-#                 --     { nil, '"""$1' },
-#                 --     { "has_identifier", "", { type = { "func" } } },
-#                 --     { "has_identifier", "Parameters", { type = { "func" } } },
-#                 --     { "has_identifier", "----------", { type = { "func" } } },
-#                 --     {
-#                 --         "parameters",
-#                 --         "%s: $1",
-#                 --         { after_each = "    $1", type = { "func" } },
-#                 --     },
-#                 --     {
-#                 --         { "identifier", "type" },
-#                 --         "%s: %s",
-#                 --         { after_each = "    $1", required = "typed_parameters", type = { "func" } },
-#                 --     },
-#                 --     { "attributes", "%s: $1", { before_first_item = { "", "Attributes", "----------" } } },
-#                 --     { "has_return", "", { type = { "func" } } },
-#                 --     { "has_return", "Returns", { type = { "func" } } },
-#                 --     { "has_return", "-------", { type = { "func" } } },
-#                 --     {
-#                 --         "return_statement",
-#                 --         "%s : $1",
-#                 --         { after_each = "    $1" },
-#                 --     },
-#                 --     {
-#                 --         "anonymous_return",
-#                 --         "%s",
-#                 --         { after_each = "    $1" },
-#                 --     },
-#                 --     { nil, '"""' },
-#                 -- },
-#             }
-#         },
-#     }
-# }
-# require('neogen').generate()
-# EOF
-# '''
-# hook_add = '''
-# lua <<EOF
-# local opts = { noremap = true, silent = true }
-# vim.api.nvim_set_keymap("n", "<Leader>nf", ":lua require('neogen').generate({ type = 'func' })<CR>", opts)
-# vim.api.nvim_set_keymap("i", "<C-n>", "<ESC>:lua require('neogen').jump_next()<CR>", opts)
-# vim.api.nvim_set_keymap("i", "<C-p>", "<ESC>:lua require('neogen').jump_prev()<CR>", opts)
-# EOF
-# '''
 
 
 [[plugins]]
@@ -867,21 +570,6 @@ EOF
 '''
 
 [[plugins]]
-# diagnosticsの一覧を表示する.diagnosticsの発生個所に飛べる.
-# 一覧にカーソルを合わせるだけで発生個所が表示されるので、
-# LSPのショートカットキーで一つずつ飛ぶより楽.
-# 実行コマンド :TroubleToggle
-# 実行コマンド :TroubleRefresh
-repo = 'folke/trouble.nvim'
-depends = ['nvim-web-devicons']
-on_event = 'BufRead'
-hook_source = '''
-lua << EOF
-require("trouble").setup {}
-EOF
-'''
-
-[[plugins]]
 # 
 repo = 'akinsho/bufferline.nvim'
 on_event = 'BufRead'
@@ -893,34 +581,10 @@ require("bufferline").setup{}
 EOF
 '''
 
-[[plugins]]
-# 
-repo ='tani/glance-vim'
-depends = ['denops.vim']
-on_ft = 'markdown'
-# hook_source = '''
-# let g:glance#stylesheet = '@import url("https://cdn.jsdelivr.net/npm/water.css@2/out/water.css");'
-# let g:glance#markdown_html = v:true
-# let g:glance#markdown_linkify = v:true
-# let g:glance#markdown_breaks = v:true
-# let g:glance#server_port = 58765
-# '''
-# hook_post_source = '''
-# let g:glance#stylesheet = '@import url("https://cdn.jsdelivr.net/npm/water.css@2/out/water.css");'
-# let g:glance#markdown_html = v:true
-# let g:glance#markdown_linkify = v:true
-# let g:glance#markdown_breaks = v:true
-# let g:glance#server_port = 58765
-# '''
-hook_add = '''
-let g:glance#stylesheet = '@import url("https://cdn.jsdelivr.net/npm/water.css@2/out/water.css");'
-let g:glance#markdown_html = v:true
-let g:glance#markdown_linkify = v:true
-let g:glance#markdown_breaks = v:true
-let g:glance#server_port = 58765
-'''
-
-[[plugins]]
-repo = 'Shougo/ddu.vim'
-depends = 'denops.vim'
-on_source = 'denops.vim'
+# ---------------------------------------------------------------------------------------------
+# ファジーファインダー系
+# ---------------------------------------------------------------------------------------------
+# [[plugins]]
+# repo = 'Shougo/ddu.vim'
+# depends = 'denops.vim'
+# on_source = 'denops.vim'

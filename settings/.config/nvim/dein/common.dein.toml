@@ -228,6 +228,8 @@ endfunction
 [[plugins]]
 # 任意の単語をハイライト状態で維持する
 # lazyだと動かない
+# ハイライトのON/OFF: 単語上で<LEADER>ha
+# ハイライトを全て消す: <LEADER>hC
 repo = 't9md/vim-quickhl'
 hook_add = '''
 nmap <leader>ha <Plug>(quickhl-manual-this)
