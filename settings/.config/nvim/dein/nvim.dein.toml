@@ -117,6 +117,7 @@ repo = 'nvim-lua/plenary.nvim'
 
 [[plugins]]
 repo ='williamboman/mason.nvim'
+on_event = ["BufRead"]
 # on_source = 'nvim-lspconfig'
 hook_source = '''
 lua << EOF
