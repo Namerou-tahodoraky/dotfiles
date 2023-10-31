@@ -693,10 +693,8 @@ EOF
 repo = 'lukas-reineke/indent-blankline.nvim'
 on_event = 'BufEnter'
 hook_source = '''
-lua <<EOF
-require("indent_blankline").setup {
-    show_first_indent_level = false,
-}
+lua << EOF
+require("ibl").setup({scope = {show_exact_scope = true}})
 EOF
 '''
 

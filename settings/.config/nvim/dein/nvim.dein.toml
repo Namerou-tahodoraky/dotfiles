@@ -3,10 +3,7 @@
 # ---------------------------------------------------------------------------------------------
 
 [[plugins]]
-repo = 'folke/tokyonight.nvim'
-hook_add = '''
-let g:tokyonight_style = "night"
-'''
+repo = 'cocopon/iceberg.vim'
 
 
 #---------------------------------------------

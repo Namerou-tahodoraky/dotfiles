@@ -69,11 +69,10 @@ if dein#load_state(s:dein_dir)
   call dein#save_state()
 endif
 
-" solarized読み込み.
 " tomlに書くとキャッシュが変更される度に壊れてうまくいかないのでこちらに書く.
-set background=dark
-" colorscheme hybrid
-colorscheme tokyonight
+" set background=dark
+" colorscheme tokyonight
+colorscheme iceberg
 " colorschemeを読み込んだ後に定義する
 syntax enable
 
