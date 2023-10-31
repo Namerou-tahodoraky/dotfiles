@@ -152,23 +152,6 @@ repo = 'neovim/nvim-lspconfig'
 on_source = ["ddc-nvim-lsp-setup"]
 hook_source = '''
 lua << EOF
--- local nvim_lsp = require('lspconfig')
--- 
--- -- language serverがバッファにアタッチされたときに実行する関数
--- local on_attach = function (client, bufnr)
---   local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
---   local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
--- 
---   local opts = { noremap=true, silent=true }
---   buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
---   buf_set_keymap('n', 'gK', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
---   buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
---   buf_set_keymap('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
---   buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
---   buf_set_keymap('n', 'gx', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
---   buf_set_keymap('n', 'g[', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
---   buf_set_keymap('n', 'g]', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
--- end
 
 -- -- これつけるとyamllsが動かない.
 -- -- nvim-lsp.yamlls.setup {
@@ -299,6 +282,9 @@ EOF
 '''
 
 [[plugins]]
+# mason.nvimでインストールしたプラグインをnvim-lspconfigの設定に流す橋渡し役.
+# mason.nvimで認識されるプラグイン名とnvim-lspconfigで認識されるLaunguage Server名が異なっていることがあったり、そういう設定の面倒事を吸収している.
+# nvim-lspconfigにかける設定項目もこちらに書く方が無難か.
 repo ='williamboman/mason-lspconfig.nvim'
 on_source = ['nvim-lspconfig', "masson.nvim"]
 hook_source = '''
@@ -341,24 +327,8 @@ repo = 'Shougo/ddc.vim'
 on_event = 'InsertEnter'
 depends = ['denops.vim']
 hook_source = '''
-" call ddc#custom#patch_global('completionMenu', 'pum.vim')
-" call ddc#custom#patch_global('sources', ['nvim-lsp', 'vsnip', 'around', 'file'])
 call ddc#custom#patch_global('sources', ['nvim-lsp', 'around', 'file'])
 call ddc#custom#patch_global('ui', 'pum')
-" call ddc#custom#patch_global('sourceOptions', {
-"      \ '_': {
-"      \   'matchers': ['matcher_fuzzy'],
-"      \   'sorters': ['sorter_fuzzy'],
-"      \   'converters': ['converter_fuzzy'],
-"      \ },
-"      \ 'around': {'mark': 'AROUND'},
-"      \ 'file': {'mark': 'FILE'},
-"      \ 'nvim-lsp': {
-"      \   'mark': 'LSP',
-"      \   'forceCompletionPattern': '\.\w*|:\w*|->\w*',
-"      \   'minAutoCompleteLength': 1,
-"      \ },
-"      \ })
 call ddc#custom#patch_global('sourceOptions', {
      \ '_': {
      \   'matchers': ['matcher_fuzzy'],
@@ -374,11 +344,6 @@ call ddc#custom#patch_global('sourceOptions', {
      \   'sorters': ['sorter_lsp-kind']
      \ },
 \})
-" call ddc#custom#patch_global('filterParams', {
-"  \   'matcher_fuzzy': {
-"  \     'splitMode': 'word'
-"  \   }
-"  \ })
 
 call ddc#custom#patch_global('sourceParams', {
 \  'around': {'maxSize': 500},
@@ -500,15 +465,13 @@ call popup_preview#enable()
 # ddcやdenops-popup-preview.vimとは独立して動く.
 [[plugins]]
 repo = 'ray-x/lsp_signature.nvim'
-# depends = ['nvim-lsp']
-# on_source = ['ddc.vim', "denops-popup_preview"]
 on_event = 'BufRead'
 hook_source = '''
 lua << EOF
 require("lsp_signature").setup()
 EOF
  '''
-# 
+
 # [[plugins]]
 # # diagnosticsの一覧を表示する.diagnosticsの発生個所に飛べる.
 # # 一覧にカーソルを合わせるだけで発生個所が表示されるので、
@@ -738,10 +701,9 @@ EOF
 
 [[plugins]]
 # テキストベースのスクロールバーを表示する
+# スクロールバーと被って一番右端の文字が見えなくなるので注意.
 repo = 'Xuyuanp/scrollbar.nvim'
-# on_event = 'BufEnter'
 on_event = ['BufEnter', 'BufNewFile']
-# on_event = ['WinScrolled','VimResized','QuitPre', 'WinEnter', 'FocusGained']
 hook_source = '''
 augroup ScrollbarInit
   autocmd!

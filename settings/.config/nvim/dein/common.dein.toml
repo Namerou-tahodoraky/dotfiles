@@ -81,13 +81,10 @@ nmap R <Plug>(operator-replace)
 
 [[plugins]]
 # コメント操作.
-# <Leader>c; :トグル
-# <Leader>ca: 末尾にコメント挿入
+# <Leader>; :トグル
 repo = 'tyru/caw.vim'
 depends = ['vim-operator-user']
 hook_add = '''
-"nmap <Leader>c      <Plug>(caw:prefix)
-"vmap <Leader>c      <Plug>(caw:prefix)
 nmap <Leader>;     <Plug>(caw:hatpos:toggle)
 vmap <Leader>;     <Plug>(caw:hatpos:toggle)
 '''
@@ -131,7 +128,7 @@ repo = 'kana/vim-textobj-user'
 # '''
 
 [[plugins]]
-# インデントと改行を除く一行をtextobjとして扱う.
+# 行頭の空白と改行を除く一行をtextobjとして扱う.
 # yil, dil, cil, vil
 # hook_addでキーマップを書くと動かなくなる.
 repo = 'kana/vim-textobj-line'
@@ -198,32 +195,32 @@ vmap v <Plug>(expand_region_expand)
 vmap V <Plug>(expand_region_shrink)
 '''
 
-[[plugins]]
-# undotreeのTUI操作
-repo = 'mbbill/undotree'
-hook_add = '''
-" undofileを保存したい場合
-" if has("persistent_undo")
-"    let target_path = expand('~/.undodir')
-" 
-"     " create the directory and any parent directories
-"     " if the location does not exist.
-"     if !isdirectory(target_path)
-"         call mkdir(target_path, "p", 0700)
-"     endif
-" 
-"     let &undodir=target_path
-"     set undofile
-" endif
-let g:undotree_ShortIndicators = 1      " 時間単位は短く表示
-let g:undotree_SetFocusWhenToggle = 1   " undotreeを開いたらフォーカスする
-noremap <Leader>u :UndotreeToggle<CR>
-" undotreeバッファ内でのキーバインド設定
-function! g:Undotree_CustomMap()
-    map <silent> <buffer> <Esc> q
-    map <silent> <buffer> h ?
-endfunction
-'''
+# [[plugins]]
+# # undotreeのTUI操作
+# repo = 'mbbill/undotree' # TODO: 使ってないので必要なのか再考.
+# hook_add = '''
+# " undofileを保存したい場合
+# " if has("persistent_undo")
+# "    let target_path = expand('~/.undodir')
+# " 
+# "     " create the directory and any parent directories
+# "     " if the location does not exist.
+# "     if !isdirectory(target_path)
+# "         call mkdir(target_path, "p", 0700)
+# "     endif
+# " 
+# "     let &undodir=target_path
+# "     set undofile
+# " endif
+# let g:undotree_ShortIndicators = 1      " 時間単位は短く表示
+# let g:undotree_SetFocusWhenToggle = 1   " undotreeを開いたらフォーカスする
+# noremap <Leader>u :UndotreeToggle<CR>
+# " undotreeバッファ内でのキーバインド設定
+# function! g:Undotree_CustomMap()
+#     map <silent> <buffer> <Esc> q
+#     map <silent> <buffer> h ?
+# endfunction
+# '''
 
 [[plugins]]
 # 任意の単語をハイライト状態で維持する
