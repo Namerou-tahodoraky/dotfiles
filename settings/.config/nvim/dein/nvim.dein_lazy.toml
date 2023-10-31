@@ -324,7 +324,8 @@ EOF
 # 補完候補を生成するのはsource用プラグインの役割.
 [[plugins]]
 repo = 'Shougo/ddc.vim'
-on_event = 'InsertEnter'
+# on_event = 'InsertEnter'
+on_event = 'BufEnter'
 depends = ['denops.vim']
 hook_source = '''
 call ddc#custom#patch_global('sources', ['nvim-lsp', 'around', 'file'])
@@ -768,10 +769,238 @@ require("bufferline").setup{}
 EOF
 '''
 
+
 # ---------------------------------------------------------------------------------------------
 # ファジーファインダー系
 # ---------------------------------------------------------------------------------------------
-# [[plugins]]
-# repo = 'Shougo/ddu.vim'
-# depends = 'denops.vim'
-# on_source = 'denops.vim'
+
+[[plugins]]
+# Reference: https://zenn.dev/vim_jp/articles/c0d75d1f3c7f33
+# 使用の流れ.
+# No  目的                            実際の操作
+# 1   ddu.vimで一覧を表示する         :call ddu#start({オプション})
+# 2   Input用のバッファを表示する     :call ddu#ui#do_action("openFilterWindow")
+# 3   Itemを絞り込むワードを入力する  i キーワードを入力 <ESC>
+# 4   一覧のバッファに移動する        :call ddu#ui#do_action("leaveFilterWindow")
+# 5   Itemを選ぶ                      j や k で移動する
+# 6   Kindのアクションを呼び出す      :call ddu#ui#do_action("itemAction", {"name": {アクション名}})
+# 
+repo = 'Shougo/ddu.vim'
+on_event = 'BufEnter'
+depends = ['denops.vim']
+# hook_source = '''
+# call ddu#custom#patch_global({
+#     \     "ui": "ff",
+#     \     "sourceOptions": {
+#     \         "_": {
+#     \             "matchers": ["matcher_substring"]
+#     \         },
+#     \     },
+#     \ })
+# 
+# " DduNodeFilesで使用する設定を用意する
+# call ddu#custom#patch_local("node-files", {
+#     \     "sources": ["file_rec"],
+#     \     "sourceParams": {
+#     \         "file_rec": {
+#     \             "ignoredDirectories": [".git", "node_modules"],
+#     \         }
+#     \     }
+#     \ })
+# 
+# " DduWholeFilesで使用する設定を用意する
+# call ddu#custom#patch_local("whole-files", {
+#     \     "sources": ["file_rec"],
+#     \     "sourceParams": {
+#     \         "file_rec": {
+#     \             "ignoredDirectories": [],
+#     \         }
+#     \     },
+#     \     "sourceOptions": {
+#     \         "file_rec": {
+#     \             "maxItems": 50000
+#     \         }
+#     \     }
+#     \ })
+# 
+# " ddu-ui-ff上でのみ有効なKeymap（`e`）を設定する
+# autocmd FileType ddu-ff call s:ddu_ff_settings()
+# function s:ddu_ff_settings() abort
+#     nnoremap <buffer> e <Cmd>call ddu#ui#do_action('itemAction', {'name': 'open'})<CR>
+# endfunction
+# 
+# " ddu#startを各オプションセット名で呼び出すコマンドを準備する
+# command! DduNodeFiles call ddu#start({"name": "node-files", "sourceOptions": {"file_rec": {"path": getcwd()}}})
+# command! DduWholeFiles call ddu#start({"name": "whole-files", "sourceOptions": {"file_rec": {"path": getcwd()}}})
+# '''
+hook_source = '''
+lua << EOF
+--  config = function()
+    vim.fn["ddu#custom#patch_global"]({
+        ui = "ff",
+        uiParams = {
+          ff = {
+            filterFloatingPosition = "bottom",
+            filterSplitDirection = "floating",
+            floatingBorder = "rounded",
+            previewFloating = true,
+            previewFloatingBorder = "rounded",
+            previewFloatingTitle = "Preview",
+            previewSplit = "horizontal",
+            prompt = "> ",
+            split = "floating",
+            startFilter = true,
+          }
+        },
+        sourceOptions = {
+          _ = {
+            matchers = {
+              "matcher_substring",
+            },
+            ignoreCase = true,
+          },
+        },
+      })
+    vim.fn["ddu#custom#patch_local"]("file_recursive", {
+        sources = {
+          {
+            name = { "file_rec" },
+            options = {
+              converters = {
+                "converter_devicon",
+              },
+            },
+            params = {
+              ignoredDirectories = { "node_modules", ".git", "dist", ".vscode" },
+            },
+          },
+        },
+        kindOptions = {
+          file = {
+            defaultAction = "open",
+          }
+        }
+      })
+    -- vim.fn["ddu#custom#patch_local"]("colorscheme", {
+    --     sources = {
+    --       {
+    --         name = { "colorscheme" },
+    --       },
+    --     },
+    --     kindOptions = {
+    --       colorscheme = {
+    --         defaultAction = "set",
+    --       }
+    --     }
+    --   })
+
+    vim.api.nvim_create_autocmd("FileType",{
+        pattern = "ddu-ff",
+        callback = function()
+          local opts = { noremap = true, silent = true, buffer = true }
+          vim.keymap.set({ "n" }, "q", [[<Cmd>call ddu#ui#ff#do_action("quit")<CR>]], opts)
+          vim.keymap.set({ "n" }, "<Cr>", [[<Cmd>call ddu#ui#ff#do_action("itemAction")<CR>]], opts)
+          vim.keymap.set({ "n" }, "i", [[<Cmd>call ddu#ui#ff#do_action("openFilterWindow")<CR>]], opts)
+          vim.keymap.set({ "n" }, "P", [[<Cmd>call ddu#ui#ff#do_action("togglePreview")<CR>]], opts)
+        end,
+      }
+      )
+
+    vim.api.nvim_create_autocmd("FileType",{
+        pattern = "ddu-ff-filter",
+        callback = function()
+          local opts = { noremap = true, silent = true, buffer = true }
+          vim.keymap.set({ "n", "i" }, "<CR>", [[<Esc><Cmd>close<CR>]], opts)
+        end,
+      }
+      )
+--  end,
+EOF
+
+call ddu#custom#patch_global({
+    \ "kindOptions": {
+    \   "lsp": {
+    \     "defaultAction": 'open',
+    \   },
+    \   "lsp_codeAction": {
+    \     "defaultAction": 'apply',
+    \   },
+    \ },
+    \})
+
+command! DduLspDefinition call ddu#start({
+    \ "sync": v:true,
+    \ "sources": [{
+    \   "name": 'lsp_definition',
+    \ }],
+    \ "uiParams": {
+    \   "ff": {
+    \     "immediateAction": 'open',
+    \   },
+    \ }
+    \})
+
+command! DduLspWorkspaceSymbol call ddu#start({
+    \ "sources": [{
+    \   "name": 'lsp_workspaceSymbol',
+    \ }],
+    \ "sourceOptions": {
+    \   "lsp": {
+    \     "volatile": v:true,
+    \   },
+    \ },
+    \ "uiParams": {
+    \   "ff": {
+    \     "ignoreEmpty": v:false
+    \   },
+    \ }
+    \})
+
+command! DduLspCallHierarchy call ddu#start({
+    \ "sources": [{
+    \   "name": 'lsp_callHierarchy',
+    \   "params": {
+    \     "method": 'callHierarchy/outgoingCalls',
+    \   }
+    \ }],
+    \ "uiParams": {
+    \   "ff": {
+    \     "displayTree": v:true,
+    \     "startFilter": v:false,
+    \   },
+    \ }
+    \})
+
+'''
+
+
+[[plugins]]
+# ファジーファインダー風のUI
+repo = 'Shougo/ddu-ui-ff'
+on_source = 'ddu.vim'
+
+[[plugins]]
+# ファイル一覧を取得するsource
+repo = 'Shougo/ddu-source-file_rec'
+on_source = 'ddu.vim'
+
+[[plugins]]
+# Openなどファイル関連の処理が定義されているkind
+repo = 'Shougo/ddu-kind-file'
+on_source = 'ddu.vim'
+
+[[plugins]]
+# 部分文字列への完全一致によってsourceを絞り込むfilter(matcher)
+repo = 'Shougo/ddu-filter-matcher_substring'
+on_source = 'ddu.vim'
+
+[[plugins]]
+# sourceのファイル名にnordfontのアイコンを付けるfilter(converter)
+repo = 'uga-rosa/ddu-filter-converter_devicon'
+on_source = 'ddu.vim'
+
+[[plugins]]
+# LSPの情報を取得するsource
+repo = 'uga-rosa/ddu-source-lsp'
+on_source = 'ddu.vim'
+# "4513ECHO/ddu-source-colorscheme",
