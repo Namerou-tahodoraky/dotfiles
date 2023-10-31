@@ -311,6 +311,65 @@ require("mason-lspconfig").setup_handlers {
     }
   end
 }
+
+-- # ---------------------------------------------------------------------------------------------
+-- # ruffと重複しているpylspのリントを消す.
+-- # ---------------------------------------------------------------------------------------------
+require("lspconfig").pylsp.setup {
+-- local servers = {
+--   pylsp = {
+--     cmd = {"pylsp"},
+--     root_dir = function(fname)
+--       local root_files = {
+--         'pyproject.toml',
+--         'setup.py',
+--         'setup.cfg',
+--         'requirements.txt',
+--         'Pipfile',
+--       }
+--       return util.root_pattern(unpack(root_files))(fname) or util.find_git_ancestor(fname)
+--     end,
+  settings = {
+    pylsp = {
+      -- configurationSources = {"pylint"},
+      plugins = {
+        autpep8 = { enabled = false },
+        pylint = { enabled = false },
+        flake8 = { enabled = false },
+        pycodestyle = { enabled = false },
+        pyflakes = { enabled = false },
+      }
+    }
+  }
+--  }
+-- }
+}
+
+-- # ---------------------------------------------------------------------------------------------
+-- # diagnosticのエディタ画面への描画設定.
+-- # ---------------------------------------------------------------------------------------------
+vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+  vim.lsp.diagnostic.on_publish_diagnostics, {
+    -- -- Enable underline, use default values
+    -- underline = true,
+    underline = false,
+    -- -- Enable virtual text, override spacing to 4
+    -- virtual_text = {
+    --   spacing = 4,
+    -- },
+    virtual_text = true,
+    -- Use a function to dynamically turn signs off
+    -- and on, using buffer local variables
+    -- signs = function(bufnr, client_id)
+    --   return vim.bo[bufnr].show_signs == false
+    -- end,
+    signs = true,
+    -- -- Disable a feature
+    update_in_insert = false,
+  }
+)
+
+
 EOF
 '''
 
@@ -937,6 +996,54 @@ command! DduLspDefinition call ddu#start({
     \   },
     \ }
     \})
+
+" # TODO: 
+command! DduLspReferences call ddu#start({
+    \ "sync": v:true,
+    \ "sources": [{
+    \   "name": 'lsp_references',
+    \ }],
+    \ "uiParams": {
+    \   "ff": {
+    \     "immediateAction": 'open',
+    \     "startFilter": v:false,
+    \   },
+    \ }
+    \})
+
+command! DduLspDiagnostic call ddu#start({
+    \ "sync": v:true,
+    \ "sourceOptions": {
+    \   "_": {
+    \     "converters": ["converter_lsp_diagnostic"],
+    \   },
+    \ },
+    \ "sources": [{
+    \   "name": 'lsp_diagnostic',
+    \   "params": { "buffer": v:null, },
+    \ }],
+    \ "uiParams": {
+    \   "ff": {
+    \     "immediateAction": 'open',
+    \     "startFilter": v:false,
+    \   },
+    \ }
+    \})
+
+command! DduLspDucmentSymbol call ddu#start({
+    \ "sources": [{
+    \   "name": 'lsp_documentSymbol',
+    \   "options": { "converters": ["converter_lsp_symbol"]},
+    \ }],
+    \ "uiParams": {
+    \   "ff": {
+    \     "displayTree": v:true,
+    \     "startFilter": v:false,
+    \   },
+    \ }
+    \})
+
+
 
 command! DduLspWorkspaceSymbol call ddu#start({
     \ "sources": [{
