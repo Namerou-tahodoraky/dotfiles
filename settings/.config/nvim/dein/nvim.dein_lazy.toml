@@ -12,18 +12,18 @@ repo = 'vim-denops/denops.vim'
 # ファイル/テキスト編集補助ツール.
 # ---------------------------------------------------------------------------------------------
 
-# [[plugins]]
-# # treesitterを利用した自動インデントプラグイン.
-# # treesitterや別プラグインだとバグや誤動作がちょくちょくある.
-# repo = 'yioneko/nvim-yati'
-# on_source = 'nvim-treesitter'
-# hook_source = '''
-# lua <<EOF
-# require("nvim-treesitter.configs").setup {
-#   yati = { enable = true },
-# }
-# EOF
-# '''
+[[plugins]]
+# treesitterを利用した自動インデントプラグイン.
+# treesitterや別プラグインだとバグや誤動作がちょくちょくある.
+repo = 'yioneko/nvim-yati'
+on_source = 'nvim-treesitter'
+hook_source = '''
+lua <<EOF
+require("nvim-treesitter.configs").setup {
+  yati = { enable = true },
+}
+EOF
+'''
 
 # [[plugins]] # TODO: 全然使ってないので一時的に削除. 使うのか再考する.
 # # プロジェクト内のファイルの一斉置換
@@ -55,12 +55,11 @@ repo = 'vim-denops/denops.vim'
 # /や?で検索した時検索先にeasymotionのような移動キーが表示される
 repo = 'hrsh7th/vim-searchx'
 hook_add = '''
-" " Overwrite / and ?.
-nnoremap ? <Cmd>call searchx#start({ 'dir': 0 })<CR>
-nnoremap / <Cmd>call searchx#start({ 'dir': 1 })<CR>
-xnoremap ? <Cmd>call searchx#start({ 'dir': 0 })<CR>
-xnoremap / <Cmd>call searchx#start({ 'dir': 1 })<CR>
-cnoremap ; <Cmd>call searchx#select()<CR>
+" nnoremap <Leader>? <Cmd>call searchx#start({ 'dir': 0 })<CR>
+" xnoremap <Leader>? <Cmd>call searchx#start({ 'dir': 0 })<CR>
+nnoremap <Leader>/ <Cmd>call searchx#start({ 'dir': 1 })<CR>
+xnoremap <Leader>/ <Cmd>call searchx#start({ 'dir': 1 })<CR>
+" cnoremap <Leader>; <Cmd>call searchx#select()<CR>
 
 " " Move to next/prev match.
 " nnoremap N <Cmd>call searchx#prev_dir()<CR>
@@ -166,55 +165,6 @@ lua << EOF
 -- --   },
 -- -- }
 -- 
--- -- local servers = {
--- --   pylsp = {
--- --     cmd = {"pylsp"},
--- --     root_dir = function(fname)
--- --       local root_files = {
--- --         'pyproject.toml',
--- --         'setup.py',
--- --         'setup.cfg',
--- --         'requirements.txt',
--- --         'Pipfile',
--- --       }
--- --       return util.root_pattern(unpack(root_files))(fname) or util.find_git_ancestor(fname)
--- --     end,
--- --     settings = {
--- --       pylsp = {
--- --         configurationSources = {"pylint"},
--- --         plugins = {
--- --           pylint = { enabled = true },
--- --           flake8 = { enabled = false },
--- --           pycodestyle = { enabled = false },
--- --           pyflakes = { enabled = false },
--- --         }
--- --       }
--- --     }
--- --   }
--- -- }
--- 
--- -- リント表示の設定
--- vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
---   vim.lsp.diagnostic.on_publish_diagnostics, {
---     -- -- Enable underline, use default values
---     -- underline = true,
---     underline = false,
---     -- -- Enable virtual text, override spacing to 4
---     -- virtual_text = {
---     --   spacing = 4,
---     -- },
---     virtual_text = true,
---     -- Use a function to dynamically turn signs off
---     -- and on, using buffer local variables
---     -- signs = function(bufnr, client_id)
---     --   return vim.bo[bufnr].show_signs == false
---     -- end,
---     signs = true,
---     -- -- Disable a feature
---     update_in_insert = false,
---   }
--- )
--- 
 -- require'lspconfig'.yamlls.setup{
 --    cmd = {"~/.local/share/nvim/lsp_servers/yaml/node_modules/.bin/yaml-language-server", "--stdio"},
 --    -- on_attach = require'lsp'.common_on_attach,
@@ -249,34 +199,6 @@ lua << EOF
 --        },
 --    },
 --  }
--- -- require('lspconfig').ruff_lsp.setup {
--- --   -- on_attach = on_attach,
--- --   init_options = {
--- --     settings = {
--- --       -- Any extra CLI arguments for `ruff` go here.
--- --       args = {},
--- --     }
--- --   }
--- -- }
--- 
--- 
--- -- local lsp_installer = require("nvim-lsp-installer")
--- 
--- -- -- サーバー起動時に自動でon_attachをアタッチする
--- -- lsp_installer.on_server_ready(function(server)
--- 
--- --   local capabilities = vim.lsp.protocol.make_client_capabilities()
--- --   capabilities.textDocument.completion.completionItem.snippetSupport = true
--- 
--- --   -- language serverごとにcapabilitiesを追加する必要があります。
--- --   -- on_attachは必要に応じて
--- --   -- require'lspconfig'.clangd.setup{on_attach = on_attach, capabilities = capabilities}
--- --   local opts = {}
--- --   opts.on_attach = on_attach
--- --   opts.capabilities = capabilities
--- --   server:setup(opts)
--- --   vim.cmd [[ do User LspAttachBuffers ]]
--- -- end)
 
 EOF
 '''
