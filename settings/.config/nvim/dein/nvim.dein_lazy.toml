@@ -957,12 +957,18 @@ vim.api.nvim_create_autocmd("VimResized", {
 EOF
 
 command! DduLspReferences call ddu#start({
+    \ "name": "on_lsp_reference",
     \ "ui": "ff",
     \ "sync": v:true,
     \ "sources": [{
     \   "name": 'lsp_references',
     \   "params": {"includeDeclaration": v:false},
     \ }],
+    \ "kindOptions": {
+    \   "lsp": {
+    \     "defaultAction": 'open',
+    \   },
+    \ },
     \ "uiParams": {
     \   "ff": {
     \     "displaySourceName": "no",
@@ -994,6 +1000,51 @@ command! DduLspReferences call ddu#start({
     \   },
     \ }
     \})
+
+autocmd FileType ddu-ff call s:ddu_my_settings()
+function! s:ddu_my_settings() abort
+  " Enterでアイテムのデフォルトアクション実行.
+  " アイテム未選択ならカーソル下のアイテムが対象.
+  nnoremap <buffer><silent> <CR>
+        \ <Cmd>call ddu#ui#ff#do_action('itemAction')<CR>
+
+  " iでカーソル下のアイテムの選択状態切り替え.
+  nnoremap <buffer><silent> i
+        \ <Cmd>call ddu#ui#ff#do_action('toggleSelectItem')<CR>
+
+  " iで
+  nnoremap <buffer><silent> i
+        \ <Cmd>call ddu#ui#ff#do_action('openFilterWindow')<CR>
+
+  " qでdduを閉じる.
+  nnoremap <buffer><silent> q
+        \ <Cmd>call ddu#ui#ff#do_action('quit')<CR>
+
+  " ESCでdduを閉じる.
+  nnoremap <buffer><silent> <ESC>
+        \ <Cmd>call ddu#ui#ff#do_action('quit')<CR>
+endfunction
+
+" " filterが重要になったら復活させる.
+" autocmd FileType ddu-ff-filter call s:ddu_filter_my_settings()
+" function! s:ddu_filter_my_settings() abort
+"   " インサートモード中にEnterで
+"   inoremap <buffer><silent> <CR>
+"   \ <Esc><Cmd>close<CR>
+"   nnoremap <buffer><silent> <CR>
+"   \ <Cmd>close<CR>
+"   nnoremap <buffer><silent> q
+"   \ <Cmd>close<CR>
+" endfunction
+
+"     \ "kindOptions": {
+"     \   "lsp_references": {
+"     \     "defaultAction": 'open',
+"     \   },
+"     \   "lsp_codeAction": {
+"     \     "defaultAction": 'apply',
+"     \   },
+"     \ },
 
 " command! DduLspDiagnostic call ddu#start({
 "     \ "ui": "ff",
