@@ -492,8 +492,8 @@ on_event = 'BufRead'
 hook_source = '''
 lua << EOF
 require("trouble").setup {}
-vim.keymap.set("n", "<leader>gxd", function() require("trouble").toggle("document_diagnostics") end)
-vim.keymap.set("n", "<leader>gxx", function() require("trouble").toggle("workspace_diagnostics") end)
+-- vim.keymap.set("n", "<leader>gxd", function() require("trouble").toggle("document_diagnostics") end)
+vim.keymap.set("n", "gX", function() require("trouble").toggle("workspace_diagnostics") end)
 EOF
 '''
 
