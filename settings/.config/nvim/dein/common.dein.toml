@@ -209,3 +209,7 @@ xmap <leader>hc <Plug>(quickhl-manual-clear)
 nmap <leader>hC <Plug>(quickhl-manual-reset)
 '''
 
+[[plugins]]
+# 範囲選択箇所同士のdiff結果をバッファに開く.
+# 選択して:Linediff -> もう一か所選択して:Linediff.
+repo = 'AndrewRadev/linediff.vim'
