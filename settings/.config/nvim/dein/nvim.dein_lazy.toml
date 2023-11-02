@@ -118,26 +118,52 @@ EOF
 # repo = 'kevinhwang91/nvim-hlslens'
 # on_event = 'BufEnter'
 # hook_add = '''
-# noremap <silent> n <Cmd>execute('normal! ' . v:count1 . 'nzz')<CR>
+# noremap <silent> n <Cmd>execute('normal! ' . v:count1 . 'n')<CR>
 #             \<Cmd>lua require('hlslens').start()<CR>
-# noremap <silent> N <Cmd>execute('normal! ' . v:count1 . 'Nzz')<CR>
+# noremap <silent> N <Cmd>execute('normal! ' . v:count1 . 'N')<CR>
 #             \<Cmd>lua require('hlslens').start()<CR>
 # '''
+# # hook_source = '''
+# # lua << EOF
+# # require('hlslens').setup()
+# # 
+# # local kopts = {noremap = true, silent = true}
+# # 
+# # vim.api.nvim_set_keymap('n', 'n',
+# #     [[<Cmd>execute('normal! ' . v:count1 . 'n')<CR><Cmd>lua require('hlslens').start()<CR>]],
+# #         kopts)
+# # vim.api.nvim_set_keymap('n', 'N',
+# #     [[<Cmd>execute('normal! ' . v:count1 . 'N')<CR><Cmd>lua require('hlslens').start()<CR>]],
+# #         kopts)
+# # vim.api.nvim_set_keymap('n', '*', [[*<Cmd>lua require('hlslens').start()<CR>]], kopts)
+# # vim.api.nvim_set_keymap('n', '#', [[#<Cmd>lua require('hlslens').start()<CR>]], kopts)
+# # vim.api.nvim_set_keymap('n', 'g*', [[g*<Cmd>lua require('hlslens').start()<CR>]], kopts)
+# # vim.api.nvim_set_keymap('n', 'g#', [[g#<Cmd>lua require('hlslens').start()<CR>]], kopts)
+# # EOF
+# # '''
 
-# [[plugins]] # nvim-hlslensを一旦消したのでこっちも合わせて消しておく # TODO: 戻す.
-# # 検索時に勝手にカーソルが移動するのを防ぐ.
-# # 選択範囲の文字列でアスタリスク検索する機能ももつ.
-# # キーマップにvim-asteriskとnvim-hlslensの機能両方を結びつける為に、nvim-hlslensをdependsにしている.
-# repo = 'haya14busa/vim-asterisk'
-# # depends = ['nvim-hlslens']
-# on_source = 'nvim-hlslens'
+[[plugins]] # nvim-hlslensを一旦消したのでこっちも合わせて消しておく # TODO: 戻す.
+# 検索時に勝手にカーソルが移動するのを防ぐ.
+# 選択範囲の文字列でアスタリスク検索する機能ももつ.
+# キーマップにvim-asteriskとnvim-hlslensの機能両方を結びつける為に、nvim-hlslensをdependsにしている.
+repo = 'haya14busa/vim-asterisk'
+# depends = ['nvim-hlslens']
+# # on_source = 'nvim-hlslens'
 # hook_add = '''
 # map * <Plug>(asterisk-z*)<Cmd>lua require('hlslens').start()<CR>
 # map # <Plug>(asterisk-z#)<Cmd>lua require('hlslens').start()<CR>
 # map g* <Plug>(asterisk-gz*)<Cmd>lua require('hlslens').start()<CR>
 # map g# <Plug>(asterisk-gz#)<Cmd>lua require('hlslens').start()<CR>
 # let g:asterisk#keeppos = 1
-# '''
+# # '''
+on_event = 'BufEnter'
+hook_add = '''
+map * <Plug>(asterisk-z*)
+map # <Plug>(asterisk-z#)
+map g* <Plug>(asterisk-gz*)
+map g# <Plug>(asterisk-gz#)
+let g:asterisk#keeppos = 1
+'''
 
 # ---------------------------------------------------------------------------------------------
 # プログラミング補助.
@@ -226,9 +252,9 @@ require("mason-lspconfig").setup_handlers {
         buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
         buf_set_keymap('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
         buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
-        buf_set_keymap('n', 'gx', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
-        buf_set_keymap('n', 'g[', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
-        buf_set_keymap('n', 'g]', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+        buf_set_keymap('n', 'gx', '<cmd>lua vim.diagnostic.open_float(0, {scope="line"})<CR>', opts)
+        buf_set_keymap('n', 'g[', '<cmd>lua vim.diagnostic.goto_prev({float={...}})<CR>', opts)
+        buf_set_keymap('n', 'g]', '<cmd>lua vim.diagnostic.goto_next({float={...}})<CR>', opts)
       end
     }
   end
@@ -454,20 +480,22 @@ require("lsp_signature").setup()
 EOF
  '''
 
-# [[plugins]]
-# # diagnosticsの一覧を表示する.diagnosticsの発生個所に飛べる.
-# # 一覧にカーソルを合わせるだけで発生個所が表示されるので、
-# # LSPのショートカットキーで一つずつ飛ぶより楽.
-# # 実行コマンド :TroubleToggle
-# # 実行コマンド :TroubleRefresh
-# repo = 'folke/trouble.nvim'
-# depends = ['nvim-web-devicons']
-# on_event = 'BufRead'
-# hook_source = '''
-# lua << EOF
-# require("trouble").setup {}
-# EOF
-# '''
+[[plugins]]
+# diagnosticsの一覧を表示する.diagnosticsの発生個所に飛べる.
+# 一覧にカーソルを合わせるだけで発生個所が表示されるので、
+# LSPのショートカットキーで一つずつ飛ぶより楽.
+# 実行コマンド :TroubleToggle
+# 実行コマンド :TroubleRefresh
+repo = 'folke/trouble.nvim'
+depends = ['nvim-web-devicons']
+on_event = 'BufRead'
+hook_source = '''
+lua << EOF
+require("trouble").setup {}
+vim.keymap.set("n", "<leader>gxd", function() require("trouble").toggle("document_diagnostics") end)
+vim.keymap.set("n", "<leader>gxx", function() require("trouble").toggle("workspace_diagnostics") end)
+EOF
+'''
 
 
 # [[plugins]] # TODO: 更新対応.
@@ -749,69 +777,70 @@ EOF
 '''
 
 
-# # ---------------------------------------------------------------------------------------------
-# # ファジーファインダー系
-# # ---------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------
+# ファジーファインダー系
+# ---------------------------------------------------------------------------------------------
+
+[[plugins]]
+# Reference: https://zenn.dev/vim_jp/articles/c0d75d1f3c7f33
+# 使用の流れ.
+# No  目的                            実際の操作
+# 1   ddu.vimで一覧を表示する         :call ddu#start({オプション})
+# 2   Input用のバッファを表示する     :call ddu#ui#do_action("openFilterWindow")
+# 3   Itemを絞り込むワードを入力する  i キーワードを入力 <ESC>
+# 4   一覧のバッファに移動する        :call ddu#ui#do_action("leaveFilterWindow")
+# 5   Itemを選ぶ                      j や k で移動する
+# 6   Kindのアクションを呼び出す      :call ddu#ui#do_action("itemAction", {"name": {アクション名}})
 # 
-# [[plugins]]
-# # Reference: https://zenn.dev/vim_jp/articles/c0d75d1f3c7f33
-# # 使用の流れ.
-# # No  目的                            実際の操作
-# # 1   ddu.vimで一覧を表示する         :call ddu#start({オプション})
-# # 2   Input用のバッファを表示する     :call ddu#ui#do_action("openFilterWindow")
-# # 3   Itemを絞り込むワードを入力する  i キーワードを入力 <ESC>
-# # 4   一覧のバッファに移動する        :call ddu#ui#do_action("leaveFilterWindow")
-# # 5   Itemを選ぶ                      j や k で移動する
-# # 6   Kindのアクションを呼び出す      :call ddu#ui#do_action("itemAction", {"name": {アクション名}})
-# # 
-# repo = 'Shougo/ddu.vim'
-# on_event = 'BufEnter'
-# depends = ['denops.vim']
-# # hook_source = '''
-# # call ddu#custom#patch_global({
-# #     \     "ui": "ff",
-# #     \     "sourceOptions": {
-# #     \         "_": {
-# #     \             "matchers": ["matcher_substring"]
-# #     \         },
-# #     \     },
-# #     \ })
-# # 
-# # " DduNodeFilesで使用する設定を用意する
-# # call ddu#custom#patch_local("node-files", {
-# #     \     "sources": ["file_rec"],
-# #     \     "sourceParams": {
-# #     \         "file_rec": {
-# #     \             "ignoredDirectories": [".git", "node_modules"],
-# #     \         }
-# #     \     }
-# #     \ })
-# # 
-# # " DduWholeFilesで使用する設定を用意する
-# # call ddu#custom#patch_local("whole-files", {
-# #     \     "sources": ["file_rec"],
-# #     \     "sourceParams": {
-# #     \         "file_rec": {
-# #     \             "ignoredDirectories": [],
-# #     \         }
-# #     \     },
-# #     \     "sourceOptions": {
-# #     \         "file_rec": {
-# #     \             "maxItems": 50000
-# #     \         }
-# #     \     }
-# #     \ })
-# # 
-# # " ddu-ui-ff上でのみ有効なKeymap（`e`）を設定する
-# # autocmd FileType ddu-ff call s:ddu_ff_settings()
-# # function s:ddu_ff_settings() abort
-# #     nnoremap <buffer> e <Cmd>call ddu#ui#do_action('itemAction', {'name': 'open'})<CR>
-# # endfunction
-# # 
-# # " ddu#startを各オプションセット名で呼び出すコマンドを準備する
-# # command! DduNodeFiles call ddu#start({"name": "node-files", "sourceOptions": {"file_rec": {"path": getcwd()}}})
-# # command! DduWholeFiles call ddu#start({"name": "whole-files", "sourceOptions": {"file_rec": {"path": getcwd()}}})
-# # '''
+repo = 'Shougo/ddu.vim'
+on_event = 'BufEnter'
+depends = ['denops.vim']
+# hook_source = '''
+# call ddu#custom#patch_global({
+#     \     "ui": "ff",
+#     \     "sourceOptions": {
+#     \         "_": {
+#     \             "matchers": ["matcher_substring"]
+#     \         },
+#     \     },
+#     \ })
+# 
+# " DduNodeFilesで使用する設定を用意する
+# call ddu#custom#patch_local("node-files", {
+#     \     "sources": ["file_rec"],
+#     \     "sourceParams": {
+#     \         "file_rec": {
+#     \             "ignoredDirectories": [".git", "node_modules"],
+#     \         }
+#     \     }
+#     \ })
+# 
+# " DduWholeFilesで使用する設定を用意する
+# call ddu#custom#patch_local("whole-files", {
+#     \     "sources": ["file_rec"],
+#     \     "sourceParams": {
+#     \         "file_rec": {
+#     \             "ignoredDirectories": [],
+#     \         }
+#     \     },
+#     \     "sourceOptions": {
+#     \         "file_rec": {
+#     \             "maxItems": 50000
+#     \         }
+#     \     }
+#     \ })
+# 
+# " ddu-ui-ff上でのみ有効なKeymap（`e`）を設定する
+# autocmd FileType ddu-ff call s:ddu_ff_settings()
+# function s:ddu_ff_settings() abort
+#     nnoremap <buffer> e <Cmd>call ddu#ui#do_action('itemAction', {'name': 'open'})<CR>
+# endfunction
+# 
+# " ddu#startを各オプションセット名で呼び出すコマンドを準備する
+# command! DduNodeFiles call ddu#start({"name": "node-files", "sourceOptions": {"file_rec": {"path": getcwd()}}})
+# command! DduWholeFiles call ddu#start({"name": "whole-files", "sourceOptions": {"file_rec": {"path": getcwd()}}})
+# '''
+
 # hook_source = '''
 # lua << EOF
 # --  config = function()
@@ -895,146 +924,213 @@ EOF
 #       )
 # --  end,
 # EOF
-# 
-# call ddu#custom#patch_global({
-#     \ "kindOptions": {
-#     \   "lsp": {
-#     \     "defaultAction": 'open',
-#     \   },
-#     \   "lsp_codeAction": {
-#     \     "defaultAction": 'apply',
-#     \   },
-#     \ },
-#     \})
-# 
-# command! DduLspDefinition call ddu#start({
-#     \ "sync": v:true,
-#     \ "sources": [{
-#     \   "name": 'lsp_definition',
-#     \ }],
-#     \ "uiParams": {
-#     \   "ff": {
-#     \     "immediateAction": 'open',
-#     \   },
-#     \ }
-#     \})
-# 
-# " # TODO: 
-# command! DduLspReferences call ddu#start({
-#     \ "sync": v:true,
-#     \ "sources": [{
-#     \   "name": 'lsp_references',
-#     \ }],
-#     \ "uiParams": {
-#     \   "ff": {
-#     \     "immediateAction": 'open',
-#     \     "startFilter": v:false,
-#     \   },
-#     \ }
-#     \})
-# 
-# command! DduLspDiagnostic call ddu#start({
-#     \ "sync": v:true,
-#     \ "sourceOptions": {
-#     \   "_": {
-#     \     "converters": ["converter_lsp_diagnostic"],
-#     \   },
-#     \ },
-#     \ "sources": [{
-#     \   "name": 'lsp_diagnostic',
-#     \   "params": { "buffer": v:null, },
-#     \ }],
-#     \ "uiParams": {
-#     \   "ff": {
-#     \     "immediateAction": 'open',
-#     \     "startFilter": v:false,
-#     \   },
-#     \ }
-#     \})
-# 
-# command! DduLspDucmentSymbol call ddu#start({
-#     \ "sources": [{
-#     \   "name": 'lsp_documentSymbol',
-#     \   "options": { "converters": ["converter_lsp_symbol"]},
-#     \ }],
-#     \ "uiParams": {
-#     \   "ff": {
-#     \     "displayTree": v:true,
-#     \     "startFilter": v:false,
-#     \   },
-#     \ }
-#     \})
-# 
-# 
-# 
-# command! DduLspWorkspaceSymbol call ddu#start({
-#     \ "sources": [{
-#     \   "name": 'lsp_workspaceSymbol',
-#     \ }],
-#     \ "sourceOptions": {
-#     \   "lsp": {
-#     \     "volatile": v:true,
-#     \   },
-#     \ },
-#     \ "uiParams": {
-#     \   "ff": {
-#     \     "ignoreEmpty": v:false
-#     \   },
-#     \ }
-#     \})
-# 
-# command! DduLspCallHierarchy call ddu#start({
-#     \ "sources": [{
-#     \   "name": 'lsp_callHierarchy',
-#     \   "params": {
-#     \     "method": 'callHierarchy/outgoingCalls',
-#     \   }
-#     \ }],
-#     \ "uiParams": {
-#     \   "ff": {
-#     \     "displayTree": v:true,
-#     \     "startFilter": v:false,
-#     \   },
-#     \ }
-#     \})
-# 
 # '''
-# 
-# 
-# [[plugins]]
-# # ファジーファインダー風のUI
-# repo = 'Shougo/ddu-ui-ff'
-# on_source = 'ddu.vim'
-# 
-# [[plugins]]
-# # ファイル一覧を取得するsource
-# repo = 'Shougo/ddu-source-file_rec'
-# on_source = 'ddu.vim'
-# 
-# [[plugins]]
-# # Openなどファイル関連の処理が定義されているkind
-# repo = 'Shougo/ddu-kind-file'
-# on_source = 'ddu.vim'
-# 
-# [[plugins]]
-# # Openなどファイル関連の処理が定義されているkind
-# repo = 'Shougo/ddu-source-dummy'
-# on_source = 'ddu.vim'
-# 
-# [[plugins]]
-# # 部分文字列への完全一致によってsourceを絞り込むfilter(matcher)
-# repo = 'Shougo/ddu-filter-matcher_substring'
-# on_source = 'ddu.vim'
-# 
-# [[plugins]]
-# # sourceのファイル名にnordfontのアイコンを付けるfilter(converter)
-# repo = 'uga-rosa/ddu-filter-converter_devicon'
-# on_source = 'ddu.vim'
-# 
-# [[plugins]]
-# # LSPの情報を取得するsource
-# repo = 'uga-rosa/ddu-source-lsp'
-# on_source = 'ddu.vim'
+
+hook_source = '''
+call ddu#custom#patch_global({
+    \ "kindOptions": {
+    \   "lsp": {
+    \     "defaultAction": 'open',
+    \   },
+    \   "lsp_codeAction": {
+    \     "defaultAction": 'apply',
+    \   },
+    \ },
+    \})
+
+" command! DduLspDefinition call ddu#start({
+"     \ "sync": v:true,
+"     \ "sources": [{
+"     \   "name": 'lsp_definition',
+"     \ }],
+"     \ "uiParams": {
+"     \   "ff": {
+"     \     "immediateAction": 'open',
+"     \   },
+"     \ }
+"     \})
+" 
+" " # TODO: 
+" command! DduLspReferences call ddu#start({
+"     \ "sync": v:true,
+"     \ "sources": [{
+"     \   "name": 'lsp_references',
+"     \ }],
+"     \ "uiParams": {
+"     \   "ff": {
+"     \     "immediateAction": 'open',
+"     \     "startFilter": v:false,
+"     \   },
+"     \ }
+"     \})
+
+" command! DduLspDiagnostic call ddu#start({
+"     \ "ui": "ff",
+"     \ "sync": v:true,
+"     \ "sourceOptions": {
+"     \   "_": {
+"     \     "converters": [
+"     \        {
+"     \          "name": "converter_lsp_diagnostic",
+"     \          "params": {
+"     \            "iconMap": {
+"     \              "Error": "E",
+"     \              "Warning": "W",
+"     \              "Info": "I",
+"     \              "Hint": "H",
+"     \            },
+"     \            "columnLength": 100,
+"     \          },
+"     \        },
+"     \      ],
+"     \   },
+"     \ },
+"     \ "sources": [{
+"     \   "name": 'lsp_diagnostic',
+"     \   "params": { "buffer": v:null, },
+"     \ }],
+"     \ "uiParams": {
+"     \   "ff": {
+"     \     "immediateAction": 'open',
+"     \     "startFilter": v:false,
+"     \   },
+"     \  },
+"     \})
+" "     \ "sourceOptions": {
+" "     \   "_": {
+" "     \     "converters": ["converter_lsp_diagnostic"],
+" "     \   },
+" "     \ },
+" "     \ "FilterParams": {
+" "     \   "converter_lsp_diagnostic": {
+" "     \     "IconMap": {
+" "     \       "Warning": "b",
+" "     \     },
+" "     \   },
+" "     \ },
+
+command! DduLspDucmentSymbol call ddu#start({
+    \ "ui": "ff",
+    \ "sources": [{
+    \   "name": 'lsp_documentSymbol',
+    \   "options": {
+    \     "converters": [
+    \       {
+    \         "name": "converter_lsp_symbol",
+    \         "params": {
+    \           "iconMap": {
+    \             "File": "-",
+    \             "Module": "-",
+    \             "Namespace": "-",
+    \             "Package": "-",
+    \             "Class": "-",
+    \             "Method": "-",
+    \             "Property": "-",
+    \             "Field": "-",
+    \             "Constructor": "-",
+    \             "Enum": "-",
+    \             "Interface": "-",
+    \             "Function": "-",
+    \             "Variable": "-",
+    \             "Constant": "-",
+    \             "String": "-",
+    \             "Number": "-",
+    \             "Boolean": "-",
+    \             "Array": "-",
+    \             "Object": "-",
+    \             "Key": "-",
+    \             "Null": "-",
+    \             "EnumMember": "-",
+    \             "Struct": "-",
+    \             "Event": "-",
+    \             "Operator": "-",
+    \             "TypeParameter": "-",
+    \           },
+    \         },
+    \       },
+    \     ],
+    \   },
+    \ }],
+    \ "uiParams": {
+    \   "ff": {
+    \     "startFilter": v:false,
+    \     "displayTree": v:true,
+    \   },
+    \ }
+    \})
+
+" " Not work on pylsp.
+" command! DduLspWorkspaceSymbol call ddu#start({
+"     \ "ui": "ff",
+"     \ "sources": [{
+"     \   "name": 'lsp_workspaceSymbol',
+"     \ }],
+"     \ "sourceOptions": {
+"     \   "lsp": {
+"     \     "volatile": v:true,
+"     \   },
+"     \ },
+"     \ "uiParams": {
+"     \   "ff": {
+"     \     "ignoreEmpty": v:false,
+"     \     "displayTree": v:true,
+"     \   },
+"     \ }
+"     \})
+
+" " Not work on pylsp.
+" command! DduLspCallHierarchy call ddu#start({
+"     \ "sources": [{
+"     \   "name": 'lsp_callHierarchy',
+"     \   "params": {
+"     \     "method": 'callHierarchy/outgoingCalls',
+"     \   }
+"     \ }],
+"     \ "uiParams": {
+"     \   "ff": {
+"     \     "displayTree": v:true,
+"     \     "startFilter": v:false,
+"     \   },
+"     \ }
+"     \})
+
+'''
+
+
+[[plugins]]
+# ファジーファインダー風のUI
+repo = 'Shougo/ddu-ui-ff'
+on_source = 'ddu.vim'
+
+[[plugins]]
+# ファイル一覧を取得するsource
+repo = 'Shougo/ddu-source-file_rec'
+on_source = 'ddu.vim'
+
+[[plugins]]
+# Openなどファイル関連の処理が定義されているkind
+repo = 'Shougo/ddu-kind-file'
+on_source = 'ddu.vim'
+
+[[plugins]]
+# Openなどファイル関連の処理が定義されているkind
+repo = 'Shougo/ddu-source-dummy'
+on_source = 'ddu.vim'
+
+[[plugins]]
+# 部分文字列への完全一致によってsourceを絞り込むfilter(matcher)
+repo = 'Shougo/ddu-filter-matcher_substring'
+on_source = 'ddu.vim'
+
+[[plugins]]
+# sourceのファイル名にnordfontのアイコンを付けるfilter(converter)
+repo = 'uga-rosa/ddu-filter-converter_devicon'
+on_source = 'ddu.vim'
+
+[[plugins]]
+# LSPの情報を取得するsource
+repo = 'uga-rosa/ddu-source-lsp'
+on_source = 'ddu.vim'
 # hook_source = '''
 # lua << EOF
 # -- Reference: 
@@ -1416,8 +1512,9 @@ EOF
 # 
 # EOF
 # '''
-# 
-# # "4513ECHO/ddu-source-colorscheme",
+
+# "4513ECHO/ddu-source-colorscheme",
+
 
 # ---------------------------------------------------------------------------------------------
 # Git

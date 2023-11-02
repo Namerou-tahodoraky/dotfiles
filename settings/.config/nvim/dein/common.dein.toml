@@ -195,33 +195,6 @@ vmap v <Plug>(expand_region_expand)
 vmap V <Plug>(expand_region_shrink)
 '''
 
-# [[plugins]]
-# # undotreeのTUI操作
-# repo = 'mbbill/undotree' # TODO: 使ってないので必要なのか再考.
-# hook_add = '''
-# " undofileを保存したい場合
-# " if has("persistent_undo")
-# "    let target_path = expand('~/.undodir')
-# " 
-# "     " create the directory and any parent directories
-# "     " if the location does not exist.
-# "     if !isdirectory(target_path)
-# "         call mkdir(target_path, "p", 0700)
-# "     endif
-# " 
-# "     let &undodir=target_path
-# "     set undofile
-# " endif
-# let g:undotree_ShortIndicators = 1      " 時間単位は短く表示
-# let g:undotree_SetFocusWhenToggle = 1   " undotreeを開いたらフォーカスする
-# noremap <Leader>u :UndotreeToggle<CR>
-# " undotreeバッファ内でのキーバインド設定
-# function! g:Undotree_CustomMap()
-#     map <silent> <buffer> <Esc> q
-#     map <silent> <buffer> h ?
-# endfunction
-# '''
-
 [[plugins]]
 # 任意の単語をハイライト状態で維持する
 # lazyだと動かない
