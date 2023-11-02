@@ -945,6 +945,7 @@ endfunction
 
 
 " # --------------------------------------------------------------------------
+" # LSP.
 " # カーソル下のwordの定義ジャンプ(definition).
 " # --------------------------------------------------------------------------
 
@@ -962,6 +963,7 @@ endfunction
 
 
 " # --------------------------------------------------------------------------
+" # LSP.
 " # カーソル下のwordの参照ジャンプ(reference).
 " # --------------------------------------------------------------------------
 
@@ -1045,6 +1047,7 @@ nnoremap <buffer><silent>gr :DduLspReferences<CR>
 
 
 " # --------------------------------------------------------------------------
+" # LSP.
 " # 現在のバッファ内のシンボル一覧(documentSymbol).
 " # --------------------------------------------------------------------------
 
@@ -1094,7 +1097,7 @@ command! DduLspDucmentSymbol call ddu#start({
     \             "Module": "-",
     \             "Namespace": "-",
     \             "Package": "-",
-    \             "Class": "-",
+    \             "Class": "",
     \             "Method": "-",
     \             "Property": "-",
     \             "Field": "-",
@@ -1162,6 +1165,7 @@ command! DduLspDucmentSymbol call ddu#start({
 nnoremap <buffer><silent>gS :DduLspDucmentSymbol<CR>
 
 " # --------------------------------------------------------------------------
+" # LSP.
 " # 警告一覧(diagnostic).
 " # linter名を表示できない為、trouble.nvimを利用する.
 " # --------------------------------------------------------------------------
@@ -1213,6 +1217,7 @@ nnoremap <buffer><silent>gS :DduLspDucmentSymbol<CR>
 
 
 " # --------------------------------------------------------------------------
+" # LSP.
 " # 作業リポジトリ全体のシンボル一覧(workspaceSymbol).
 " # Not work on pylsp.
 " # --------------------------------------------------------------------------
@@ -1237,6 +1242,7 @@ nnoremap <buffer><silent>gS :DduLspDucmentSymbol<CR>
 
 
 " # --------------------------------------------------------------------------
+" # LSP.
 " # 
 " # --------------------------------------------------------------------------
 
@@ -1261,7 +1267,6 @@ nnoremap <buffer><silent>gS :DduLspDucmentSymbol<CR>
 " # ファイラー.
 " # --------------------------------------------------------------------------
 
-" command! DduFiler call ddu#custom#patch_local('filer', {
 command! DduFiler call ddu#start({
 \   'name': 'filer',
 \   'ui': 'filer',
@@ -1307,6 +1312,94 @@ command! DduFiler call ddu#start({
 \   },
 \ })
 
+
+" # --------------------------------------------------------------------------
+" # バッファ読み込み.
+" # --------------------------------------------------------------------------
+
+lua << EOF
+local function resize()
+  local lines = vim.opt.lines:get()
+  local height, row = math.floor(lines * 0.95), math.floor(lines * 0.01)
+  local columns = vim.opt.columns:get()
+  local width, col = math.floor(columns * 0.49), math.floor(columns * 0.01)
+  local previewWidth = width
+  local previewCol = col + 0.01
+
+  vim.fn["ddu#custom#patch_local"]("find_opening_buffer", {
+    uiParams = {
+      ff = {
+        winHeight = height,
+        winRow = row,
+        winWidth = width,
+        winCol = col,
+        previewHeight = height,
+        previewRow = row,
+        previewWidth = previewWidth,
+        previewCol = previewCol,
+      },
+    },
+  })
+end
+resize()
+
+vim.api.nvim_create_autocmd("VimResized", {
+  callback = resize,
+})
+EOF
+
+command! DduOpenBuffer call ddu#start({
+    \ "name": "find_opening_buffer",
+    \ "ui": "ff",
+    \ "sources": ['buffer'],
+    \ "sourceOptions": {
+    \   "buffer": {
+    \     "columns": ['icon_filename'],
+    \   },
+    \ },
+    \ "columnParams": {
+    \   "icon_filename": {
+    \     "pathDisplayOption": "relative"
+    \   },
+    \ },
+    \ "kindOptions": {
+    \   "file": {
+    \     "defaultAction": 'open',
+    \   },
+    \ },
+    \ "uiParams": {
+    \   "ff": {
+    \     "displaySourceName": "no",
+    \     "startFilter": v:false,
+    \     "split": "floating",
+    \     "floatingBorder": "rounded",
+    \     "filterFloatingPosition": "top",
+    \     "filterFloatingTitle": "Filter01",
+    \     "autoAction": {
+    \       "name": "preview",
+    \     },
+    \     "startAutoAction": v:true,
+    \     "previewFloating": v:true,
+    \     "previewFloatingBorder": "double",
+    \     "previewSplit": "vertical",
+    \     "previewFloatingTitle": "CodePreview",
+    \     "previewWindowOptions": [
+    \       [ "&signcolumn", "no" ],
+    \       [ "&foldcolumn", 0 ],
+    \       [ "&foldenable", 0 ],
+    \       [ "&number", 1 ],
+    \       [ "&wrap", 0 ],
+    \       [ "&scrolloff", 1 ],
+    \     ],
+    \     "highlights": {
+    \       "floating": "Normal",
+    \       "floatingBorder": "Normal",
+    \     },
+    \   },
+    \ }
+    \})
+
+nnoremap <Leader>fb :DduOpenBuffer<CR>
 
 '''
 
@@ -1354,6 +1447,11 @@ on_source = 'ddu.vim'
 [[plugins]]
 # LSPの情報を取得するsource
 repo = 'uga-rosa/ddu-source-lsp'
+on_source = 'ddu.vim'
+
+[[plugins]]
+# LSPの情報を取得するsource
+repo = 'shun/ddu-source-buffer'
 on_source = 'ddu.vim'
 
 
