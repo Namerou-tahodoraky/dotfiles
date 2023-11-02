@@ -536,9 +536,6 @@ EOF
 #  let g:vsnip_snippet_dirs += ['~/.config/nvim/vsnips/python/pytest']
 #  let g:vsnip_snippet_dirs += ['~/.config/nvim/vsnips/terraform']
 #  '''
-# 
-# [[plugins]]
-#  repo = 'hrsh7th/vim-vsnip-integ'
 
 
 # # ---------------------------------------------------------------------------------------------
@@ -674,28 +671,6 @@ require'nvim-treesitter.configs'.setup {
 }
 EOF
 '''
-
-# [[plugins]] # 少し使ってみたけど余り目に馴染まないから消した. # TODO: 削除検討.
-# repo = 'p00f/nvim-ts-rainbow'
-# on_source = 'nvim-treesitter'
-# hook_source = '''
-# lua <<EOF
-# require("nvim-treesitter.configs").setup {
-#   -- highlight = {
-#   --     -- ...
-#   -- },
-#   -- -- ...
-#   rainbow = {
-#     enable = true,
-#     -- disable = { "jsx", "cpp" }, list of languages you want to disable the plugin for
-#     extended_mode = true, -- Also highlight non-bracket delimiters like html tags, boolean or table: lang -> boolean
-#     max_file_lines = nil, -- Do not enable for files with more than n lines, int
-#     -- colors = {}, -- table of hex strings
-#     -- termcolors = {} -- table of colour name strings
-#   }
-# }
-# EOF
-# '''
 
 [[plugins]]
 # インデントの可視化
@@ -927,16 +902,16 @@ depends = ['denops.vim']
 # '''
 
 hook_source = '''
-call ddu#custom#patch_global({
-    \ "kindOptions": {
-    \   "lsp": {
-    \     "defaultAction": 'open',
-    \   },
-    \   "lsp_codeAction": {
-    \     "defaultAction": 'apply',
-    \   },
-    \ },
-    \})
+" call ddu#custom#patch_global({
+"     \ "kindOptions": {
+"     \   "lsp": {
+"     \     "defaultAction": 'open',
+"     \   },
+"     \   "lsp_codeAction": {
+"     \     "defaultAction": 'apply',
+"     \   },
+"     \ },
+"     \})
 
 " command! DduLspDefinition call ddu#start({
 "     \ "sync": v:true,
@@ -949,20 +924,75 @@ call ddu#custom#patch_global({
 "     \   },
 "     \ }
 "     \})
-" 
-" " # TODO: 
-" command! DduLspReferences call ddu#start({
-"     \ "sync": v:true,
-"     \ "sources": [{
-"     \   "name": 'lsp_references',
-"     \ }],
-"     \ "uiParams": {
-"     \   "ff": {
-"     \     "immediateAction": 'open',
-"     \     "startFilter": v:false,
-"     \   },
-"     \ }
-"     \})
+
+lua << EOF
+local function resize()
+  local lines = vim.opt.lines:get()
+  local height, row = math.floor(lines * 0.8), math.floor(lines * 0.1)
+  local columns = vim.opt.columns:get()
+  local width, col = math.floor(columns * 0.8), math.floor(columns * 0.1)
+  local previewWidth = math.floor(width / 2)
+
+  vim.fn["ddu#custom#patch_global"]({
+    uiParams = {
+      ff = {
+        winHeight = height,
+        winRow = row,
+        winWidth = width,
+        winCol = col,
+        previewHeight = height,
+        previewRow = row,
+        previewWidth = previewWidth,
+        previewCol = col + (width - previewWidth),
+      },
+    },
+  })
+end
+resize()
+
+vim.api.nvim_create_autocmd("VimResized", {
+  callback = resize,
+})
+EOF
+
+command! DduLspReferences call ddu#start({
+    \ "ui": "ff",
+    \ "sync": v:true,
+    \ "sources": [{
+    \   "name": 'lsp_references',
+    \   "params": {"includeDeclaration": v:false},
+    \ }],
+    \ "uiParams": {
+    \   "ff": {
+    \     "displaySourceName": "no",
+    \     "startFilter": v:false,
+    \     "split": "floating",
+    \     "floatingBorder": "rounded",
+    \     "filterFloatingPosition": "top",
+    \     "filterFloatingTitle": "Filter01",
+    \     "autoAction": {
+    \       "name": "preview",
+    \     },
+    \     "startAutoAction": v:true,
+    \     "previewFloating": v:true,
+    \     "previewFloatingBorder": "double",
+    \     "previewSplit": "vertical",
+    \     "previewFloatingTitle": "CodePreview",
+    \     "previewWindowOptions": [
+    \       [ "&signcolumn", "no" ],
+    \       [ "&foldcolumn", 0 ],
+    \       [ "&foldenable", 0 ],
+    \       [ "&number", 1 ],
+    \       [ "&wrap", 0 ],
+    \       [ "&scrolloff", 1 ],
+    \     ],
+    \     "highlights": {
+    \       "floating": "Normal",
+    \       "floatingBorder": "Normal",
+    \     },
+    \   },
+    \ }
+    \})
 
 " command! DduLspDiagnostic call ddu#start({
 "     \ "ui": "ff",
