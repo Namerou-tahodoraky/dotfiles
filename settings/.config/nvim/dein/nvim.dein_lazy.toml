@@ -251,7 +251,8 @@ require("mason-lspconfig").setup_handlers {
         buf_set_keymap('n', 'gK', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
         buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
         buf_set_keymap('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
-        buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+        -- dduで実行.
+        -- buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
         buf_set_keymap('n', 'gx', '<cmd>lua vim.diagnostic.open_float(0, {scope="line"})<CR>', opts)
         buf_set_keymap('n', 'g[', '<cmd>lua vim.diagnostic.goto_prev({float={...}})<CR>', opts)
         buf_set_keymap('n', 'g]', '<cmd>lua vim.diagnostic.goto_next({float={...}})<CR>', opts)
@@ -902,6 +903,44 @@ depends = ['denops.vim']
 # '''
 
 hook_source = '''
+
+autocmd FileType ddu-ff call s:ddu_my_settings()
+function! s:ddu_my_settings() abort
+  " Enterでアイテムのデフォルトアクション実行.
+  " アイテム未選択ならカーソル下のアイテムが対象.
+  nnoremap <buffer><silent> <CR>
+        \ <Cmd>call ddu#ui#ff#do_action('itemAction')<CR>
+
+  " iでカーソル下のアイテムの選択状態切り替え.
+  nnoremap <buffer><silent> i
+        \ <Cmd>call ddu#ui#ff#do_action('toggleSelectItem')<CR>
+
+  " iで
+  nnoremap <buffer><silent> i
+        \ <Cmd>call ddu#ui#ff#do_action('openFilterWindow')<CR>
+
+  " qでdduを閉じる.
+  nnoremap <buffer><silent> q
+        \ <Cmd>call ddu#ui#ff#do_action('quit')<CR>
+
+  " ESCでdduを閉じる.
+  nnoremap <buffer><silent> <ESC>
+        \ <Cmd>call ddu#ui#ff#do_action('quit')<CR>
+endfunction
+
+" " filterが重要になったら復活させる.
+" autocmd FileType ddu-ff-filter call s:ddu_filter_my_settings()
+" function! s:ddu_filter_my_settings() abort
+"   " インサートモード中にEnterで
+"   inoremap <buffer><silent> <CR>
+"   \ <Esc><Cmd>close<CR>
+"   nnoremap <buffer><silent> <CR>
+"   \ <Cmd>close<CR>
+"   nnoremap <buffer><silent> q
+"   \ <Cmd>close<CR>
+" endfunction
+
+
 " call ddu#custom#patch_global({
 "     \ "kindOptions": {
 "     \   "lsp": {
@@ -924,6 +963,11 @@ hook_source = '''
 "     \   },
 "     \ }
 "     \})
+
+
+" # --------------------------------------------------------------------------
+" # 参照ジャンプ(reference)の設定.
+" # --------------------------------------------------------------------------
 
 lua << EOF
 local function resize()
@@ -1001,50 +1045,7 @@ command! DduLspReferences call ddu#start({
     \ }
     \})
 
-autocmd FileType ddu-ff call s:ddu_my_settings()
-function! s:ddu_my_settings() abort
-  " Enterでアイテムのデフォルトアクション実行.
-  " アイテム未選択ならカーソル下のアイテムが対象.
-  nnoremap <buffer><silent> <CR>
-        \ <Cmd>call ddu#ui#ff#do_action('itemAction')<CR>
-
-  " iでカーソル下のアイテムの選択状態切り替え.
-  nnoremap <buffer><silent> i
-        \ <Cmd>call ddu#ui#ff#do_action('toggleSelectItem')<CR>
-
-  " iで
-  nnoremap <buffer><silent> i
-        \ <Cmd>call ddu#ui#ff#do_action('openFilterWindow')<CR>
-
-  " qでdduを閉じる.
-  nnoremap <buffer><silent> q
-        \ <Cmd>call ddu#ui#ff#do_action('quit')<CR>
-
-  " ESCでdduを閉じる.
-  nnoremap <buffer><silent> <ESC>
-        \ <Cmd>call ddu#ui#ff#do_action('quit')<CR>
-endfunction
-
-" " filterが重要になったら復活させる.
-" autocmd FileType ddu-ff-filter call s:ddu_filter_my_settings()
-" function! s:ddu_filter_my_settings() abort
-"   " インサートモード中にEnterで
-"   inoremap <buffer><silent> <CR>
-"   \ <Esc><Cmd>close<CR>
-"   nnoremap <buffer><silent> <CR>
-"   \ <Cmd>close<CR>
-"   nnoremap <buffer><silent> q
-"   \ <Cmd>close<CR>
-" endfunction
-
-"     \ "kindOptions": {
-"     \   "lsp_references": {
-"     \     "defaultAction": 'open',
-"     \   },
-"     \   "lsp_codeAction": {
-"     \     "defaultAction": 'apply',
-"     \   },
-"     \ },
+nnoremap <buffer><silent>gr :DduLspReferences<CR>
 
 " command! DduLspDiagnostic call ddu#start({
 "     \ "ui": "ff",
