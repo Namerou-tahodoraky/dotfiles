@@ -450,9 +450,6 @@ inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
 
 [[plugins]]
 # LSPの動作待ち中プログレスバーを表示する.
-# pylspはおそらく対応していない. -> pyrightが対応しているっぽい.
-# null-lsは対応している.
-# terraform-lsはおそらく対応している.
 # 下記エラーが表示されるようになったのでとりあえず外した.
 # fidget.nvim will soon be rewritten. Please checkout the 'legacy' tag to avoid breaking changes
 # -> 2023/11/01ではlegacy固定にする必要がある. # TODO: 定期的にバグが取り除かれたかチェックする.
@@ -909,8 +906,9 @@ hook_source = '''
 " # ddu-ffの共通キーバインド設定.
 " # --------------------------------------------------------------------------
 
-autocmd FileType ddu-ff call s:ddu_my_settings()
-function! s:ddu_my_settings() abort
+" ddu-ffのitem表示ウィンドウ上にいる時のキーバインド.
+autocmd FileType ddu-ff call s:on_ddu_ff_item_window()
+function! s:on_ddu_ff_item_window() abort
   " Enterでアイテムのデフォルトアクション実行.
   " アイテム未選択ならカーソル下のアイテムが対象.
   nnoremap <buffer><silent> <CR>
@@ -920,8 +918,8 @@ function! s:ddu_my_settings() abort
   nnoremap <buffer><silent> i
         \ <Cmd>call ddu#ui#ff#do_action('toggleSelectItem')<CR>
 
-  " iで
-  nnoremap <buffer><silent> i
+  " fでFilterWindowをもう一度開く.(itemウィンドウかPreviewで利用する)
+  nnoremap <buffer><silent> f
         \ <Cmd>call ddu#ui#ff#do_action('openFilterWindow')<CR>
 
   " qでdduを閉じる.
@@ -933,17 +931,24 @@ function! s:ddu_my_settings() abort
         \ <Cmd>call ddu#ui#ff#do_action('quit')<CR>
 endfunction
 
-" " filterが重要になったら復活させる.
-" autocmd FileType ddu-ff-filter call s:ddu_filter_my_settings()
-" function! s:ddu_filter_my_settings() abort
-"   " インサートモード中にEnterで
-"   inoremap <buffer><silent> <CR>
-"   \ <Esc><Cmd>close<CR>
-"   nnoremap <buffer><silent> <CR>
-"   \ <Cmd>close<CR>
-"   nnoremap <buffer><silent> q
-"   \ <Cmd>close<CR>
-" endfunction
+" ddu-ffのフィルターウィンドウ上でのキーバインド.
+autocmd FileType ddu-ff-filter call s:on_ddu_ff_filter_window()
+function! s:on_ddu_ff_filter_window() abort
+  " インサートモード中にEnterでFilterWindowを一旦閉じてitem選択Windowに遷移する.
+  " 入力していた文字列はFilterWindowをitem選択Windowから再度FilterWindowを開いた際に残っている.
+  " itemウィンドウを操作する為にnormalモードに戻しておく.
+  inoremap <buffer><silent> <CR>
+        \ <Esc><Cmd>call ddu#ui#ff#do_action("closeFilterWindow")<CR>
+
+  " qでdduを閉じる.
+  nnoremap <buffer><silent> q
+        \ <Cmd>call ddu#ui#ff#do_action('quit')<CR>
+
+  " ESCでdduを閉じる.
+  nnoremap <buffer><silent> <ESC>
+        \ <Cmd>call ddu#ui#ff#do_action('quit')<CR>
+
+endfunction
 
 
 " # --------------------------------------------------------------------------
@@ -1266,6 +1271,110 @@ nnoremap <buffer><silent>gS :DduLspDucmentSymbol<CR>
 
 
 " # --------------------------------------------------------------------------
+" # ファイルあいまい検索.
+" # --------------------------------------------------------------------------
+
+lua << EOF
+local function resize()
+  local lines = vim.opt.lines:get()
+  local height, row = math.floor(lines * 0.85), math.floor(lines * 0.1)
+  local columns = vim.opt.columns:get()
+  local width, col = math.floor(columns * 0.49), math.floor(columns * 0.01)
+  local previewWidth = width
+  local previewCol = col + width + 0.01
+
+  vim.fn["ddu#custom#patch_local"]("find_file_by_ff", {
+    uiParams = {
+      ff = {
+        winHeight = height,
+        winRow = row,
+        winWidth = width,
+        winCol = col,
+        previewHeight = height,
+        previewRow = row,
+        previewWidth = previewWidth,
+        previewCol = previewCol,
+      },
+    },
+  })
+end
+resize()
+
+vim.api.nvim_create_autocmd("VimResized", {
+  callback = resize,
+})
+EOF
+
+command! DduOpenFile call ddu#start({
+    \ "name": "find_file_by_ff",
+    \ "ui": "ff",
+    \ "sync": v:true,
+    \ "sources": [
+    \   {
+    \     "name": 'file_rec',
+    \     "params": {
+    \       "ignoredDirectories": [".git", ".venv", ".mypy_cache", ".ruff_cache"],
+    \     },
+    \   },
+    \ ],
+    \ "sourceOptions": {
+    \   "file_rec": {
+    \     "columns": ['icon_filename'],
+    \     'matchers': ['matcher_substring'],
+    \   },
+    \ },
+    \ "columnParams": {
+    \   "icon_filename": {
+    \     "pathDisplayOption": "relative"
+    \   },
+    \ },
+    \ "kindOptions": {
+    \   "file": {
+    \     "defaultAction": 'open',
+    \   },
+    \ },
+    \ 'filterParams': {
+    \   'matcher_substring': {
+    \     'highlightMatched': 'Search',
+    \   },
+    \ },
+    \ "uiParams": {
+    \   "ff": {
+    \     "prompt": "> ",
+    \     "startFilter": v:true,
+    \     "displaySourceName": "no",
+    \     "split": "floating",
+    \     "floatingBorder": "rounded",
+    \     "filterFloatingPosition": "top",
+    \     "filterFloatingTitle": "Filter01",
+    \     "autoAction": {
+    \       "name": "preview",
+    \     },
+    \     "startAutoAction": v:true,
+    \     "previewFloating": v:true,
+    \     "previewFloatingBorder": "double",
+    \     "previewSplit": "vertical",
+    \     "previewFloatingTitle": "CodePreview",
+    \     "previewWindowOptions": [
+    \       [ "&signcolumn", "no" ],
+    \       [ "&foldcolumn", 0 ],
+    \       [ "&foldenable", 0 ],
+    \       [ "&number", 1 ],
+    \       [ "&wrap", 0 ],
+    \       [ "&scrolloff", 1 ],
+    \     ],
+    \     "highlights": {
+    \       "floating": "Normal",
+    \       "floatingBorder": "Normal",
+    \     },
+    \   },
+    \ }
+    \})
+
+nnoremap <Leader>ff :DduOpenFile<CR>
+
+
+" # --------------------------------------------------------------------------
 " # ファイラー.
 " # --------------------------------------------------------------------------
 
@@ -1474,12 +1583,14 @@ repo = 'Shougo/ddu-ui-filer'
 on_source = 'ddu.vim'
 
 [[plugins]]
-# ファイル一覧を取得するsource
+# ディレクトリ内のファイルを取得するsource
+# itemがtreeに対応している..
 repo = 'Shougo/ddu-source-file'
 on_source = 'ddu.vim'
 
 [[plugins]]
-# ファイル一覧を取得するsource
+# ファイルを再帰的に取得するsource
+# このsourceから取得されたitemはtreeに対応していない.
 repo = 'Shougo/ddu-source-file_rec'
 on_source = 'ddu.vim'
 
