@@ -903,6 +903,9 @@ depends = ['denops.vim']
 # '''
 
 hook_source = '''
+" # --------------------------------------------------------------------------
+" # ddu-ffの共通キーバインド設定.
+" # --------------------------------------------------------------------------
 
 autocmd FileType ddu-ff call s:ddu_my_settings()
 function! s:ddu_my_settings() abort
@@ -941,16 +944,9 @@ endfunction
 " endfunction
 
 
-" call ddu#custom#patch_global({
-"     \ "kindOptions": {
-"     \   "lsp": {
-"     \     "defaultAction": 'open',
-"     \   },
-"     \   "lsp_codeAction": {
-"     \     "defaultAction": 'apply',
-"     \   },
-"     \ },
-"     \})
+" # --------------------------------------------------------------------------
+" # カーソル下のwordの定義ジャンプ(definition).
+" # --------------------------------------------------------------------------
 
 " command! DduLspDefinition call ddu#start({
 "     \ "sync": v:true,
@@ -966,7 +962,7 @@ endfunction
 
 
 " # --------------------------------------------------------------------------
-" # 参照ジャンプ(reference)の設定.
+" # カーソル下のwordの参照ジャンプ(reference).
 " # --------------------------------------------------------------------------
 
 lua << EOF
@@ -978,7 +974,8 @@ local function resize()
   local previewWidth = width
   local previewCol = col + 0.01
 
-  vim.fn["ddu#custom#patch_global"]({
+  -- vim.fn["ddu#custom#patch_global"]({
+  vim.fn["ddu#custom#patch_local"]("lsp_reference_on_word", {
     uiParams = {
       ff = {
         winHeight = height,
@@ -1001,7 +998,7 @@ vim.api.nvim_create_autocmd("VimResized", {
 EOF
 
 command! DduLspReferences call ddu#start({
-    \ "name": "on_lsp_reference",
+    \ "name": "lsp_reference_on_word",
     \ "ui": "ff",
     \ "sync": v:true,
     \ "sources": [{
@@ -1046,6 +1043,12 @@ command! DduLspReferences call ddu#start({
     \})
 
 nnoremap <buffer><silent>gr :DduLspReferences<CR>
+
+
+" # --------------------------------------------------------------------------
+" # 警告一覧(diagnostic).
+" # linter名を表示できない為、trouble.nvimを利用する.
+" # --------------------------------------------------------------------------
 
 " command! DduLspDiagnostic call ddu#start({
 "     \ "ui": "ff",
