@@ -1327,36 +1327,18 @@ function! s:ddu_filer_my_settings() abort
     \ <Cmd>call ddu#ui#filer#do_action('itemAction', {'name': 'yank'})<CR>
 endfunction
 
-call ddu#custom#alias('column', 'icon_filename_for_ff', 'icon_filename')
 command! DduOpenFiler call ddu#start({
 \   'name': 'filer',
 \   'ui': 'filer',
-\   'sources': [
-\     {
-\       'name': 'file',
-\       'params': {},
-\     },
-\     {
-\       'name': 'file_rec',
-\       'params': {},
-\     },
-\   ],
+\   'sources': ['file'],
 \   "sourceOptions": {
 \     "file": {
 \       "columns": ['icon_filename'],
-\     },
-\     "file_rec": {
-\       "columns": ['icon_filename_for_ff'],
 \     },
 \   },
 \   "columnParams": {
 \     "icon_filename": {
 \       "defaultIcon": { "icon": '' },
-\     },
-\     "icon_filename_for_ff": {
-\       "defaultIcon": { "icon": '' },
-\       "padding": 0,
-\       "pathDisplayOption": 'relative',
 \     },
 \   },
 \   'kindOptions': {
