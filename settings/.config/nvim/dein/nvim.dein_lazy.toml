@@ -928,10 +928,11 @@ hook_source = '''
 lua << EOF
 local function resize()
   local lines = vim.opt.lines:get()
-  local height, row = math.floor(lines * 0.8), math.floor(lines * 0.1)
+  local height, row = math.floor(lines * 0.95), math.floor(lines * 0.01)
   local columns = vim.opt.columns:get()
-  local width, col = math.floor(columns * 0.8), math.floor(columns * 0.1)
-  local previewWidth = math.floor(width / 2)
+  local width, col = math.floor(columns * 0.49), math.floor(columns * 0.01)
+  local previewWidth = width
+  local previewCol = col + 0.01
 
   vim.fn["ddu#custom#patch_global"]({
     uiParams = {
@@ -943,7 +944,7 @@ local function resize()
         previewHeight = height,
         previewRow = row,
         previewWidth = previewWidth,
-        previewCol = col + (width - previewWidth),
+        previewCol = previewCol,
       },
     },
   })
