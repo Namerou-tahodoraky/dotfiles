@@ -448,18 +448,20 @@ inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
 # # EOF
 # # '''
 
-# [[plugins]]
-# # LSPの動作待ち中プログレスバーを表示する.
-# # pylspはおそらく対応していない. -> pyrightが対応しているっぽい.
-# # null-lsは対応している.
-# # terraform-lsはおそらく対応している.
-# 下記エラーが表示されるようになったのでとりあえず外した. # TODO: 要調査
+[[plugins]]
+# LSPの動作待ち中プログレスバーを表示する.
+# pylspはおそらく対応していない. -> pyrightが対応しているっぽい.
+# null-lsは対応している.
+# terraform-lsはおそらく対応している.
+# 下記エラーが表示されるようになったのでとりあえず外した.
 # fidget.nvim will soon be rewritten. Please checkout the 'legacy' tag to avoid breaking changes
-# repo = 'j-hui/fidget.nvim'
-# on_event = 'BufEnter'
-# hook_source = '''
-# lua require"fidget".setup{}
-# '''
+# -> 2023/11/01ではlegacy固定にする必要がある. # TODO: 定期的にバグが取り除かれたかチェックする.
+repo = 'j-hui/fidget.nvim'
+rev = "legacy"
+on_event = 'BufEnter'
+hook_source = '''
+lua require"fidget".setup{}
+'''
 
 # ddcの候補選択中にシグネイチャーとドキュメントをポップアップする.
 [[plugins]]
@@ -1365,7 +1367,7 @@ command! DduOpenFiler call ddu#start({
 \       'splitDirection': 'topleft',
 \     }
 \   },
-\   "searchPath": expand("%p"),
+\   "searchPath": expand("%:p"),
 \ })
 
 nnoremap <Leader>ft :DduOpenFiler<CR>
