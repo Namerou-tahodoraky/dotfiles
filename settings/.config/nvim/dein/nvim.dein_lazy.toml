@@ -974,7 +974,6 @@ local function resize()
   local previewWidth = width
   local previewCol = col + 0.01
 
-  -- vim.fn["ddu#custom#patch_global"]({
   vim.fn["ddu#custom#patch_local"]("lsp_reference_on_word", {
     uiParams = {
       ff = {
@@ -1046,6 +1045,123 @@ nnoremap <buffer><silent>gr :DduLspReferences<CR>
 
 
 " # --------------------------------------------------------------------------
+" # 現在のバッファ内のシンボル一覧(documentSymbol).
+" # --------------------------------------------------------------------------
+
+lua << EOF
+local function resize()
+  local lines = vim.opt.lines:get()
+  local height, row = math.floor(lines * 0.95), math.floor(lines * 0.01)
+  local columns = vim.opt.columns:get()
+  local width, col = math.floor(columns * 0.49), math.floor(columns * 0.01)
+  local previewWidth = width
+  local previewCol = col + 0.01
+
+  vim.fn["ddu#custom#patch_local"]("lsp_documentSymbol_in_buffer", {
+    uiParams = {
+      ff = {
+        winHeight = height,
+        winRow = row,
+        winWidth = width,
+        winCol = col,
+        previewHeight = height,
+        previewRow = row,
+        previewWidth = previewWidth,
+        previewCol = previewCol,
+      },
+    },
+  })
+end
+resize()
+
+vim.api.nvim_create_autocmd("VimResized", {
+  callback = resize,
+})
+EOF
+
+command! DduLspDucmentSymbol call ddu#start({
+    \ "name": "lsp_documentSymbol_in_buffer",
+    \ "ui": "ff",
+    \ "sources": [{
+    \   "name": 'lsp_documentSymbol',
+    \   "options": {
+    \     "converters": [
+    \       {
+    \         "name": "converter_lsp_symbol",
+    \         "params": {
+    \           "iconMap": {
+    \             "File": "-",
+    \             "Module": "-",
+    \             "Namespace": "-",
+    \             "Package": "-",
+    \             "Class": "-",
+    \             "Method": "-",
+    \             "Property": "-",
+    \             "Field": "-",
+    \             "Constructor": "-",
+    \             "Enum": "-",
+    \             "Interface": "-",
+    \             "Function": "-",
+    \             "Variable": "-",
+    \             "Constant": "-",
+    \             "String": "-",
+    \             "Number": "-",
+    \             "Boolean": "-",
+    \             "Array": "-",
+    \             "Object": "-",
+    \             "Key": "-",
+    \             "Null": "-",
+    \             "EnumMember": "-",
+    \             "Struct": "-",
+    \             "Event": "-",
+    \             "Operator": "-",
+    \             "TypeParameter": "-",
+    \           },
+    \         },
+    \       },
+    \     ],
+    \   },
+    \ }],
+    \ "kindOptions": {
+    \   "lsp": {
+    \     "defaultAction": 'open',
+    \   },
+    \ },
+    \ "uiParams": {
+    \   "ff": {
+    \     "displaySourceName": "no",
+    \     "startFilter": v:false,
+    \     "split": "floating",
+    \     "floatingBorder": "rounded",
+    \     "filterFloatingPosition": "top",
+    \     "filterFloatingTitle": "Filter01",
+    \     "autoAction": {
+    \       "name": "preview",
+    \     },
+    \     "startAutoAction": v:true,
+    \     "previewFloating": v:true,
+    \     "previewFloatingBorder": "double",
+    \     "previewSplit": "vertical",
+    \     "previewFloatingTitle": "CodePreview",
+    \     "previewWindowOptions": [
+    \       [ "&signcolumn", "no" ],
+    \       [ "&foldcolumn", 0 ],
+    \       [ "&foldenable", 0 ],
+    \       [ "&number", 1 ],
+    \       [ "&wrap", 0 ],
+    \       [ "&scrolloff", 1 ],
+    \     ],
+    \     "highlights": {
+    \       "floating": "Normal",
+    \       "floatingBorder": "Normal",
+    \     },
+    \   },
+    \ }
+    \})
+
+nnoremap <buffer><silent>gS :DduLspDucmentSymbol<CR>
+
+" # --------------------------------------------------------------------------
 " # 警告一覧(diagnostic).
 " # linter名を表示できない為、trouble.nvimを利用する.
 " # --------------------------------------------------------------------------
@@ -1095,57 +1211,12 @@ nnoremap <buffer><silent>gr :DduLspReferences<CR>
 " "     \   },
 " "     \ },
 
-command! DduLspDucmentSymbol call ddu#start({
-    \ "ui": "ff",
-    \ "sources": [{
-    \   "name": 'lsp_documentSymbol',
-    \   "options": {
-    \     "converters": [
-    \       {
-    \         "name": "converter_lsp_symbol",
-    \         "params": {
-    \           "iconMap": {
-    \             "File": "-",
-    \             "Module": "-",
-    \             "Namespace": "-",
-    \             "Package": "-",
-    \             "Class": "-",
-    \             "Method": "-",
-    \             "Property": "-",
-    \             "Field": "-",
-    \             "Constructor": "-",
-    \             "Enum": "-",
-    \             "Interface": "-",
-    \             "Function": "-",
-    \             "Variable": "-",
-    \             "Constant": "-",
-    \             "String": "-",
-    \             "Number": "-",
-    \             "Boolean": "-",
-    \             "Array": "-",
-    \             "Object": "-",
-    \             "Key": "-",
-    \             "Null": "-",
-    \             "EnumMember": "-",
-    \             "Struct": "-",
-    \             "Event": "-",
-    \             "Operator": "-",
-    \             "TypeParameter": "-",
-    \           },
-    \         },
-    \       },
-    \     ],
-    \   },
-    \ }],
-    \ "uiParams": {
-    \   "ff": {
-    \     "startFilter": v:false,
-    \     "displayTree": v:true,
-    \   },
-    \ }
-    \})
 
-" " Not work on pylsp.
+" # --------------------------------------------------------------------------
+" # 作業リポジトリ全体のシンボル一覧(workspaceSymbol).
+" # Not work on pylsp.
+" # --------------------------------------------------------------------------
+
 " command! DduLspWorkspaceSymbol call ddu#start({
 "     \ "ui": "ff",
 "     \ "sources": [{
@@ -1164,6 +1235,11 @@ command! DduLspDucmentSymbol call ddu#start({
 "     \ }
 "     \})
 
+
+" # --------------------------------------------------------------------------
+" # 
+" # --------------------------------------------------------------------------
+
 " " Not work on pylsp.
 " command! DduLspCallHierarchy call ddu#start({
 "     \ "sources": [{
@@ -1180,12 +1256,74 @@ command! DduLspDucmentSymbol call ddu#start({
 "     \ }
 "     \})
 
+
+" # --------------------------------------------------------------------------
+" # ファイラー.
+" # --------------------------------------------------------------------------
+
+" command! DduFiler call ddu#custom#patch_local('filer', {
+command! DduFiler call ddu#start({
+\   'name': 'filer',
+\   'ui': 'filer',
+\   'sources': [
+\     {
+\       'name': 'file',
+\       'params': {},
+\     },
+\     {
+\       'name': 'file_rec',
+\       'params': {},
+\     },
+\   ],
+\   "sourceOptions": {
+\     "file": {
+\       "columns": ['icon_filename'],
+\     },
+\     "file_rec": {
+\       "columns": ['icon_filename_for_ff'],
+\     },
+\   },
+\   "columnParams": {
+\     "icon_filename": {
+\       "defaultIcon": { "icon": '' },
+\     },
+\     "icon_filename_for_ff": {
+\       "defaultIcon": { "icon": '' },
+\       "padding": 0,
+\       "pathDisplayOption": 'relative',
+\     },
+\   },
+\   'kindOptions': {
+\     'file': {
+\       'defaultAction': 'open',
+\     },
+\   },
+\   'uiParams': {
+\     'filer': {
+\       'winWidth': 40,
+\       'split': 'vertical',
+\       'splitDirection': 'topleft',
+\     }
+\   },
+\ })
+
+
 '''
 
 
 [[plugins]]
 # ファジーファインダー風のUI
 repo = 'Shougo/ddu-ui-ff'
+on_source = 'ddu.vim'
+
+[[plugins]]
+# ファイラー風のUI
+repo = 'Shougo/ddu-ui-filer'
+on_source = 'ddu.vim'
+
+[[plugins]]
+# ファイル一覧を取得するsource
+repo = 'Shougo/ddu-source-file'
 on_source = 'ddu.vim'
 
 [[plugins]]
@@ -1217,387 +1355,12 @@ on_source = 'ddu.vim'
 # LSPの情報を取得するsource
 repo = 'uga-rosa/ddu-source-lsp'
 on_source = 'ddu.vim'
-# hook_source = '''
-# lua << EOF
-# -- Reference: 
-# 
-# 
-# local helper = {}
-# ---@param name? string If nil, map is set globally
-# ---@param callback fun(map: fun(lhs: string, rhs: string|function, opts?: table))
-# function helper.ff_map(name, callback)
-#   name = name or "default"
-#   vim.api.nvim_create_autocmd("FileType", {
-#     pattern = "ddu-ff",
-#     group = vim.api.nvim_create_augroup("ddu-ui-ff-map-" .. name, { clear = false }),
-#     callback = function()
-#       -- Enable `file` map also for `file:foo`
-#       if name == "default" or string.find(vim.b.ddu_ui_name, name) then
-#         callback(function(lhs, rhs, opts)
-#           opts = vim.tbl_extend("keep", opts or {}, { nowait = true, buffer = true, silent = true })
-#           vim.keymap.set("n", lhs, rhs, opts)
-#         end)
-#       end
-#     end,
-#   })
-# end
-# 
-# ---@param name? string If nil, map is set globally
-# ---@param callback fun(map: fun(mode: string|string[], lhs: string, rhs: string|function, opts?: table))
-# function helper.ff_filter_map(name, callback)
-#   name = name or "default"
-#   vim.api.nvim_create_autocmd("FileType", {
-#     pattern = "ddu-ff-filter",
-#     group = vim.api.nvim_create_augroup("ddu-ui-ff-filter-map-" .. name, { clear = false }),
-#     callback = function()
-#       -- Enable `file` map also for `file:foo`
-#       if name == "default" or string.find(vim.b.ddu_ui_name, name) then
-#         callback(function(mode, lhs, rhs, opts)
-#           opts = vim.tbl_extend("keep", opts or {}, { nowait = true, buffer = true, silent = true })
-#           vim.keymap.set(mode, lhs, rhs, opts)
-#         end)
-#       end
-#     end,
-#   })
-# end
-# 
-# ---@param dict table
-# function helper.patch_global(dict)
-#   vim.fn["ddu#custom#patch_global"](dict)
-# end
-# 
-# ---@param name string
-# ---@param dict table
-# function helper.patch_local(name, dict)
-#   vim.fn["ddu#custom#patch_local"](name, dict)
-# end
-# 
-# -- # ---------------------------------------------------------------------------------------
-# -- # ui-ff.lua
-# -- # ---------------------------------------------------------------------------------------
-# helper.ff_map(nil, function(map)
-#   -- Enter filter
-#   map("i", helper.action("openFilterWindow"))
-#   -- Close UI
-#   map("<Esc>", helper.action("quit"))
-#   -- Toggle selected state for all items
-#   map("a", helper.action("toggleAllItems"))
-#   -- Toggle selected state for cursor item
-#   map(" ", helper.action("toggleSelectItem"))
-#   -- Expand item tree
-#   map("e", helper.action("expandItem", { mode = "toggle" }))
-#   -- Show available actions
-#   map("+", helper.action("chooseAction"))
-#   -- Toggle preview
-#   map("p", helper.action("toggleAutoAction"))
-# end)
-# 
-# helper.ff_filter_map(nil, function(map)
-#   -- Close UI
-#   map("i", "<C-c>", helper.action("quit", nil, true))
-#   -- Close filter window
-#   map("n", "<Esc>", helper.action("closeFilterWindow", nil, true))
-#   -- Move cursor
-#   map("i", "<C-n>", helper.execute("normal j"))
-#   map("i", "<C-p>", helper.execute("normal k"))
-# end)
-# 
-# 
-# helper.patch_global({
-#   ui = "ff",
-#   uiParams = {
-#     ff = {
-#       startFilter = true,
-#       prompt = "> ",
-#       cursorPos = 0,
-#       split = "floating",
-#       floatingBorder = "single",
-#       filterFloatingPosition = "top",
-#       autoAction = {
-#         name = "preview",
-#       },
-#       startAutoAction = true,
-#       previewFloating = true,
-#       previewFloatingBorder = "single",
-#       previewSplit = "vertical",
-#       previewFloatingTitle = "Preview",
-#       previewWindowOptions = {
-#         { "&signcolumn", "no" },
-#         { "&foldcolumn", 0 },
-#         { "&foldenable", 0 },
-#         { "&number", 0 },
-#         { "&wrap", 0 },
-#         { "&scrolloff", 0 },
-#       },
-#       highlights = {
-#         floating = "Normal",
-#         floatingBorder = "Normal",
-#       },
-#       ignoreEmpty = true,
-#     },
-#   },
-# })
-# 
-# local function resize()
-#   local lines = vim.opt.lines:get()
-#   local height, row = math.floor(lines * 0.8), math.floor(lines * 0.1)
-#   local columns = vim.opt.columns:get()
-#   local width, col = math.floor(columns * 0.8), math.floor(columns * 0.1)
-#   local previewWidth = math.floor(width / 2)
-# 
-#   helper.patch_global({
-#     uiParams = {
-#       ff = {
-#         winHeight = height,
-#         winRow = row,
-#         winWidth = width,
-#         winCol = col,
-#         previewHeight = height,
-#         previewRow = row,
-#         previewWidth = previewWidth,
-#         previewCol = col + (width - previewWidth),
-#       },
-#     },
-#   })
-# end
-# resize()
-# 
-# vim.api.nvim_create_autocmd("VimResized", {
-#   callback = resize,
-# })
-# 
-# 
-# -- # ---------------------------------------------------------------------------------------
-# -- # source-lsp.lua
-# -- # ---------------------------------------------------------------------------------------
-# 
-# helper.ff_map("lsp", function(map)
-#   map("<C-x>", helper.item_action("open", { command = "split" }))
-#   map("<C-v>", helper.item_action("open", { command = "vsplit" }))
-#   map("q", helper.item_action("quickfix"))
-# end)
-# 
-# helper.ff_filter_map("lsp", function(map)
-#   map("i", "<C-x>", helper.item_action("open", { command = "split" }, true))
-#   map("i", "<C-v>", helper.item_action("open", { command = "vsplit" }, true))
-# end)
-# 
-# init = function()
-#   vim.keymap.set("n", "gd", "<Cmd>Ddu lsp:definition<CR>")
-#   vim.keymap.set("n", "gt", "<Cmd>Ddu lsp:type_definition<CR>")
-#   vim.keymap.set("n", "gr", "<Cmd>Ddu lsp:references<CR>")
-#   vim.keymap.set({ "n", "x" }, "<Space>a", "<Cmd>Ddu lsp:code_action<CR>")
-# end,
-# config = function()
-#   helper.patch_global({
-#     kindOptions = {
-#       lsp = {
-#         defaultAction = "open",
-#       },
-#       lsp_codeAction = {
-#         defaultAction = "apply",
-#       },
-#     },
-#   })
-# 
-#   for name, method in pairs({
-#     ["lsp:declaration"] = "textDocument/declaration",
-#     ["lsp:definition"] = "textDocument/definition",
-#     ["lsp:type_definition"] = "textDocument/typeDefinition",
-#     ["lsp:implementation"] = "textDocument/implementation",
-#   }) do
-#     helper.patch_local(name, {
-#       sources = {
-#         {
-#           name = "lsp_definition",
-#           params = {
-#             method = method,
-#           },
-#         },
-#       },
-#       sync = true,
-#       uiParams = {
-#         ff = {
-#           immediateAction = "open",
-#         },
-#       },
-#     })
-#   end
-# 
-#   helper.patch_local("lsp:references", {
-#     sources = { "lsp_references" },
-#   })
-# 
-#   ---@param word string
-#   ---@param color string
-#   ---@return { name: string, params: table }
-#   local function separator(word, color)
-#     local hlGroup = "DduDummy" .. color:gsub("[^a-zA-Z0-9]", "")
-#     vim.api.nvim_set_hl(0, hlGroup, { fg = color })
-#     return {
-#       name = "dummy",
-#       params = { word = word, hlGroup = hlGroup },
-#     }
-#   end
-# 
-#   helper.patch_local("lsp:definition_all", {
-#     sources = {
-#       separator(">>Definition<<", "#fc514e"),
-#       { name = "lsp_definition", params = { method = "textDocument/definition" } },
-#       separator(">>Type definition<<", "#ffcb8b"),
-#       { name = "lsp_definition", params = { method = "textDocument/typeDefinition" } },
-#       separator(">>Declaration<<", "#21c7a8"),
-#       { name = "lsp_definition", params = { method = "textDocument/declaration" } },
-#       separator(">>Implementation<<", "#5e97ec"),
-#       { name = "lsp_definition", params = { method = "textDocument/implementation" } },
-#     },
-#   })
-# 
-#   helper.patch_local("lsp:finder", {
-#     sources = {
-#       separator(">>Definition<<", "#fc514e"),
-#       { name = "lsp_definition" },
-#       separator(">>References<<", "#5e97ec"),
-#       { name = "lsp_references", params = { includeDeclaration = false } },
-#     },
-#   })
-# 
-#   helper.patch_local("lsp:document_symbol", {
-#     sources = {
-#       {
-#         name = "lsp_documentSymbol",
-#         options = {
-#           converters = { "converter_lsp_symbol" },
-#         },
-#       },
-#     },
-#   })
-# 
-#   helper.patch_local("lsp:dynamic_workspaceSymbol", {
-#     sources = {
-#       {
-#         name = "lsp_workspaceSymbol",
-#         options = { volatile = true },
-#       },
-#     },
-#     uiParams = {
-#       ff = {
-#         ignoreEmpty = false,
-#       },
-#     },
-#   })
-# 
-#   helper.patch_local("lsp:hierarchy", {
-#     uiParams = {
-#       ff = {
-#         displayTree = true,
-#         startFilter = false,
-#       },
-#     },
-#   })
-# 
-#   for name, method in pairs({
-#     ["lsp:incoming_call"] = "callHierarchy/incomingCalls",
-#     ["lsp:outgoing_call"] = "callHierarchy/outgoingCalls",
-#     ["lsp:super_type"] = "typeHierarchy/supertypes",
-#     ["lsp:sub_type"] = "typeHierarchy/subtypes",
-#   }) do
-#     helper.patch_local(name, {
-#       sources = {
-#         {
-#           name = "lsp_callHierarchy",
-#           params = { method = method },
-#         },
-#       },
-#       uiParams = {
-#         ff = {
-#           displayTree = true,
-#           startFilter = false,
-#         },
-#       },
-#     })
-#   end
-# 
-#   helper.patch_local("lsp:diagnostic", {
-#     sourceOptions = {
-#       _ = {
-#         converters = { "converter_lsp_diagnostic" },
-#       },
-#     },
-#   })
-# 
-#   for subcommand, buffer in pairs({
-#     lsp_diagnostic = 0,
-#     lsp_diagnostic_all = vim.NIL,
-#   }) do
-#     helper.patch_local(subcommand, {
-#       sources = {
-#         {
-#           name = "lsp_diagnostic",
-#           params = { buffer = buffer },
-#         },
-#       },
-#     })
-#   end
-# 
-#   helper.patch_local("lsp:code_action", {
-#     sources = { "lsp_codeAction" },
-#   })
-# end,
-# 
-# 
-# -- # ---------------------------------------------------------------------------------------
-# -- # source-dummy.lua
-# -- # ---------------------------------------------------------------------------------------
-# 
-# ---@param items table[] DduItem[]
-# ---@param index number
-# ---@return boolean
-# local function is_dummy(items, index)
-#   return items[index] and items[index].__sourceName == "dummy"
-# end
-# 
-# ---@param dir number
-# ---@return function
-# local function move_ignore_dummy(dir)
-#   return function()
-#     local items = vim.fn["ddu#ui#get_items"]()
-#     local index = vim.fn.line(".") + dir
-# 
-#     while is_dummy(items, index) do
-#       index = index + dir
-#     end
-#     if 1 <= index and index <= #items then
-#       vim.cmd("normal! " .. index .. "gg")
-#     end
-#   end
-# end
-# 
-# helper.ff_map("dummy", function(map)
-#   -- Move cursor ignoring dummy items
-#   map("j", move_ignore_dummy(1))
-#   map("k", move_ignore_dummy(-1))
-# end)
-# 
-# ---@type LazySpec
-# local spec = {
-#   "Shougo/ddu-source-dummy",
-#   dependencies = "ddu.vim",
-#   config = function()
-#     helper.patch_global({
-#       sourceOptions = {
-#         dummy = {
-#           matchers = {},
-#           sorters = {},
-#           converters = {},
-#         },
-#       },
-#     })
-#   end,
-# }
-# 
-# EOF
-# '''
+
+
+[[plugins]]
+# iconとファイル名を表示するcolumn(ui-filer用)
+repo = 'ryota2357/ddu-column-icon_filename'
+on_source = 'ddu.vim'
 
 # "4513ECHO/ddu-source-colorscheme",
 
