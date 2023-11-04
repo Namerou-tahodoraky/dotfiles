@@ -8,6 +8,31 @@
 repo = 'vim-denops/denops.vim'
 
 
+[[plugins]]
+# Migemo互換の機能によるローマ字入力でも日本語検索ができる.
+# Typescriptで実装されており,Migemoのインストールはいらない.
+# このプラグイン単体だとコマンドやキーマッピングは行われず,
+# kensaku-search.vimやkensaku-comanndo.vimもセットで必要.
+repo = 'lambdalisue/kensaku.vim'
+on_source = ["denops.vim"]
+
+[[plugins]]
+# / での検索時にkensaku.vimを有効化.
+# Enterを押した時に日本語用の検索文字列が展開される為,
+# 検索文字列入力中はマッチする文字にハイライトがでないことに注意.
+repo = 'lambdalisue/kensaku-search.vim'
+on_source = ["kensaku.vim"]
+hook_source = '''
+cnoremap <CR> <Plug>(kensaku-search-replace)<CR>
+'''
+
+# [[plugins]]
+# # kensaku.vimのExコマンドを提供.
+# # :Kensaku {text}
+# repo = 'lambdalisue/kensaku-command.vim'
+# on_source = ["kensaku.vim"]
+
+
 # ---------------------------------------------------------------------------------------------
 # カスタマイズ設定の索引ツール.
 # ---------------------------------------------------------------------------------------------
@@ -67,16 +92,26 @@ augroup end
 
 
 [[plugins]]
-# 
 repo = 'kyazdani42/nvim-web-devicons'
 
 [[plugins]]
-# 
 repo = 'nvim-lualine/lualine.nvim'
-depends = ['nvim-web-devicons']
 on_event = 'BufRead'
 hook_source = '''
 lua << EOF
+vim.opt.laststatus = 3 -- splitしてもステータスラインは分割されない.
+
+
+local function diff_source()
+  local gitsigns = vim.b.gitsigns_status_dict
+  if gitsigns then
+    return {
+      added = gitsigns.added,
+      modified = gitsigns.changed,
+      removed = gitsigns.removed
+    }
+  end
+end
 
 -- stylua: ignore
 local colors = {
@@ -107,17 +142,58 @@ local bubbles_theme = {
   },
 }
 
+-- local function get_color_by_branchname(branch_name)
+--   print(branch_name)
+--   -- if (string.len(branch_name) >= 7) and (string.sub(branch_name, 1, 7) == "feature") then
+--   --   return {fg = colors.cyan}
+--   -- else
+--   --   return {fg = colors.violet}
+--   -- end
+-- 
+--   -- if branch_name and (string.find(branch_name, "feature")) then
+--   if branch_name then
+--     if (string.find(branch_name, "feature")) then
+--       return {fg = colors.cyan}
+--     else
+--       return {fg = colors.gray}
+--     end
+--   else
+--     return {fg = colors.red}
+--   end
+--   -- if (string.len(branch_name) >= 15) then
+--   --   if (string.sub(branch_name, 1, 7) == "feature") then
+--   --     return {fg = colors.red}
+--   --   else
+--   --     return {fg = colors.gray}
+--   --   end
+--   -- else
+--   --   return {fg = colors.violet}
+--   -- end
+-- end
+
+
+
 require('lualine').setup {
   options = {
     theme = bubbles_theme,
     component_separators = '|',
     section_separators = { left = '', right = '' },
+    globalstatus = true, -- laststatus=3(ステータスラインの分割防止)に対応.
   },
   sections = {
     lualine_a = {
       { 'mode', separator = { left = '' }, right_padding = 2 },
     },
-    lualine_b = {'branch', 'diagnostics', 'filename', 'filetype'},
+    -- lualine_b = {'branch', { 'diff', symbols = { added = ' ', modified = ' ', removed = ' ' }, source = diff_source }, 'diagnostics', 'filename', 'filetype'},
+    lualine_b = {
+      -- 'branch',
+      {'b:gitsigns_head', color={fg=colors.red}},
+      -- {'b:gitsigns_head', color=get_color_by_branchname(vim.b.gitsigns_head)},
+      {'diff', symbols = { added='A:', modified='M:', removed='D:' }, source=diff_source, },
+      'filename',
+      {'filetype', icon_only=true, icon={align="left"}},
+      'diagnostics',
+    },
     -- lualine_b = {
     --   {
     --     "aerial",
