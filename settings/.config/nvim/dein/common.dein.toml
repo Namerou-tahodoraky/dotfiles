@@ -1,24 +1,6 @@
 [[plugins]]
 repo = 'Shougo/dein.vim'
 
-# [[plugins]] # TODO: 暫定的に削除.
-# # f移動の拡張.
-# # ;,によるリピートからfF連打によるリピートに変更される.(;,は効かなくなる)
-# # ヒット文字がハイライトされる. 行をまたいでヒットする.
-# # 日本語にヒットする
-# # fが上書きされる関係で異なる文字のf移動を連続でやりたい場合は,一度hlで横移動してfの入力待ち状態を切る必要がある.
-# # lfで手癖にしても問題なさそう.
-# repo = 'rhysd/clever-f.vim'
-# hook_add = '''
-# let g:clever_f_fix_key_direction = 1  "検索開始がf,Fどちらでもリピート移動の方向を固定する.
-# let g:clever_f_use_migemo = 1  "日本語がヒットする
-# let g:clever_f_smart_case = 1  "大文字を入力した時は大文字のみ、小文字を入力した時は両方にヒットする.
-# let g:clever_f_timeout_ms = 5000  "指定時間でfFのリピート移動が切れる
-# let g:clever_f_highlight_timeout_ms = 5000  "指定時間でfFのリピート移動が切れる
-# " map ; <Plug>(clever-f-repeat-forward) ";へのマッピングを残す. which-key.vimとバッティングするっぽい
-# " map , <Plug>(clever-f-repeat-back) ",へのマッピングを残す. which-key.vimとバッティングするっぽい
-# '''
-
 [[plugins]]
 # f移動の補助.
 # カーソル行に存在する各単語について、fで一発で移動できる場所(ユニークな文字)がハイライトされる.
@@ -28,7 +10,23 @@ hook_add = '''
 let g:qs_max_chars=120
 '''
 
+# [[plugins]]
+# 検索ヒット文字数を表示.
+# neovimだとバグる？
+# repo = 'obcat/vim-hitspop'
+# hook_add = '''
+# '''
 
+[[plugins]]
+# w移動などの単語区切りを変更.
+# ,-|>='"などが1単語として認識されず、スキップできる.
+repo = 'kana/vim-smartword'
+hook_add = '''
+map w  <Plug>(smartword-w)
+map b  <Plug>(smartword-b)
+map e  <Plug>(smartword-e)
+map ge  <Plug>(smartword-ge)
+'''
 
 # [[plugins]]
 # # キャメルケース,スネークケースの移動とtextobjとして扱う機能.
@@ -115,18 +113,6 @@ nmap <expr> mR operator#blockwise#mapexpr_head("\<Plug>(operator-replace)")
 # textobj拡張プラグインの依存元
 repo = 'kana/vim-textobj-user'
 
-# [[plugins]]
-# # インデントを対象に操作
-# # 動作しない
-# repo = 'kana/vim-textobj-indent'
-# # depends = ['vim-textobj-user']
-# hook_add = '''
-# nmap ai <Plug>(textobj-indent-a)
-# nmap ii <Plug>(textobj-indent-i)
-# nmap aI <Plug>(textobj-indent-same-a)
-# nmap iI <Plug>(textobj-indent-same-i)
-# '''
-
 [[plugins]]
 # 行頭の空白と改行を除く一行をtextobjとして扱う.
 # yil, dil, cil, vil
@@ -157,6 +143,7 @@ depends = ['vim-textobj-user']
 # 対象ブロック内をtextobjとして扱う.
 # 対象は(),[],{},<>,"",''
 # cib, yibなど.
+# 囲み文字自体も範囲に含まれるのが特徴.
 repo = 'osyo-manga/vim-textobj-multiblock'
 depends = ['vim-textobj-user']
 hook_add = '''
