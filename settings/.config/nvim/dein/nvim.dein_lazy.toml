@@ -8,31 +8,6 @@
 repo = 'vim-denops/denops.vim'
 
 
-[[plugins]]
-# Migemo互換の機能によるローマ字入力でも日本語検索ができる.
-# Typescriptで実装されており,Migemoのインストールはいらない.
-# このプラグイン単体だとコマンドやキーマッピングは行われず,
-# kensaku-search.vimやkensaku-comanndo.vimもセットで必要.
-repo = 'lambdalisue/kensaku.vim'
-on_source = ["denops.vim"]
-
-[[plugins]]
-# / での検索時にkensaku.vimを有効化.
-# Enterを押した時に日本語用の検索文字列が展開される為,
-# 検索文字列入力中はマッチする文字にハイライトがでないことに注意.
-repo = 'lambdalisue/kensaku-search.vim'
-on_source = ["kensaku.vim"]
-hook_source = '''
-cnoremap <CR> <Plug>(kensaku-search-replace)<CR>
-'''
-
-# [[plugins]]
-# # kensaku.vimのExコマンドを提供.
-# # :Kensaku {text}
-# repo = 'lambdalisue/kensaku-command.vim'
-# on_source = ["kensaku.vim"]
-
-
 # ---------------------------------------------------------------------------------------------
 # カスタマイズ設定の索引ツール.
 # ---------------------------------------------------------------------------------------------
@@ -342,6 +317,37 @@ function g:searchx.convert(input) abort
   return a:input[0] .. substitute(a:input[1:], '\\\@<! ', '.\\{-}', 'g')
 endfunction
 '''
+
+[[plugins]]
+# Migemo互換の機能によるローマ字入力でも日本語検索ができる.
+# Typescriptで実装されており,Migemoのインストールはいらない.
+# このプラグイン単体だとコマンドの提供やkensaku.vimへのキーマッピングは行われず,
+# 呼び出す為にはkensaku-search.vimやkensaku-comanndo.vimもセットで必要.
+repo = 'lambdalisue/kensaku.vim'
+on_source = ["denops.vim"]
+
+[[plugins]]
+# / での検索時にkensaku.vimを有効化.
+# Enterを押した時に日本語用の検索文字列が展開される為,
+# 検索文字列入力中はマッチする文字にハイライトがでないことに注意.
+repo = 'lambdalisue/kensaku-search.vim'
+on_source = ["kensaku.vim"]
+hook_source = '''
+cnoremap <CR> <Plug>(kensaku-search-replace)<CR>
+'''
+
+[[plugins]]
+# EasyMotion系ツール.
+# 大文字はヒット文字に飛ぶために使われる為、検索時の入力はIgunoreCaseとなる.
+# kensaku.vimとの連携によってローマ字入力で日本語がヒットする.
+repo = 'yuki-yano/fuzzy-motion.vim'
+on_source = ["kensaku.vim"]
+hook_source = '''
+let g:fuzzy_motion_disable_match_highlight=v:true
+let g:fuzzy_motion_matchers=["fzf", "kensaku"]
+nnoremap <buffer><silent>ss :FuzzyMotion<CR>
+'''
+
 
 [[plugins]]
 # スムーズスクロール
