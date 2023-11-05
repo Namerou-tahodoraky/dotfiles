@@ -165,8 +165,8 @@ require('lualine').setup {
       {'b:gitsigns_head', color={fg=colors.red}},
       -- {'b:gitsigns_head', color=get_color_by_branchname(vim.b.gitsigns_head)},
       {'diff', symbols = { added='A:', modified='M:', removed='D:' }, source=diff_source, },
-      'filename',
       {'filetype', icon_only=true, icon={align="left"}},
+      'filename',
       'diagnostics',
     },
     -- lualine_b = {
@@ -481,8 +481,8 @@ require("lspconfig").pylsp.setup {
     pylsp = {
       -- configurationSources = {"pylint"},
       plugins = {
+        pylint = { enabled = true },
         autpep8 = { enabled = false },
-        pylint = { enabled = false },
         flake8 = { enabled = false },
         pycodestyle = { enabled = false },
         pyflakes = { enabled = false },
@@ -1511,11 +1511,7 @@ command! DduOpenFiler call ddu#start({
 \   "sourceOptions": {
 \     "file": {
 \       "columns": ['icon_filename'],
-\     },
-\   },
-\   "columnParams": {
-\     "icon_filename": {
-\       "pathDisplayOption": "relative",
+\       "converters": ["converter_hl_dir"],
 \     },
 \   },
 \   'kindOptions': {
@@ -1528,10 +1524,53 @@ command! DduOpenFiler call ddu#start({
 \       'winWidth': 40,
 \       'split': 'vertical',
 \       'splitDirection': 'topleft',
+\       'sort': 'filename',
+\       'sortTreeFirst': v:true,
 \     }
 \   },
 \   "searchPath": expand("%:p"),
 \ })
+
+" \   "columnParams": {
+" \     "icon_filename": {
+" \       "pathDisplayOption": "relative",
+" \     },
+" \   },
+
+" command! DduOpenFiler call ddu#start({
+" \   'name': 'filer',
+" \   'ui': 'filer',
+" \   'sources': [
+" \     {
+" \       "name": 'file_external',
+" \       "params": {
+" \         "cmd": ["fd", ".", "-tf"],
+" \       },
+" \     },
+" \   ],
+" \   "sourceOptions": {
+" \     "file_external": {
+" \       "columns": ['icon_filename'],
+" \       "converters": ["converter_hl_dir"],
+" \     },
+" \   },
+" \   'kindOptions': {
+" \     'file': {
+" \       'defaultAction': 'open',
+" \     },
+" \   },
+" \   'uiParams': {
+" \     'filer': {
+" \       'winWidth': 100,
+" \       'split': 'vertical',
+" \       'toggle': v:true,
+" \       'splitDirection': 'topleft',
+" \       'sort': 'filename',
+" \       'sortTreeFirst': v:true,
+" \     }
+" \   },
+" \   "searchPath": expand("%:p"),
+" \ })
 
 nnoremap <Leader>ft :DduOpenFiler<CR>
 
@@ -1649,6 +1688,16 @@ repo = 'Shougo/ddu-source-file_rec'
 on_source = 'ddu.vim'
 
 [[plugins]]
+# 文字列,ファイル検索にripgrepを使用するsource
+repo = 'shun/ddu-source-rg'
+on_source = 'ddu.vim'
+
+[[plugins]]
+# fileのkindを持つsourceを外部コマンドで取得できる.
+repo = 'matsui54/ddu-source-file_external'
+on_source = 'ddu.vim'
+
+[[plugins]]
 # Openなどファイル関連の処理が定義されているkind
 repo = 'Shougo/ddu-kind-file'
 on_source = 'ddu.vim'
@@ -1666,6 +1715,11 @@ on_source = 'ddu.vim'
 [[plugins]]
 # sourceのファイル名にnordfontのアイコンを付けるfilter(converter)
 repo = 'uga-rosa/ddu-filter-converter_devicon'
+on_source = 'ddu.vim'
+
+[[plugins]]
+# sourceファイルパスのディレクトリに色を付けるfilter(converter)
+repo = 'kyoh86/ddu-filter-converter_hl_dir'
 on_source = 'ddu.vim'
 
 [[plugins]]
