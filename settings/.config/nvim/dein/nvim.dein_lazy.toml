@@ -1362,24 +1362,19 @@ EOF
 command! DduOpenFile call ddu#start({
     \ "name": "find_file_by_ff",
     \ "ui": "ff",
-    \ "sync": v:true,
     \ "sources": [
     \   {
-    \     "name": 'file_rec',
+    \     "name": 'file_external',
     \     "params": {
-    \       "ignoredDirectories": [".git", ".venv", ".mypy_cache", ".ruff_cache"],
+    \       "cmd": ["fd", "-tf", "--color", "never", "--hidden", "--follow", "--exclude", ".git"],
     \     },
     \   },
     \ ],
     \ "sourceOptions": {
-    \   "file_rec": {
-    \     "columns": ['icon_filename'],
-    \     'matchers': ['matcher_substring'],
-    \   },
-    \ },
-    \ "columnParams": {
-    \   "icon_filename": {
-    \     "pathDisplayOption": "relative"
+    \   "file_external": {
+    \     'matchers': ['matcher_fzf'],
+    \     'sorters': ['sorter_fzf'],
+    \     "converters": ["converter_hl_dir", 'converter_devicon'],
     \   },
     \ },
     \ "kindOptions": {
@@ -1388,7 +1383,7 @@ command! DduOpenFile call ddu#start({
     \   },
     \ },
     \ 'filterParams': {
-    \   'matcher_substring': {
+    \   'matcher_fzf': {
     \     'highlightMatched': 'Search',
     \   },
     \ },
@@ -1530,12 +1525,6 @@ command! DduOpenFiler call ddu#start({
 \   },
 \   "searchPath": expand("%:p"),
 \ })
-
-" \   "columnParams": {
-" \     "icon_filename": {
-" \       "pathDisplayOption": "relative",
-" \     },
-" \   },
 
 " command! DduOpenFiler call ddu#start({
 " \   'name': 'filer',
@@ -1711,6 +1700,12 @@ on_source = 'ddu.vim'
 # 部分文字列への完全一致によってsourceを絞り込むfilter(matcher)
 repo = 'Shougo/ddu-filter-matcher_substring'
 on_source = 'ddu.vim'
+
+[[plugins]]
+# sourceファイルパスのディレクトリに色を付けるfilter(converter)
+repo = 'yuki-yano/ddu-filter-fzf'
+on_source = 'ddu.vim'
+
 
 [[plugins]]
 # sourceのファイル名にnordfontのアイコンを付けるfilter(converter)
