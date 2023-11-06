@@ -1013,6 +1013,11 @@ function! s:on_ddu_ff_item_window() abort
   " ESCでdduを閉じる.
   nnoremap <buffer><silent> <ESC>
         \ <Cmd>call ddu#ui#ff#do_action('quit')<CR>
+
+  " pでpreviewのオンオフを切り替える.
+  nnoremap <buffer><silent> p
+        \ <Cmd>call ddu#ui#ff#do_action("togglePreview")<CR>
+
 endfunction
 
 " ddu-ffのフィルターウィンドウ上でのキーバインド.
@@ -1033,7 +1038,6 @@ function! s:on_ddu_ff_filter_window() abort
         \ <Cmd>call ddu#ui#ff#do_action('quit')<CR>
 
 endfunction
-
 
 " # --------------------------------------------------------------------------
 " # LSP.
@@ -1396,10 +1400,14 @@ command! DduOpenFile call ddu#start({
     \     "floatingBorder": "rounded",
     \     "filterFloatingPosition": "top",
     \     "filterFloatingTitle": "Filter01",
+    \     "highlights": {
+    \       "floating": "Normal",
+    \       "floatingBorder": "Normal",
+    \     },
     \     "autoAction": {
     \       "name": "preview",
     \     },
-    \     "startAutoAction": v:true,
+    \     "startAutoAction": v:false,
     \     "previewFloating": v:true,
     \     "previewFloatingBorder": "double",
     \     "previewSplit": "vertical",
@@ -1412,10 +1420,6 @@ command! DduOpenFile call ddu#start({
     \       [ "&wrap", 0 ],
     \       [ "&scrolloff", 1 ],
     \     ],
-    \     "highlights": {
-    \       "floating": "Normal",
-    \       "floatingBorder": "Normal",
-    \     },
     \   },
     \ }
     \})
@@ -1492,10 +1496,14 @@ command! DduOpenFileByWordGrep call ddu#start({
     \     "floatingBorder": "rounded",
     \     "filterFloatingPosition": "top",
     \     "filterFloatingTitle": "Filter01",
+    \     "highlights": {
+    \       "floating": "Normal",
+    \       "floatingBorder": "Normal",
+    \     },
     \     "autoAction": {
     \       "name": "preview",
     \     },
-    \     "startAutoAction": v:true,
+    \     "startAutoAction": v:false,
     \     "previewFloating": v:true,
     \     "previewFloatingBorder": "double",
     \     "previewSplit": "vertical",
@@ -1508,10 +1516,6 @@ command! DduOpenFileByWordGrep call ddu#start({
     \       [ "&wrap", 0 ],
     \       [ "&scrolloff", 1 ],
     \     ],
-    \     "highlights": {
-    \       "floating": "Normal",
-    \       "floatingBorder": "Normal",
-    \     },
     \   },
     \ }
     \})
