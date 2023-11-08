@@ -1329,6 +1329,92 @@ nnoremap <buffer><silent>gr :DduLspReferences<CR>
 
 
 " # --------------------------------------------------------------------------
+" # LSP.
+" # コードアクションリスト.
+" # --------------------------------------------------------------------------
+
+lua << EOF
+local function resize()
+  local lines = vim.opt.lines:get()
+  local height, row = math.floor(lines * 0.95), math.floor(lines * 0.01)
+  local columns = vim.opt.columns:get()
+  local width, col = math.floor(columns * 0.49), math.floor(columns * 0.01)
+  local previewWidth = width
+  local previewCol = col + 0.01
+
+  vim.fn["ddu#custom#patch_local"]("lsp_codeaction_list", {
+    uiParams = {
+      ff = {
+        winHeight = height,
+        winRow = row,
+        winWidth = width,
+        winCol = col,
+        previewHeight = height,
+        previewRow = row,
+        previewWidth = previewWidth,
+        previewCol = previewCol,
+      },
+    },
+  })
+end
+resize()
+
+vim.api.nvim_create_autocmd("VimResized", {
+  callback = resize,
+})
+EOF
+
+command! DduLspCodeAction call ddu#start({
+    \ "name": "lsp_codeaction_list",
+    \ "ui": "ff",
+    \ "sync": v:true,
+    \ "sources": [{
+    \   "name": 'lsp_codeAction',
+    \ }],
+    \ "kindOptions": {
+    \   "lsp": {
+    \     "defaultAction": 'open',
+    \   },
+    \   "lsp_codeAction": {
+    \     "defaultAction": 'apply',
+    \   },
+    \ },
+    \ "uiParams": {
+    \   "ff": {
+    \     "displaySourceName": "no",
+    \     "startFilter": v:false,
+    \     "split": "floating",
+    \     "floatingBorder": "rounded",
+    \     "filterFloatingPosition": "top",
+    \     "filterFloatingTitle": "Filter01",
+    \     "autoAction": {
+    \       "name": "preview",
+    \     },
+    \     "startAutoAction": v:true,
+    \     "previewFloating": v:true,
+    \     "previewFloatingBorder": "double",
+    \     "previewSplit": "vertical",
+    \     "previewFloatingTitle": "CodePreview",
+    \     "previewWindowOptions": [
+    \       [ "&signcolumn", "no" ],
+    \       [ "&foldcolumn", 0 ],
+    \       [ "&foldenable", 0 ],
+    \       [ "&number", 1 ],
+    \       [ "&wrap", 0 ],
+    \       [ "&scrolloff", 1 ],
+    \     ],
+    \     "highlights": {
+    \       "floating": "Normal",
+    \       "floatingBorder": "Normal",
+    \     },
+    \   },
+    \ }
+    \})
+
+nnoremap <buffer><silent>ga :DduLspCodeAction<CR>
+
+
+" # --------------------------------------------------------------------------
 " # あいまい検索(ファイル名).
 " # --------------------------------------------------------------------------
 
