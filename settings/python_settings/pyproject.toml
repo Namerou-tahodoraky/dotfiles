@@ -1,0 +1,68 @@
+
+################################################################
+# mypy setting start
+################################################################
+
+[tool.mypy]
+#--------------------------------------------------------------
+# エラー表示系設定
+#--------------------------------------------------------------
+show_error_context = true
+pretty = true
+show_traceback = true
+raise_exceptions = true
+
+#--------------------------------------------------------------
+# レポート
+#--------------------------------------------------------------
+any_exprs_report = "./docs/mypy" # any-exprs.txt, types-of-anys.txt
+# html_report = "./docs/mypy"  # index.html
+# txt_report = "./docs/mypy" # index.txt
+# linecount_report = "./docs/mypy" # linecount.txt
+# linecoverage_report = "./docs/mypy" #coverage.json
+# lineprecision_report = "./docs/mypy" # lineprecision.txt
+
+#--------------------------------------------------------------
+# 静的解析設定. strictで有効になるオプション(mypy 1.4.1 (compiled: yes))
+#--------------------------------------------------------------
+strict = true
+disallow_any_generics = true # [type-arg] Check that type arguments exist
+disallow_untyped_defs = true # [no-untyped-def] Check that every function has an annotation
+warn_redundant_casts = true # [redundant-cast] Check that cast is not redundant
+strict_equality = true # [comparison-overlap] Check that comparisons are overlapping
+disallow_untyped_calls = true # [no-untyped-call] Check that no untyped functions are called
+warn_return_any = true # [no-any-return] Check that function does not return Any value
+warn_unused_ignores = true # [unused-ignore] Check that # type: ignore comment is used
+disallow_subclassing_any = true # [] Disallow subclassing values of type 'Any' when defining classes
+disallow_incomplete_defs = true # [] Disallow defining functions with incomplete type annotations (while still allowing entirely unannotated definitions)
+check_untyped_defs = true # [] Type check the interior of functions without type annotations
+disallow_untyped_decorators = true # [] Disallow decorating typed functions with untyped decorators
+no_implicit_reexport = true # [] Treat imports as private unless aliased
+strict_concatenate = true # [] Make arguments prepended via Concatenate be truly positional-only
+warn_unused_configs = true # [] Warn about unused '[mypy-<pattern>]' or '[[tool.mypy.overrides]]' config sections]
+
+#--------------------------------------------------------------
+# 静的解析設定. strictで有効にならないオプション(mypy 1.4.1 (compiled: yes))
+#--------------------------------------------------------------
+enable_error_code = [
+    "truthy-bool", # [truthy-bool] Check that expression is not implicitly true in boolean context
+    "truthy-iterable", # [truthy-iterable] Check that iterable is not implicitly true in boolean context
+    "ignore-without-code", # [ignore-without-code] Check that # type: ignore include an error code
+    "unused-awaitable", # [unused-awaitable] Check that awaitable return value is used
+    "redundant-expr", # [redundant-expr] Check that expression is redundant
+]
+warn_unreachable = true # [unreachable] Check that statement or expression is unreachable
+disallow_any_explicit = true # [] Disallow explicit Any in type positions
+disallow_any_expr = true # [] Disallow all expressions that have type Any
+
+# #--------------------------------------------------------------
+# # 各ファイルごとの静的解析設定. グローバルの設定を緩める.
+# #--------------------------------------------------------------
+# [[tool.mypy.overrides]]
+# module = "sample"
+# disallow_untyped_defs = false
+# disallow_incomplete_defs = false # [] Disallow defining functions with incomplete type annotations (while still allowing entirely unannotated definitions)
+
+################################################################
+# mypy setting end
+################################################################
