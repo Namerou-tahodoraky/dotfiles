@@ -1039,6 +1039,60 @@ function! s:on_ddu_ff_filter_window() abort
 
 endfunction
 
+
+" # --------------------------------------------------------------------------
+" # レジスタ一覧.
+" # --------------------------------------------------------------------------
+
+lua << EOF
+local function resize()
+  local lines = vim.opt.lines:get()
+  local height, row = math.floor(lines * 0.5), math.floor(lines * 0.25)
+  local columns = vim.opt.columns:get()
+  local width, col = math.floor(columns * 0.5), math.floor(columns * 0.25)
+
+  vim.fn["ddu#custom#patch_local"]("paste_register", {
+    uiParams = {
+      ff = {
+        winHeight = height,
+        winRow = row,
+        winWidth = width,
+        winCol = col,
+      },
+    },
+  })
+end
+resize()
+
+vim.api.nvim_create_autocmd("VimResized", {
+  callback = resize,
+})
+EOF
+
+command! DduPasteRegister call ddu#start({
+    \ "name": "paste_register",
+    \ "ui": "ff",
+    \ "sources": [{
+    \   "name": 'register',
+    \ }],
+    \ "kindOptions": {
+    \   "word": {
+    \     "defaultAction": 'append',
+    \   },
+    \ },
+    \ "uiParams": {
+    \   "ff": {
+    \     "displaySourceName": "no",
+    \     "startFilter": v:false,
+    \     "split": "floating",
+    \     "floatingBorder": "rounded",
+    \   },
+    \ }
+    \})
+
+nnoremap <buffer><silent><Leader>p :DduPasteRegister<CR>
+
+
 " # --------------------------------------------------------------------------
 " # LSP.
 " # カーソル下のwordの定義ジャンプ(definition).
@@ -1873,14 +1927,25 @@ repo = 'matsui54/ddu-source-file_external'
 on_source = 'ddu.vim'
 
 [[plugins]]
-# Openなどファイル関連の処理が定義されているkind
-repo = 'Shougo/ddu-kind-file'
+# 
+repo = 'Shougo/ddu-source-dummy'
 on_source = 'ddu.vim'
 
 [[plugins]]
-# Openなどファイル関連の処理が定義されているkind
-repo = 'Shougo/ddu-source-dummy'
+# LSPの情報を取得するsource
+repo = 'uga-rosa/ddu-source-lsp'
 on_source = 'ddu.vim'
+
+[[plugins]]
+# バッファ一覧を取得するsource
+repo = 'shun/ddu-source-buffer'
+on_source = 'ddu.vim'
+
+[[plugins]]
+# レジスタ内のデータ一覧を取得するsource
+repo = 'Shougo/ddu-source-register'
+on_source = 'ddu.vim'
+
 
 [[plugins]]
 # 部分文字列への完全一致によってsourceを絞り込むfilter(matcher)
@@ -1888,7 +1953,7 @@ repo = 'Shougo/ddu-filter-matcher_substring'
 on_source = 'ddu.vim'
 
 [[plugins]]
-# sourceファイルパスのディレクトリに色を付けるfilter(converter)
+# あいまい検索とkensaku.vimに対応したfiler(matcher)
 repo = 'yuki-yano/ddu-filter-fzf'
 on_source = 'ddu.vim'
 
@@ -1904,22 +1969,22 @@ repo = 'kyoh86/ddu-filter-converter_hl_dir'
 on_source = 'ddu.vim'
 
 [[plugins]]
-# LSPの情報を取得するsource
-repo = 'uga-rosa/ddu-source-lsp'
-on_source = 'ddu.vim'
-
-[[plugins]]
-# LSPの情報を取得するsource
-repo = 'shun/ddu-source-buffer'
-on_source = 'ddu.vim'
-
-
-[[plugins]]
 # iconとファイル名を表示するcolumn(ui-filer用)
 repo = 'ryota2357/ddu-column-icon_filename'
 on_source = 'ddu.vim'
 
 # "4513ECHO/ddu-source-colorscheme",
+
+[[plugins]]
+# Openなどファイル関連の処理が定義されているkind
+repo = 'Shougo/ddu-kind-file'
+on_source = 'ddu.vim'
+
+[[plugins]]
+# 任意の文字列に対する処理が定義されているkind
+repo = 'Shougo/ddu-kind-word'
+on_source = 'ddu.vim'
+
 
 
 # ---------------------------------------------------------------------------------------------
