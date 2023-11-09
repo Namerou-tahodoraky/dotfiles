@@ -3,6 +3,9 @@ let $PATH = expand("~/.cache/nvim/.venv/bin/") . ':' . $PATH
 
 let mapleader = "\<space>"
 
+" マウス無効化.マウスありだと右クリックでRLogin経由の貼り付けなどが効かなくなって不便.
+set mouse=
+
 set hidden
 if has('nvim')
   command! -nargs=* Ts split | terminal <args>
