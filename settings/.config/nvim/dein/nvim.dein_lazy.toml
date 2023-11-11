@@ -20,6 +20,18 @@ nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
 '''
 
 
+# ---------------------------------------------------------------------------------------------
+# セッションマネージャー
+# ---------------------------------------------------------------------------------------------
+
+[[plugins]]
+# セッション保存.
+repo = 'rmagatti/auto-session'
+# hook_add = '''
+# nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
+# '''
+
+
 # # ---------------------------------------------------------------------------------------------
 # # 画面描画ツール(色, アイコン,ステータスラインなど)
 # # ---------------------------------------------------------------------------------------------
@@ -535,7 +547,7 @@ repo = 'Shougo/ddc.vim'
 on_event = 'BufEnter'
 depends = ['denops.vim']
 hook_source = '''
-call ddc#custom#patch_global('sources', ['nvim-lsp', 'around', 'file'])
+call ddc#custom#patch_global('sources', ['nvim-lsp', 'around', "vsnip", 'file'])
 call ddc#custom#patch_global('ui', 'pum')
 call ddc#custom#patch_global('sourceOptions', {
      \ '_': {
@@ -549,8 +561,10 @@ call ddc#custom#patch_global('sourceOptions', {
      \   'mark': 'LSP',
      \   'dup': 'keep',
      \   'keywordPattern': '\k+',
-     \   'sorters': ['sorter_lsp-kind']
+     \   'sorters': ['sorter_lsp-kind'],
+     \   "forceCompletionPattern": '\.\w*|:\w*|->\w*',
      \ },
+     \ 'vsnip': {'mark': 'SNIP'},
 \})
 
 call ddc#custom#patch_global('sourceParams', {
@@ -601,6 +615,11 @@ on_source = 'ddc.vim'
 repo = 'LumaKernel/ddc-source-file'
 on_source = 'ddc.vim'
 
+# vsnip形式のスニペットをLSPで呼び出すsource
+[[plugins]]
+repo = 'uga-rosa/ddc-source-vsnip'
+on_source = 'ddc.vim'
+
 # ポップアップウィンドウを表示するプラグイン
 [[plugins]]
 repo = 'Shougo/pum.vim'
@@ -617,8 +636,6 @@ hook_add = '''
 " "inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
 inoremap <C-n>   <Cmd>call pum#map#insert_relative(+1)<CR>
 inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
-
-" autocmd User PumCompleteDone call vsnip_integ#on_complete_done(g:pum#completed_item)
 '''
 
 
@@ -697,44 +714,30 @@ EOF
 '''
 
 
-# [[plugins]] # TODO: 更新対応.
-#  repo = 'hrsh7th/vim-vsnip'
-#  on_event = 'InsertEnter'
-#  depends = ['vim-vsnip-integ']
-#  hook_add = '''
-#  " Expand
-#  imap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
-#  smap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
-#  
-#  " Expand or jump
-#  imap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
-#  smap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
-#  
-#  " Jump forward or backward
-#  imap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
-#  smap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
-#  imap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
-#  smap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
-#  
-#  " " Select or cut text to use as $TM_SELECTED_TEXT in the next snippet.
-#  " " See https://github.com/hrsh7th/vim-vsnip/pull/50
-#  " nmap        s   <Plug>(vsnip-select-text)
-#  " xmap        s   <Plug>(vsnip-select-text)
-#  " nmap        S   <Plug>(vsnip-cut-text)
-#  " xmap        S   <Plug>(vsnip-cut-text)
-#  
-#  " If you want to use snippet for multiple filetypes, you can `g:vsnip_filetypes` for it.
-#  let g:vsnip_filetypes = {}
-#  let g:vsnip_filetypes.python = ['python']
-#  " let g:vsnip_filetypes.javascriptreact = ['javascript']
-#  " let g:vsnip_filetypes.typescriptreact = ['typescript']
-# 
-#  " let g:vsnip_snippet_dir = expand('~/.config/nvim/vsnips')
-#  let g:vsnip_snippet_dirs = []
-#  let g:vsnip_snippet_dirs += ['~/.config/nvim/vsnips/python']
-#  let g:vsnip_snippet_dirs += ['~/.config/nvim/vsnips/python/pytest']
-#  let g:vsnip_snippet_dirs += ['~/.config/nvim/vsnips/terraform']
-#  '''
+[[plugins]]
+# TODO: 更新対応.
+repo = 'hrsh7th/vim-vsnip'
+# on_source = 'ddc.vim'
+# hook_source = '''
+on_event = 'InsertEnter'
+hook_add = '''
+" Expand
+" 修正したい時にjump-prevで戻っても編集するとvsnipモードが解けてしまうのでjump-nextのみ設定.
+imap <expr> <C-j>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+smap <expr> <C-j>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+imap <expr> <A-j>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
+smap <expr> <A-j>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
+
+" If you want to use snippet for multiple filetypes, you can `g:vsnip_filetypes` for it.
+let g:vsnip_filetypes = {}
+let g:vsnip_filetypes.python = ['python']
+
+" let g:vsnip_snippet_dir = expand('~/.config/nvim/vsnips')
+let g:vsnip_snippet_dirs = []
+let g:vsnip_snippet_dirs += ['~/.config/nvim/vsnips/python']
+let g:vsnip_snippet_dirs += ['~/.config/nvim/vsnips/python/pytest']
+let g:vsnip_snippet_dirs += ['~/.config/nvim/vsnips/terraform']
+'''
 
 
 # # ---------------------------------------------------------------------------------------------
@@ -1568,7 +1571,7 @@ nnoremap <Leader>ff :DduOpenFile<CR>
 
 
 " # --------------------------------------------------------------------------
-" # あいまい検索(ファイル内の文字列).
+" # あいまい検索(ファイル内の文字列からのgrep).
 " # --------------------------------------------------------------------------
 
 lua << EOF
@@ -1926,10 +1929,10 @@ on_source = 'ddu.vim'
 repo = 'matsui54/ddu-source-file_external'
 on_source = 'ddu.vim'
 
-[[plugins]]
-# 
-repo = 'Shougo/ddu-source-dummy'
-on_source = 'ddu.vim'
+# [[plugins]]
+# # 
+# repo = 'Shougo/ddu-source-dummy'
+# on_source = 'ddu.vim'
 
 [[plugins]]
 # LSPの情報を取得するsource
@@ -1945,6 +1948,16 @@ on_source = 'ddu.vim'
 # レジスタ内のデータ一覧を取得するsource
 repo = 'Shougo/ddu-source-register'
 on_source = 'ddu.vim'
+
+[[plugins]]
+# 
+repo = 'kuuote/ddu-source-mr'
+depends = ["mr.vim"]
+on_source = 'ddu.vim'
+
+[[plugins]]
+# 
+repo = 'lambdalisue/mr.vim'
 
 
 [[plugins]]

@@ -76,6 +76,7 @@ endif
 " set background=dark
 " colorscheme tokyonight
 colorscheme iceberg
+" colorscheme blue-moon
 " colorschemeを読み込んだ後に定義する
 syntax enable
 

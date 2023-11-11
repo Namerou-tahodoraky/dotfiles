@@ -4,6 +4,7 @@
 
 [[plugins]]
 repo = 'cocopon/iceberg.vim'
+# repo = 'kyazdani42/blue-moon'
 
 
 #---------------------------------------------

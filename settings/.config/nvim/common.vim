@@ -51,19 +51,14 @@ endif
 """ FOR AUTO INSERT
 noremap <S-h> ^
 noremap <S-l> $
-" inoremap { {}<Left>
-" inoremap ( ()<LEFT>
-" inoremap [ []<LEFT>
-" inoremap ' ''<LEFT>
-" inoremap " ""<LEFT>
-" inoremap " ""<LEFT>
 inoremap <C-h>  <left>
 inoremap <C-l>  <right>
 inoremap <C-o>  <ESC>o
 inoremap <C-x>  <Del>
 inoremap <C-d>  <BS>
 
-inoremap <silent> jj <ESC>
+" " inoremap <silent> jj <ESC>
+" inoremap <silent> <C-j><C-j> <ESC>
 
 """"" FOR NETWORK.VIM
 ""let g:netrw_liststyle = 3
@@ -72,8 +67,8 @@ inoremap <silent> jj <ESC>
 """"let g:netrw_alto = 1
 """"let g:netrw_winsize = 25
 
-""""""" FOR PYTHON
-autocmd FileType python setl tabstop=4 shiftwidth=4 softtabstop=4 expandtab
+" """"""" FOR PYTHON
+" autocmd FileType python setl tabstop=4 shiftwidth=4 softtabstop=4 expandtab
 
 
 " 初期状態はcursorlineを表示しない
