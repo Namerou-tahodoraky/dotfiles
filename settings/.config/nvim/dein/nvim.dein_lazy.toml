@@ -83,7 +83,8 @@ repo = 'kyazdani42/nvim-web-devicons'
 
 [[plugins]]
 repo = 'nvim-lualine/lualine.nvim'
-on_event = 'BufRead'
+# on_event = 'BufRead'
+on_source = ["nvim-navic"]
 hook_source = '''
 lua << EOF
 vim.opt.laststatus = 3 -- splitしてもステータスラインは分割されない.
@@ -171,41 +172,17 @@ require('lualine').setup {
     lualine_a = {
       { 'mode', separator = { left = '' }, right_padding = 2 },
     },
-    -- lualine_b = {'branch', { 'diff', symbols = { added = ' ', modified = ' ', removed = ' ' }, source = diff_source }, 'diagnostics', 'filename', 'filetype'},
     lualine_b = {
-      -- 'branch',
       {'b:gitsigns_head', color={fg=colors.red}},
       -- {'b:gitsigns_head', color=get_color_by_branchname(vim.b.gitsigns_head)},
       {'diff', symbols = { added='A:', modified='M:', removed='D:' }, source=diff_source, },
       {'filetype', icon_only=true, icon={align="left"}},
       'filename',
+      {'navic', color={fg=colors.violet}},
       'diagnostics',
     },
-    -- lualine_b = {
-    --   {
-    --     "aerial",
-    --     -- The separator to be used to separate symbols in status line.
-    --     sep = " ) ",
-
-    --     -- The number of symbols to render top-down. In order to render only 'N' last
-    --     -- symbols, negative numbers may be supplied. For instance, 'depth = -1' can
-    --     -- be used in order to render only current symbol.
-    --     depth = nil,
-
-    --     -- When 'dense' mode is on, icons are not rendered near their symbols. Only
-    --     -- a single icon that represents the kind of current symbol is rendered at
-    --     -- the beginning of status line.
-    --     dense = false,
-
-    --     -- The separator to be used to separate symbols in dense mode.
-    --     dense_sep = ".",
-
-    --     -- Color the symbol icons.
-    --     colored = true,
-    --   },
-    -- },
     lualine_c = {'not visible area'},
-    lualine_x = {},
+    lualine_x = {""},
     lualine_y = {'encoding', 'fileformat'},
     lualine_z = {
       { 'location', separator = { right = '' }, left_padding = 2 },
@@ -220,8 +197,6 @@ require('lualine').setup {
     lualine_z = { 'location' },
   },
   tabline = {},
-  extensions = {'aerial'},
-  
 }
 EOF
 '''
@@ -229,12 +204,40 @@ EOF
 [[plugins]]
 # 
 repo = 'akinsho/bufferline.nvim'
-on_event = 'BufRead'
+# on_event = 'BufRead'
+on_event = 'BufEnter'
 depends = ['nvim-web-devicons']
 hook_source = '''
 lua << EOF
-vim.opt.termguicolors = true
 require("bufferline").setup{}
+EOF
+'''
+
+[[plugins]]
+# タブバーに関数名などのシンボル表示.
+repo = 'SmiteshP/nvim-navic'
+on_event = 'BufEnter'
+depends = ["nvim-lspconfig"]
+# on_source = ["nvim-lspconfig"]
+hook_source = '''
+lua << EOF
+require('nvim-navic').setup {
+  lsp = {
+    auto_attach = true,
+  },
+  highlight = false,
+  depth_limit = 9,
+}
+
+-- -- 大きなファイルでは関数表示はカーソルが止まった時に行うようにする.
+-- vim.api.nvim_create_autocmd("BufEnter", {
+--   group = vim.api.nvim_create_augroup('nvim-navic', {}),
+--   callback = function()
+--     if vim.api.nvim_buf_line_count(0) > 10000 then
+--       vim.b.navic_lazy_update_context = true
+--     end
+--   end,
+-- })
 EOF
 '''
 
@@ -386,59 +389,59 @@ repo = 'neovim/nvim-lspconfig'
 # on_event = 'BufEnter'
 # depends = ["ddc-nvim-lsp-setup"]
 on_source = ["ddc-nvim-lsp-setup"]
-hook_source = '''
-lua << EOF
-
--- -- これつけるとyamllsが動かない.
--- -- nvim-lsp.yamlls.setup {
--- --   settings = {
--- --     yaml = {
--- --       schemas = require('schemastore').yaml.schemas {
--- --        select = {
--- --          'docker-compose.yml',
--- --        },
--- --      },
--- --     },
--- --   },
--- -- }
--- 
--- require'lspconfig'.yamlls.setup{
---    cmd = {"~/.local/share/nvim/lsp_servers/yaml/node_modules/.bin/yaml-language-server", "--stdio"},
---    -- on_attach = require'lsp'.common_on_attach,
---    settings = {
---        yaml = {
---            format = {
---                    enable = true,
---            },
---            hover = true,
---            completion = true,
--- 
---            customTags = {
---                "!fn",
---                "!And",
---                "!If",
---                "!Not",
---                "!Equals",
---                "!Or",
---                "!FindInMap sequence",
---                "!Base64",
---                "!Cidr",
---                "!Ref",
---                "!Ref Scalar",
---                "!Sub",
---                "!GetAtt",
---                "!GetAZs",
---                "!ImportValue",
---                "!Select",
---                "!Split",
---                "!Join sequence"
---            },
---        },
---    },
---  }
-
-EOF
-'''
+# hook_source = '''
+# lua << EOF
+# 
+# -- -- これつけるとyamllsが動かない.
+# -- -- nvim-lsp.yamlls.setup {
+# -- --   settings = {
+# -- --     yaml = {
+# -- --       schemas = require('schemastore').yaml.schemas {
+# -- --        select = {
+# -- --          'docker-compose.yml',
+# -- --        },
+# -- --      },
+# -- --     },
+# -- --   },
+# -- -- }
+# -- 
+# -- require'lspconfig'.yamlls.setup{
+# --    cmd = {"~/.local/share/nvim/lsp_servers/yaml/node_modules/.bin/yaml-language-server", "--stdio"},
+# --    -- on_attach = require'lsp'.common_on_attach,
+# --    settings = {
+# --        yaml = {
+# --            format = {
+# --                    enable = true,
+# --            },
+# --            hover = true,
+# --            completion = true,
+# -- 
+# --            customTags = {
+# --                "!fn",
+# --                "!And",
+# --                "!If",
+# --                "!Not",
+# --                "!Equals",
+# --                "!Or",
+# --                "!FindInMap sequence",
+# --                "!Base64",
+# --                "!Cidr",
+# --                "!Ref",
+# --                "!Ref Scalar",
+# --                "!Sub",
+# --                "!GetAtt",
+# --                "!GetAZs",
+# --                "!ImportValue",
+# --                "!Select",
+# --                "!Split",
+# --                "!Join sequence"
+# --            },
+# --        },
+# --    },
+# --  }
+# 
+# EOF
+# '''
 
 [[plugins]]
 # mason.nvimでインストールしたプラグインをnvim-lspconfigの設定に流す橋渡し役.
@@ -745,9 +748,9 @@ let g:vsnip_snippet_dirs += ['~/.config/nvim/vsnips/terraform']
 # # ---------------------------------------------------------------------------------------------
 # [[plugins]]
 # # デバッグツール
-# # ステップイン: 1行進む.
-# # ステップオーバー: 1行進む.進み先が関数内に入る場合は、関数内はスキップする.
-# # ステップアウト: そのスコープを出るまで進む.
+# # ステップイン: カーソル下が関数ならその関数内に入る.
+# # ステップオーバー: カーソル下が関数でもその関数内に入らずに進む.
+# # ステップアウト: 現在の(関数)スコープを出るまで進む.
 # repo = 'mfussenegger/nvim-dap'
 # on_ft = ['python']
 # hook_add = '''
@@ -785,16 +788,13 @@ let g:vsnip_snippet_dirs += ['~/.config/nvim/vsnips/terraform']
 # end;
 # 
 # require('dap-python').setup(pythonPath())
-# require('dap-python').test_runner = 'pytest'
+# -- require('dap-python').test_runner = 'pytest'
 # EOF
 # '''
 # 
 # [[plugins]]
-# # デバッグツール
-# # デバッグ画面
+# # DAP用のデバッグ画面.
 # repo = 'rcarriga/nvim-dap-ui'
-# # depends = ['nvim-dap']
-# # on_ft = ['python']
 # on_source = ['nvim-dap']
 # hook_source = '''
 # lua << EOF
@@ -1894,6 +1894,90 @@ command! DduOpenBuffer call ddu#start({
 
 nnoremap <Leader>fb :DduOpenBuffer<CR>
 
+
+" # --------------------------------------------------------------------------
+" # ジャンプリスト
+" # --------------------------------------------------------------------------
+
+lua << EOF
+local function resize()
+  local lines = vim.opt.lines:get()
+  local height, row = math.floor(lines * 0.95), math.floor(lines * 0.01)
+  local columns = vim.opt.columns:get()
+  local width, col = math.floor(columns * 0.49), math.floor(columns * 0.01)
+  local previewWidth = width
+  local previewCol = col + 0.01
+
+  vim.fn["ddu#custom#patch_local"]("return_from_jumplist", {
+    uiParams = {
+      ff = {
+        winHeight = height,
+        winRow = row,
+        winWidth = width,
+        winCol = col,
+        previewHeight = height,
+        previewRow = row,
+        previewWidth = previewWidth,
+        previewCol = previewCol,
+      },
+    },
+  })
+end
+resize()
+
+vim.api.nvim_create_autocmd("VimResized", {
+  callback = resize,
+})
+EOF
+
+command! DduOpenJumpList call ddu#start({
+    \ "name": "return_from_jumplist",
+    \ "ui": "ff",
+    \ "sources": ['jumplist'],
+    \ "sourceOptions": {
+    \   "jumplist": {
+    \     "sorters": ["sorter_reversed"],
+    \   },
+    \ },
+    \ "kindOptions": {
+    \   "file": {
+    \     "defaultAction": 'open',
+    \   },
+    \ },
+    \ "uiParams": {
+    \   "ff": {
+    \     "displaySourceName": "no",
+    \     "startFilter": v:false,
+    \     "split": "floating",
+    \     "floatingBorder": "rounded",
+    \     "filterFloatingPosition": "top",
+    \     "filterFloatingTitle": "Filter01",
+    \     "autoAction": {
+    \       "name": "preview",
+    \     },
+    \     "startAutoAction": v:true,
+    \     "previewFloating": v:true,
+    \     "previewFloatingBorder": "double",
+    \     "previewSplit": "vertical",
+    \     "previewFloatingTitle": "CodePreview",
+    \     "previewWindowOptions": [
+    \       [ "&signcolumn", "no" ],
+    \       [ "&foldcolumn", 0 ],
+    \       [ "&foldenable", 0 ],
+    \       [ "&number", 1 ],
+    \       [ "&wrap", 0 ],
+    \       [ "&scrolloff", 1 ],
+    \     ],
+    \     "highlights": {
+    \       "floating": "Normal",
+    \       "floatingBorder": "Normal",
+    \     },
+    \   },
+    \ }
+    \})
+
+nnoremap <Leader>fj :DduOpenJumpList<CR>
+
 '''
 
 
@@ -1945,6 +2029,12 @@ repo = 'shun/ddu-source-buffer'
 on_source = 'ddu.vim'
 
 [[plugins]]
+# jumplistの一覧を取得するsource
+repo = 'kamecha/ddu-source-jumplist'
+on_source = 'ddu.vim'
+
+
+[[plugins]]
 # レジスタ内のデータ一覧を取得するsource
 repo = 'Shougo/ddu-source-register'
 on_source = 'ddu.vim'
@@ -1970,6 +2060,10 @@ on_source = 'ddu.vim'
 repo = 'yuki-yano/ddu-filter-fzf'
 on_source = 'ddu.vim'
 
+[[plugins]]
+# 逆順に並べるfiler(sorter)
+repo = 'Shougo/ddu-filter-sorter_reversed'
+on_source = 'ddu.vim'
 
 [[plugins]]
 # sourceのファイル名にnordfontのアイコンを付けるfilter(converter)

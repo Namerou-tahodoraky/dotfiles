@@ -80,6 +80,8 @@ colorscheme iceberg
 " colorschemeを読み込んだ後に定義する
 syntax enable
 
+set termguicolors
+
 
 if filereadable(expand('~/.config/nvim/common.vim'))
   source ~/.config/nvim/common.vim
