@@ -241,6 +241,29 @@ require('nvim-navic').setup {
 EOF
 '''
 
+# [[plugins]]
+# # 16進数カラー文字に色を付けるデバッグ用ツール.
+# # まだ試したことはないが一応記載.
+# repo = 'norcalli/nvim-colorizer.lua'
+
+
+# [[plugins]]
+# 効かないので無効化.原因未調査.
+# # diagnosticsの表示切替コマンドを提供.
+# # 表示が多すぎて重い,見づらい時やデバッガーのvertualtextを見やすくしたい時などに使用.
+# # :ToggleDiag Toggle ALL diagnostics on/off
+# # :ToggleDiagDefault Toggle ALL diagnostics to their default
+# # :ToggleDiagOn Turn ALL diagnostics on
+# # :ToggleDiagOff Turn ALL diagnostics off
+# repo = 'WhoIsSethDaniel/toggle-lsp-diagnostics.nvim'
+# on_source = 'nvim-lspconfig'
+# hook_source = '''
+# lua << EOF
+# require('toggle_lsp_diagnostics').init(vim.diagnostic.config())
+# EOF
+# '''
+
+
 # ---------------------------------------------------------------------------------------------
 # ファイル/テキスト編集補助ツール.
 # ---------------------------------------------------------------------------------------------
@@ -743,99 +766,176 @@ let g:vsnip_snippet_dirs += ['~/.config/nvim/vsnips/terraform']
 '''
 
 
-# # ---------------------------------------------------------------------------------------------
-# # デバッグツール.
-# # ---------------------------------------------------------------------------------------------
-# [[plugins]]
-# # デバッグツール
-# # ステップイン: カーソル下が関数ならその関数内に入る.
-# # ステップオーバー: カーソル下が関数でもその関数内に入らずに進む.
-# # ステップアウト: 現在の(関数)スコープを出るまで進む.
-# repo = 'mfussenegger/nvim-dap'
-# on_ft = ['python']
-# hook_add = '''
-# nnoremap <silent> <Leader>0 :lua require'dap'.continue()<CR>
-# nnoremap <silent> <Leader>1 :lua require'dap'.step_into()<CR>
-# nnoremap <silent> <Leader>2 :lua require'dap'.step_over()<CR>
-# nnoremap <silent> <Leader>3 :lua require'dap'.step_out()<CR>
-# nnoremap <silent> <leader>dq :lua require'dap'.terminate(); require'dapui'.close()<CR>
-# nnoremap <silent> <leader>db :lua require'dap'.toggle_breakpoint()<CR>
-# nnoremap <silent> <leader>dc :lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
-# nnoremap <silent> <leader>dB :lua require'dap'.clear_breakpoints()<CR>
-# " nnoremap <silent> <leader>dp :lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>
-# " nnoremap <silent> <leader>dr :lua require'dap'.repl.open()<CR>
-# '''
-# 
-# [[plugins]]
-# # 
-# repo = 'mfussenegger/nvim-dap-python'
-# depends = ['nvim-dap']
-# on_ft = 'python'
-# hook_source = '''
-# lua << EOF
-# pythonPath = function()
-#   -- debugpy supports launching an application with a different interpreter then the one used to launch debugpy itself.
-#   -- The code below looks for a `venv` or `.venv` folder in the current directly and uses the python within.
-#   -- You could adapt this - to for example use the `VIRTUAL_ENV` environment variable.
-#   local cwd = vim.fn.getcwd()
-#   if vim.fn.executable(cwd .. '/venv/bin/python') == 1 then
-#     return cwd .. '/venv/bin/python'
-#   elseif vim.fn.executable(cwd .. '/.venv/bin/python') == 1 then
-#     return cwd .. '/.venv/bin/python'
-#   else
-#     return '/usr/bin/python'
-#   end
-# end;
-# 
-# require('dap-python').setup(pythonPath())
-# -- require('dap-python').test_runner = 'pytest'
-# EOF
-# '''
-# 
-# [[plugins]]
-# # DAP用のデバッグ画面.
-# repo = 'rcarriga/nvim-dap-ui'
-# on_source = ['nvim-dap']
-# hook_source = '''
-# lua << EOF
-# require('dapui').setup()
-# 
-# -- デバッグ開始時に自動でUI画面を開く.
-# require'dap'.listeners.before['event_initialized']['custom'] = function(session, body)
-#   require'dapui'.open()
-# end
-# -- デバッグ終了時に自動でUI画面を閉じる.
-# require'dap'.listeners.before['event_terminated']['custom'] = function(session, body)
-#   require'dapui'.close()
-# end
-# EOF
-# '''
-# 
-# [[plugins]]
-# # デバッグツール
-# # 変数の値をvertualtextで表示する
-# repo = 'theHamsta/nvim-dap-virtual-text'
-# # depends = ['nvim-dap']
-# on_ft = ['python']
-# hook_source = '''
-# lua << EOF
-# -- require("nvim-dap-virtual-text").setup()
-# require("nvim-dap-virtual-text").setup {
-#     enabled = true,                     -- enable this plugin (the default)
-#     enabled_commands = true,            -- create commands DapVirtualTextEnable, DapVirtualTextDisable, DapVirtualTextToggle, (DapVirtualTextForceRefresh for refreshing when debug adapter did not notify its termination)
-#     highlight_changed_variables = false, -- highlight changed values with NvimDapVirtualTextChanged, else always NvimDapVirtualText
-#     highlight_new_as_changed = false,   -- highlight new variables in the same way as changed variables (if highlight_changed_variables)
-#     show_stop_reason = true,            -- show stop reason when stopped for exceptions
-#     commented = false,                  -- prefix virtual text with comment string
-#     -- experimental features:
-#     virt_text_pos = 'eol',              -- position of virtual text, see `:h nvim_buf_set_extmark()`
-#     all_frames = false,                 -- show virtual text for all stack frames not only current. Only works for debugpy on my machine.
-#     virt_lines = false,                 -- show virtual lines instead of virtual text (will flicker!)
-#     virt_text_win_col = nil             -- position the virtual text at a fixed window column (starting from the first text column) ,
-#                                         -- e.g. 80 to position at column 80, see `:h nvim_buf_set_extmark()`
-# }
-# EOF
-# '''
+# ---------------------------------------------------------------------------------------------
+# デバッグツール.
+# ---------------------------------------------------------------------------------------------
+[[plugins]]
+# デバッグツール
+# ステップイン: カーソル下が関数ならその関数内に入る.
+# ステップオーバー: カーソル下が関数でもその関数内に入らずに進む.
+# ステップアウト: 現在の(関数)スコープを出るまで進む.
+repo = 'mfussenegger/nvim-dap'
+on_ft = ['python']
+hook_add = '''
+nnoremap <silent> <A-7> :lua require'dap'.continue()<CR>
+nnoremap <silent> <A-8> :lua require'dap'.step_over()<CR>
+nnoremap <silent> <A-9> :lua require'dap'.step_into()<CR>
+nnoremap <silent> <A-0> :lua require'dap'.step_out()<CR>
+nnoremap <silent> <leader>dq :lua require'dap'.terminate(); require'dapui'.close()<CR>
+nnoremap <silent> <leader>dd :lua require'dap'.toggle_breakpoint()<CR>
+nnoremap <silent> <leader>dc :lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
+nnoremap <silent> <leader>dC :lua require'dap'.clear_breakpoints()<CR>
+" nnoremap <silent> <leader>dp :lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>
+" nnoremap <silent> <leader>dr :lua require'dap'.repl.open()<CR>
+
+lua << EOF
+
+-- アイコン設定
+vim.fn.sign_define('DapBreakpoint', {text='🛑', texthl='ErrorMsg', linehl='', numhl=''})
+vim.fn.sign_define('DapStopped', { text='󰜴', texthl='Question' })
+
+-- vim.api.nvim_create_autocmd("ColorScheme", {
+-- 	pattern = "*",
+-- 	group = "UserDefLoadOnce",
+-- 	desc = "prevent colorscheme clears self-defined DAP icon colors.",
+-- 	callback = function()
+-- 		vim.api.nvim_set_hl(0, 'DapBreakpoint', { ctermbg = 0, fg = '#993939' })
+-- 		vim.api.nvim_set_hl(0, 'DapLogPoint', { ctermbg = 0, fg = '#61afef' })
+-- 		vim.api.nvim_set_hl(0, 'DapStopped', { ctermbg = 0, fg = '#98c379' })
+-- 	end
+-- })
+-- 
+-- vim.fn.sign_define('DapBreakpoint', { text=' ', texthl='DapBreakpoint' })
+-- vim.fn.sign_define('DapBreakpointCondition', { text=' ﳁ', texthl='DapBreakpoint' })
+-- vim.fn.sign_define('DapBreakpointRejected', { text=' ', texthl='DapBreakpoint' })
+-- vim.fn.sign_define('DapLogPoint', { text=' ', texthl='DapLogPoint' })
+-- vim.fn.sign_define('DapStopped', { text=' ', texthl='DapStopped' })
+
+-- vim.fn.sign_define('DapBreakpoint', 
+--     {
+--         text='🔴', -- nerdfonts icon here
+--         texthl='DapBreakpointSymbol', 
+--         linehl='DapBreakpoint', 
+--         numhl='DapBreakpoint'
+--     })
+-- vim.fn.sign_define('DapStopped', 
+--     {
+--         text='🔴', -- nerdfonts icon here
+--         texthl='DapStoppedSymbol', 
+--         linehl='DapBreakpoint', 
+--         numhl='DapBreakpoint'
+--     })
+-- EOF
+
+-- -- stylua: ignore
+-- local colors = {
+--   blue   = '#80a0ff',
+--   cyan   = '#79dac8',
+--   black  = '#080808',
+--   white  = '#c6c6c6',
+--   red    = '#ff5189',
+--   violet = '#d183e8',
+--   grey   = '#303030',
+-- }
+-- vim.api.nvim_set_hl(0, 'DapBreakpoint', { ctermbg = 0, fg = '#993939', bg = '#31353f' })
+-- vim.fn.sign_define('DapBreakpoint', { text='', texthl='DapBreakpoint' })
+'''
+
+[[plugins]]
+# debugpyをインストールしてパスを指定する必要がある.
+repo = 'mfussenegger/nvim-dap-python'
+depends = ['nvim-dap']
+on_ft = 'python'
+hook_source = '''
+lua << EOF
+require('dap-python').setup('~/.cache/debugpy/.venv/bin/python')
+table.insert(require('dap').configurations.python, {
+  type = 'python',
+  request = 'launch',
+  name = 'python normal debug',
+  program = '${file}',
+  cwd = '${workspaceFolder}',
+})
+EOF
+'''
+
+[[plugins]]
+# DAP用のデバッグ画面.
+repo = 'rcarriga/nvim-dap-ui'
+on_source = ['nvim-dap']
+hook_source = '''
+lua << EOF
+-- require('dapui').setup()
+require('dapui').setup(
+  {
+    layouts = {
+      {
+        -- position=leftの時は先に定義したelementsが下側になる.
+        elements = {
+          {
+            id = "breakpoints",
+            size = 0.25,
+          },
+          {
+            id = "stacks",
+            size = 0.25,
+          },
+          {
+            id = "watches",
+            size = 0.25,
+          },
+          {
+            id = "scopes",
+            size = 0.25,
+          },
+        },
+        position = "left",
+        size = 80,
+      },
+      {
+        -- position=bottomの時は先に定義したelementsが右側になる.
+        elements = {
+          {
+            id = "console",
+            size = 0.2,
+          },
+          {
+            id = "repl",
+            size = 0.8,
+          },
+        },
+        position = "bottom",
+        size = 15
+      },
+    },
+  }
+)
+-- デバッグ開始時に自動でUI画面を開く.
+require'dap'.listeners.before['event_initialized']['custom'] = function(session, body)
+  require'dapui'.open()
+end
+-- デバッグ終了時に自動でUI画面を閉じる.
+require'dap'.listeners.before['event_terminated']['custom'] = function(session, body)
+  require'dapui'.close()
+end
+EOF
+'''
+
+[[plugins]]
+# デバッグツール
+# 変数の値をvertualtextで表示する
+repo = 'theHamsta/nvim-dap-virtual-text'
+on_source = ['nvim-dap']
+hook_source = '''
+lua << EOF
+require("nvim-dap-virtual-text").setup {
+    highlight_changed_variables = true,    -- highlight changed values with NvimDapVirtualTextChanged, else always NvimDapVirtualText
+    highlight_new_as_changed = true,      -- highlight new variables in the same way as changed variables (if highlight_changed_variables)
+    -- experimental features:
+    all_frames = true,                    -- show virtual text for all stack frames not only current. Only works for debugpy on my machine.
+}
+EOF
+'''
 
 
 
