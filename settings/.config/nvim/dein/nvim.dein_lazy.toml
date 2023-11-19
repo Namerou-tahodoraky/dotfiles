@@ -771,9 +771,19 @@ let g:vsnip_snippet_dirs += ['~/.config/nvim/vsnips/terraform']
 # ---------------------------------------------------------------------------------------------
 [[plugins]]
 # デバッグツール
-# ステップイン: カーソル下が関数ならその関数内に入る.
-# ステップオーバー: カーソル下が関数でもその関数内に入らずに進む.
-# ステップアウト: 現在の(関数)スコープを出るまで進む.
+# ステップ実行操作.
+#   <A-7> コンティニュー: デバッガーの起動と,次のBreakpointまで進む.
+#   <A-8> ステップオーバー: 1行進める.カーソル下が関数でもその関数内に入らずに進む.
+#   <A-9> ステップイン: 1行進める.カーソル下が関数ならその関数内に入る.
+#   <A-0> ステップアウト: 現在の(関数)スコープを出るまで進む.
+# 
+# ブレークポイント設定.
+#   通常Breakpoint: その行に到達すると毎回止まる.
+#   ConditionBreakpoint: True/Falseが返り値となる式を指定する.Trueとなる時だけ止まる.func(v) > 10のような指定も可能.
+#   HitCountBreakpoint: その行に到達した回数を指定する.指定した回数と一致した時だけ止まる.条件式は指定できず、単一の値のみ指定できる.
+#                       ユースケースとしては1を指定して最初の到達時だけ止まりたい時や,ループ内で2を指定して最初のループだけやりすごしてステップ実行したい時など.
+#                       個別にアイコン色の設定ができず,通常Breakpointと同じ色となる.
+#   LogPoint: Breakpointではない為、止まらない.その行が実行された時にREPLにログ出力される.ConditionやHitと併用できずLogで上書きされ止まらなくなる.
 repo = 'mfussenegger/nvim-dap'
 on_ft = ['python']
 hook_add = '''
@@ -781,64 +791,22 @@ nnoremap <silent> <A-7> :lua require'dap'.continue()<CR>
 nnoremap <silent> <A-8> :lua require'dap'.step_over()<CR>
 nnoremap <silent> <A-9> :lua require'dap'.step_into()<CR>
 nnoremap <silent> <A-0> :lua require'dap'.step_out()<CR>
-nnoremap <silent> <leader>dq :lua require'dap'.terminate(); require'dapui'.close()<CR>
 nnoremap <silent> <leader>dd :lua require'dap'.toggle_breakpoint()<CR>
-nnoremap <silent> <leader>dc :lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
+nnoremap <silent> <leader>dc :lua require'dap'.set_breakpoint(vim.fn.input('Condition(exp: v == 10): '))<CR>
+nnoremap <silent> <leader>dh :lua require'dap'.set_breakpoint(nil, vim.fn.input('HitCount(set only number, exp: 2): '))<CR>
+nnoremap <silent> <leader>dl :lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>
+nnoremap <silent> <leader>dL :lua require'dap'.list_breakpoints()<CR>
 nnoremap <silent> <leader>dC :lua require'dap'.clear_breakpoints()<CR>
-" nnoremap <silent> <leader>dp :lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>
+nnoremap <silent> <leader>dq :lua require'dap'.terminate(); require'dapui'.close()<CR>
 " nnoremap <silent> <leader>dr :lua require'dap'.repl.open()<CR>
 
 lua << EOF
-
 -- アイコン設定
 vim.fn.sign_define('DapBreakpoint', {text='🛑', texthl='ErrorMsg', linehl='', numhl=''})
+vim.fn.sign_define('DapBreakpointCondition', {text='🛑', texthl='Title', linehl='', numhl=''})
+vim.fn.sign_define('DapLogPoint', {text='🛑', texthl='lualine_b_navic_inactive', linehl='', numhl=''})
 vim.fn.sign_define('DapStopped', { text='󰜴', texthl='Question' })
-
--- vim.api.nvim_create_autocmd("ColorScheme", {
--- 	pattern = "*",
--- 	group = "UserDefLoadOnce",
--- 	desc = "prevent colorscheme clears self-defined DAP icon colors.",
--- 	callback = function()
--- 		vim.api.nvim_set_hl(0, 'DapBreakpoint', { ctermbg = 0, fg = '#993939' })
--- 		vim.api.nvim_set_hl(0, 'DapLogPoint', { ctermbg = 0, fg = '#61afef' })
--- 		vim.api.nvim_set_hl(0, 'DapStopped', { ctermbg = 0, fg = '#98c379' })
--- 	end
--- })
--- 
--- vim.fn.sign_define('DapBreakpoint', { text=' ', texthl='DapBreakpoint' })
--- vim.fn.sign_define('DapBreakpointCondition', { text=' ﳁ', texthl='DapBreakpoint' })
--- vim.fn.sign_define('DapBreakpointRejected', { text=' ', texthl='DapBreakpoint' })
--- vim.fn.sign_define('DapLogPoint', { text=' ', texthl='DapLogPoint' })
--- vim.fn.sign_define('DapStopped', { text=' ', texthl='DapStopped' })
-
--- vim.fn.sign_define('DapBreakpoint', 
---     {
---         text='🔴', -- nerdfonts icon here
---         texthl='DapBreakpointSymbol', 
---         linehl='DapBreakpoint', 
---         numhl='DapBreakpoint'
---     })
--- vim.fn.sign_define('DapStopped', 
---     {
---         text='🔴', -- nerdfonts icon here
---         texthl='DapStoppedSymbol', 
---         linehl='DapBreakpoint', 
---         numhl='DapBreakpoint'
---     })
--- EOF
-
--- -- stylua: ignore
--- local colors = {
---   blue   = '#80a0ff',
---   cyan   = '#79dac8',
---   black  = '#080808',
---   white  = '#c6c6c6',
---   red    = '#ff5189',
---   violet = '#d183e8',
---   grey   = '#303030',
--- }
--- vim.api.nvim_set_hl(0, 'DapBreakpoint', { ctermbg = 0, fg = '#993939', bg = '#31353f' })
--- vim.fn.sign_define('DapBreakpoint', { text='', texthl='DapBreakpoint' })
+EOF
 '''
 
 [[plugins]]
@@ -849,13 +817,23 @@ on_ft = 'python'
 hook_source = '''
 lua << EOF
 require('dap-python').setup('~/.cache/debugpy/.venv/bin/python')
-table.insert(require('dap').configurations.python, {
-  type = 'python',
-  request = 'launch',
-  name = 'python normal debug',
-  program = '${file}',
-  cwd = '${workspaceFolder}',
-})
+require('dap').configurations.python = {
+  {
+    type = 'python',
+    request = 'launch',
+    name = 'python normal debug',
+    program = '${file}',
+    cwd = '${workspaceFolder}',
+  }
+}
+-- -- デフォルト設定など既存のlaunch.jsonを残したまま追加するにはこちらの記法
+-- table.insert(require('dap').configurations.python, {
+--   type = 'python',
+--   request = 'launch',
+--   name = 'python normal debug',
+--   program = '${file}',
+--   cwd = '${workspaceFolder}',
+-- })
 EOF
 '''
 
